@@ -1,0 +1,25 @@
+server:
+  port: 8040
+
+logging:
+  level:
+    net.consensys: ${LOG_LEVEL:INFO}
+
+ipfs:
+  host: ${IPFS_HOST:localhost}
+  port: ${IPFS_PORT:5001}
+  
+elasticsearch:
+  cluster-nodes: ${ELASTIC_CLUSTERNODES:localhost:9300}
+  cluster-name: ${ELASTIC_CLUSTERNAME:docker-cluster}
+
+api:
+   base: /ipfs-store
+   store:
+      uri: /store
+   index:
+      uri: /index
+   search:
+      uri: /search/{index}
+   fetch:
+      uri: /fetch/{index}/{hash}
