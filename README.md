@@ -238,8 +238,8 @@ The `search` operation allows to run a multi-criteria search against an index. T
 | Name | Type | Description |
 | -------- | -------- | -------- | 
 | name | String | Index field for the search | 
-| operation | see below | Operation to run against the index field | 
-| value | String | Value to compare withg |
+| operation | See below | Operation to run against the index field | 
+| value | Any | Value to compare with |
 
 
 
@@ -277,6 +277,15 @@ The `search` operation allows to run a multi-criteria search against an index. T
 }
 ```
 
+-   **Sample Request:**
+    
+```
+curl -X POST \
+    'http://localhost:8040/ipfs-store/search/documents' \
+    -H 'content-type: application/json' \  
+    -d '{"query":[{"name":"title","operation":"contains","value":"Hello"},{"name":"author","operation":"equals","value":"Gregoire Jeanmart"},{"name":"votes","operation":"lt","value":"5"}]}'
+``` 
+   
 
 
 -   **Success Response:**
