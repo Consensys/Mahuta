@@ -31,4 +31,11 @@ public class Metadata {
     
     @JsonProperty("index_fields")
     private List<IndexField> indexFields;
+    
+    public Object getIndexFieldValue(String indexFieldName) {
+        if(indexFields == null) {
+            return null;
+        }
+        return indexFields.stream().filter(f->f.getName()==indexFieldName).findFirst().map(f->f.getValue()).orElse(null);
+    }
 }

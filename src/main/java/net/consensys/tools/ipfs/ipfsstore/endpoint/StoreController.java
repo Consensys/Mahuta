@@ -55,10 +55,7 @@ public class StoreController {
      * 
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.store.uri}", 
-                    method = RequestMethod.POST, 
-                    produces = MediaType.APPLICATION_JSON_VALUE, 
-                    consumes = MediaType.ALL_VALUE)
+    @RequestMapping(value = "${api.store.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.ALL_VALUE)
     public @ResponseBody StoreResponse storeFile(
             @RequestParam(value="file", required = true) MultipartFile file) 
                     throws ServiceException {
@@ -80,10 +77,7 @@ public class StoreController {
      * 
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.index.uri}", 
-                    method = RequestMethod.POST, 
-                    produces = MediaType.APPLICATION_JSON_VALUE, 
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${api.index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse indexFile(
             @RequestBody IndexerRequest request) 
                     throws ServiceException {
@@ -100,10 +94,7 @@ public class StoreController {
      * 
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.fetch.uri}", 
-                    method = RequestMethod.GET, 
-                    produces = MediaType.ALL_VALUE, 
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${api.fetch.uri}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody StreamingResponseBody getFile(
             @PathVariable(value = "index") String index, 
             @PathVariable(value = "hash") String hash, 
@@ -145,10 +136,7 @@ public class StoreController {
      * 
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.search.uri}", 
-                    method = RequestMethod.POST, 
-                    produces = MediaType.ALL_VALUE, 
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${api.search.uri}", method = RequestMethod.POST, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Page<Metadata> getFile(
             @PathVariable(value = "index") String index, 
             @RequestParam(value = "page", defaultValue = DEFAULT_PAGE_NO, required = false) int pageNo,

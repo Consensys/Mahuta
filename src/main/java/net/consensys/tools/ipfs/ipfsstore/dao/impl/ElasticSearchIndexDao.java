@@ -98,7 +98,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
 
     @Override
-    public Metadata searchById(String indexName, String id) throws DaoException {
+    public Metadata searchById(String indexName, String id) throws DaoException, NotFoundException {
         LOGGER.debug("Search in ElasticSearch by ID [indexName="+indexName+", id="+id+"] ...");
         
         // Validation
@@ -106,7 +106,7 @@ public class ElasticSearchIndexDao implements IndexDao {
         if(Strings.isEmpty(id)) throw new IllegalArgumentException("id cannot be null or empty");
         
         try {
-            GetResponse response = client.prepareGet(indexName, indexName, id).get();
+            GetResponse response = client.prepareGet(indexName.toLowerCase(), indexName.toLowerCase(), id).get();
 
             LOGGER.trace("Search one document in ElasticSearch [indexName="+indexName+", id="+id+"] : response=" + response);
             
@@ -125,6 +125,9 @@ public class ElasticSearchIndexDao implements IndexDao {
 
             return metadata;
             
+        } catch(NotFoundException ex) {
+            LOGGER.warn("Error while searching into ElasticSearch [indexName="+indexName+", id="+id+"]", ex);
+            throw ex;
         } catch(Exception ex) {
             LOGGER.debug("Error while searching into ElasticSearch [indexName="+indexName+", id="+id+"]", ex);
             throw new DaoException("Error while searching into ElasticSearch: " + ex.getMessage());
@@ -293,7 +296,7 @@ public class ElasticSearchIndexDao implements IndexDao {
      * @return          ElasticSearch query
      */
     private static QueryBuilder convertQuery(Query query) {
-        LOGGER.trace("Converting query: " +query.toString());
+        LOGGER.trace("Converting query: " +query);
         
         BoolQueryBuilder elasticSearchQuery = QueryBuilders.boolQuery();
         
@@ -307,6 +310,7 @@ public class ElasticSearchIndexDao implements IndexDao {
                 switch(f.getOperation()) {
                 case full_text:
                     elasticSearchQuery.must(QueryBuilders.multiMatchQuery(f.getValue(), f.getNames()).lenient(true));
+                    break;  
                 case equals:
                     elasticSearchQuery.must(QueryBuilders.termQuery(f.getName(), f.getValue()));
                     break;  
@@ -319,7 +323,7 @@ public class ElasticSearchIndexDao implements IndexDao {
                 case in:
                     elasticSearchQuery.filter(QueryBuilders.termsQuery(
                             f.getName(), 
-                            Arrays.asList(f.getValue()).stream().map((o)->o.toString().toLowerCase()).collect(Collectors.toList())));
+                            Arrays.asList((Object[])f.getValue()).stream().map((o)->o.toString().toLowerCase()).collect(Collectors.toList())));
                     break;  
                 case lt:
                     elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).lt(f.getValue()));
@@ -334,12 +338,12 @@ public class ElasticSearchIndexDao implements IndexDao {
                     elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).gte(f.getValue()));
                     break; 
                 default:
-                    LOGGER.warn("Operation ["+f.getOperation()+"] not supported");
+                    LOGGER.warn("Operation ["+f.getOperation()+"] not supported for  filter ["+f+"]- Ignore it!");
                     break;
                 }
                 
             } catch(Exception e) {
-                LOGGER.warn("Error while converting filter ["+f+"]", e);
+                LOGGER.warn("Error while converting filter ["+f+"] - Ignore it!", e);
             }
         });
         

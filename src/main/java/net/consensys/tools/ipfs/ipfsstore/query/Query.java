@@ -40,12 +40,12 @@ public class Query {
         return this;
     }
     
-    public Query fullText(String name, Object value) {
+    public Query fullText(String name, String value) {
         this.filterClauses.add(new Filter(name, QueryOperation.full_text, value));
         return this; 
     }
     
-    public Query fullText(String[] names, Object value) {
+    public Query fullText(String[] names, String value) {
         this.filterClauses.add(new Filter(names, QueryOperation.full_text, value));
         return this; 
     }
@@ -65,8 +65,8 @@ public class Query {
         return this; 
     }
     
-    public Query in(String name, Object[] value) {
-        this.filterClauses.add(new Filter(name, QueryOperation.in, value));
+    public Query in(String name, Object... values) {
+        this.filterClauses.add(new Filter(name, QueryOperation.in, values));
         return this; 
     }
     

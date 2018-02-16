@@ -6,7 +6,9 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <docker.image.prefix>kauri</docker.image.prefix>
+        <spring-data.version>1.4.1.RELEASE</spring-data.version>
+        <java-ipfs.version>v1.2.0</java-ipfs.version>
+        <elasticsearch.version>5.6.4</elasticsearch.version>
     </properties>
 
     <parent>
@@ -27,17 +29,17 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons-core</artifactId>
-            <version>1.4.1.RELEASE</version>
+            <version>${spring-data.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>5.6.4</version>
+            <version>${elasticsearch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>transport</artifactId>
-            <version>5.6.4</version>
+            <version>${elasticsearch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -53,7 +55,7 @@
         <dependency>
             <groupId>com.github.ipfs</groupId>
             <artifactId>java-ipfs-api</artifactId>
-            <version>v1.2.0</version>
+            <version>${java-ipfs.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -74,12 +76,19 @@
             <artifactId>lombok</artifactId>
             <type>jar</type>
         </dependency>
+        
        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+		  <dependency>
+		    <groupId>org.elasticsearch.test</groupId>
+		    <artifactId>framework</artifactId>
+		    <version>${elasticsearch.version}</version>
+		    <scope>test</scope>
+		  </dependency>
 
     </dependencies>
     

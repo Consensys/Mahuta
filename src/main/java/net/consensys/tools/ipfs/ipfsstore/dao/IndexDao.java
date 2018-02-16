@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.query.Query;
 
 
@@ -47,7 +48,7 @@ public interface IndexDao {
      * 
      * @throws DaoException
      */
-    Metadata searchById(String indexName, String id) throws DaoException;
+    Metadata searchById(String indexName, String id) throws DaoException, NotFoundException;
     
     /**
      * Search content in the index (indexName) based on a query

@@ -18,10 +18,10 @@ public class IndexField {
         this.value = value;
     }
     
-    public IndexField(String name, String path) {
-        this.name = name;
-        this.path = path;
-    }
+//    public IndexField(String name, String path) {
+//        this.name = name;
+//        this.path = path;
+//    }
 
 
     @JsonProperty("name")
