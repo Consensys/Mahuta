@@ -35,7 +35,7 @@ public class IPFSStorageDao implements StorageDao {
     @Override
     public String createContent(byte[] content) throws DaoException {
         
-        LOGGER.debug("Create file in IPFS ...");
+        LOGGER.debug("Store file in IPFS ...");
         
         try {
             NamedStreamable.ByteArrayWrapper requestFile = new NamedStreamable.ByteArrayWrapper(content);
@@ -43,13 +43,13 @@ public class IPFSStorageDao implements StorageDao {
                         
             String hash = response.hash.toString();
 
-            LOGGER.debug("File created in IPFS [hash="+hash+"]");
+            LOGGER.debug("Store created in IPFS [hash="+hash+"]");
             
             return hash;
             
         } catch (IOException ex) {
-            LOGGER.error("Exception while creating file in IPFS", ex);
-            throw new DaoException("Exception while creating file in IPFS: " + ex.getMessage());
+            LOGGER.error("Exception while storing file in IPFS", ex);
+            throw new DaoException("Exception while storing file in IPFS: " + ex.getMessage());
         }
     }
 

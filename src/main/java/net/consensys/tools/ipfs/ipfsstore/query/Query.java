@@ -40,6 +40,16 @@ public class Query {
         return this;
     }
     
+    public Query fullText(String name, Object value) {
+        this.filterClauses.add(new Filter(name, QueryOperation.full_text, value));
+        return this; 
+    }
+    
+    public Query fullText(String[] names, Object value) {
+        this.filterClauses.add(new Filter(names, QueryOperation.full_text, value));
+        return this; 
+    }
+    
     public Query equals(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.equals, value));
         return this; 
@@ -60,22 +70,22 @@ public class Query {
         return this; 
     }
     
-    public Query lessThan(String name, Object[] value) {
+    public Query lessThan(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.lt, value));
         return this; 
     }
     
-    public Query greaterThan(String name, Object[] value) {
+    public Query greaterThan(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.gt, value));
         return this; 
     }
     
-    public Query lessThanOrEquals(String name, Object[] value) {
+    public Query lessThanOrEquals(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.lte, value));
         return this; 
     }
     
-    public Query greaterThanOrEquals(String name, Object[] value) {
+    public Query greaterThanOrEquals(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.gte, value));
         return this; 
     }

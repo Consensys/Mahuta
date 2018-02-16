@@ -8,6 +8,7 @@ package net.consensys.tools.ipfs.ipfsstore.query;
  */
 public enum QueryOperation {
 
+    full_text,      // Full text search
     equals,         // Equals
     not_equals,     // Not equals
     contains,       // Contains the word/phrase

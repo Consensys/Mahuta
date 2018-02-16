@@ -305,6 +305,8 @@ public class ElasticSearchIndexDao implements IndexDao {
             try {
 
                 switch(f.getOperation()) {
+                case full_text:
+                    elasticSearchQuery.must(QueryBuilders.multiMatchQuery(f.getValue(), f.getNames()).lenient(true));
                 case equals:
                     elasticSearchQuery.must(QueryBuilders.termQuery(f.getName(), f.getValue()));
                     break;  
