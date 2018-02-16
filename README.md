@@ -42,7 +42,7 @@ a. If you have a running instance of IPFS and ElasticSearch
 $ export IPFS_HOST=localhost
 $ export IPFS_PORT=5001
 $ export ELASTIC_CLUSTERNODES=localhost:9300
-$ export ELASTIC_CLUSTERNAME=`elasticsearch`
+$ export ELASTIC_CLUSTERNAME=elasticsearch
 
 $ java -jar target/ipfs-store.jar
 ```
@@ -55,7 +55,7 @@ $ docker build  . -t kauri/ipfs-store:latest
 $ export IPFS_HOST=localhost
 $ export IPFS_PORT=5001
 $ export ELASTIC_CLUSTERNODES=localhost:9300
-$ export ELASTIC_CLUSTERNAME=`elasticsearch`
+$ export ELASTIC_CLUSTERNAME=elasticsearch
 
 $ docker run -p 8040:8040 kauri/ipfs-store
 ```
@@ -266,9 +266,9 @@ The `search` operation allows to run a multi-criteria search against an index. T
 			"value": "Hello"
 		},
 		{
-			"name": "author",
-			"operation": "equals",
-			"value": "Gregoire Jeanmart"
+			"names": ["author", "title"],
+			"operation": "full_text",
+			"value": "Gregoire"
 		},
 		{
 			"name": "votes",
