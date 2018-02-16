@@ -15,7 +15,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -32,6 +31,7 @@ import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 /**
  * ElasticSearch implementation of IndexDao

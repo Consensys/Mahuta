@@ -3,7 +3,6 @@ package net.consensys.tools.ipfs.ipfsstore.dao.impl;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.common.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +12,7 @@ import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
 import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
+import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 /**
  * IPFS implementation of StorageDao
@@ -36,6 +36,9 @@ public class IPFSStorageDao implements StorageDao {
     public String createContent(byte[] content) throws DaoException {
         
         LOGGER.debug("Store file in IPFS ...");
+        
+        // Validation
+        if(content == null) throw new IllegalArgumentException("content cannot be null");
         
         try {
             NamedStreamable.ByteArrayWrapper requestFile = new NamedStreamable.ByteArrayWrapper(content);
