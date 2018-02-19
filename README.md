@@ -24,7 +24,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1. After checking out the code, navigate to the root directory
 ```
-$ cd /path/to/ipfs-store/
+$ cd /path/to/ipfs-store/ipfs-store-service/
 ```
 
 2. Compile, test and package the project
