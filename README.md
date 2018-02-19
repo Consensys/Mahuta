@@ -1,13 +1,7 @@
 IPFS-Store (service)
 ======
 
-**IPFS-Store** aims is to provide an easy to use IPFS storage service with search capability for your project.
-
-The service is composed of three main components:
-
-- **IPFS-Store** which provides an API to store/index/search/fetch
-- **IPFS Node** IPFS client such as js-ipfs or go-ipfs
-- **ElasticSearch engine** (other implementations coming soon)
+**IPFS-Store** aim is to provide an easy to use IPFS storage service with search capability for your project.
 
 ## Getting Started
 
@@ -434,6 +428,116 @@ curl -X GET \
 ## Clients
 
 ### Java
+
+Java REST api wrapper for IPFS-Store
+
+#### Build
+```
+$ cd /path/to/ipfs-store/ipfs-store-client/ipfs-store-client-java
+```
+
+```
+$ mvn clean install
+```
+
+
+#### Dependency
+
+```
+<dependency>
+    <groupId>net.consensys.tools.ipfs</groupId>
+    <artifactId>ipfs-store-client-java</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+
+```
+
+#### Instanciation
+
+Create a client
+
+```
+IPFSStoreClientService client = new IPFSStoreClientServiceImpl("http://localhost:8040");	
+```
+
+#### Interface
+
+##### Store file
+
+```
+String store(String filePath) throws IPFSStoreClientException;
+String store(InputStream file) throws IPFSStoreClientException;
+```
+
+*Example:*
+
+```
+String hash = client.store("/home/gjeanmart/hello.pdf");
+```
+
+##### Index file
+
+```
+String index(String indexName, String hash) throws IPFSStoreClientException;
+String index(String indexName, String hash, String id) throws IPFSStoreClientException;
+String index(String indexName, String hash, String id, String contentType) throws IPFSStoreClientException;
+String index(String indexName, String hash, String id, String contentType, Map<String, Object> indexFields) throws IPFSStoreClientException;
+String index(String indexName, String hash, String id, String contentType, List<IndexField> indexFields) throws IPFSStoreClientException;
+```
+
+*Example:*
+
+```
+String id = client.index("documents", "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o");
+```
+
+##### Store and Index file
+
+```
+String index(InputStream file, String indexName) throws IPFSStoreClientException;
+String index(InputStream file, String indexName, String id) throws IPFSStoreClientException;
+String index(InputStream file, String indexName, String id, String contentType) throws IPFSStoreClientException;
+String index(InputStream file, String indexName, String id, String contentType, Map<String, Object> indexFields) throws IPFSStoreClientException;
+String index(InputStream file, String indexName, String id, String contentType, List<IndexField> indexFields) throws IPFSStoreClientException;
+```
+
+
+*Example:*
+
+```
+String id = client.index(new FileInputStream("/home/gjeanmart/hello.pdf"), "documents", "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o", "hello_doc", "application/pdf");
+```
+
+##### get file
+
+```
+OutputStream get(String indexName, String hash) throws IPFSStoreClientException;
+```
+
+*Example:*
+
+```
+String id = client.get("documents", "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o");
+```
+
+##### search file
+
+```
+Page<Metadata> search(String indexName) throws IPFSStoreClientException;
+Page<Metadata> search(String indexName, Query query) throws IPFSStoreClientException;
+Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreClientException;
+Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize) throws IPFSStoreClientException;
+Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize, String sortAttribute, Sort.Direction sortDirection) throws IPFSStoreClientException;
+```
+
+*Example:*
+
+Search all documents
+
+```
+Page<Metadata> result = client.search("documents");
+```
+
 
 
 ### Spring-Data
