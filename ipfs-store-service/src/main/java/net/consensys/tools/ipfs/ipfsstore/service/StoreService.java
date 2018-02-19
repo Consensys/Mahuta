@@ -6,8 +6,8 @@ import org.springframework.data.domain.Pageable;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
+import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
-import net.consensys.tools.ipfs.ipfsstore.query.Query;
 
 /**
  * Storage Service gathers all the logic for the IPFS-Storage

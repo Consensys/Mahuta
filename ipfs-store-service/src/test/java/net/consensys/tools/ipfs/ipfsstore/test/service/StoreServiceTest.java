@@ -24,16 +24,19 @@ import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
+import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
-import net.consensys.tools.ipfs.ipfsstore.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 import net.consensys.tools.ipfs.ipfsstore.service.impl.StoreServiceImpl;
 import net.consensys.tools.ipfs.ipfsstore.test.dao.ElasticSearchDAOTest;
 import net.consensys.tools.ipfs.ipfsstore.test.utils.TestUtils;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
 public class StoreServiceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreServiceTest.class);
 

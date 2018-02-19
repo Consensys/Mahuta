@@ -1,4 +1,4 @@
-package net.consensys.tools.ipfs.ipfsstore.query;
+package net.consensys.tools.ipfs.ipfsstore.dto.query;
 
 /**
  * Query operation allowed for filtering search in the index

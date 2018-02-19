@@ -436,7 +436,10 @@ curl -X GET \
 ### Java
 
 
-### Spring
+### Spring-Data
+
+
+### CLI
 
 
 ### Javascript
@@ -445,7 +448,8 @@ curl -X GET \
 
 ## TODO
 
-- Implement clients
+- Implement clients: Java, Spring-Data, CLI, Javascript, Python
+- Authentication (by signature?)
 - Integration tests
 
 

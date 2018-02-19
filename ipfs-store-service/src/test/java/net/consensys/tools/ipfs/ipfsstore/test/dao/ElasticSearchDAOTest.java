@@ -50,9 +50,9 @@ import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dao.impl.ElasticSearchIndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
+import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
-import net.consensys.tools.ipfs.ipfsstore.query.Query;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ElasticSearchDAOTest {

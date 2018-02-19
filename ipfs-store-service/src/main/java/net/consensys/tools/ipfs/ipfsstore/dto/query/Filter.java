@@ -1,4 +1,4 @@
-package net.consensys.tools.ipfs.ipfsstore.query;
+package net.consensys.tools.ipfs.ipfsstore.dto.query;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -33,8 +33,8 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.StoreResponse;
+import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
-import net.consensys.tools.ipfs.ipfsstore.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 
 @RestController

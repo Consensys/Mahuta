@@ -1,4 +1,4 @@
-package net.consensys.tools.ipfs.ipfsstore.query;
+package net.consensys.tools.ipfs.ipfsstore.dto.query;
 
 import java.util.ArrayList;
 import java.util.List;
