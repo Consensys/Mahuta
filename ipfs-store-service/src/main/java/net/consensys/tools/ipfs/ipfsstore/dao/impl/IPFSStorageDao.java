@@ -45,6 +45,8 @@ public class IPFSStorageDao implements StorageDao {
             MerkleNode response = this.ipfs.add(requestFile).get(0);
                         
             String hash = response.hash.toString();
+            
+            this.pin(hash);
 
             LOGGER.debug("Store created in IPFS [hash="+hash+"]");
             
@@ -89,7 +91,7 @@ public class IPFSStorageDao implements StorageDao {
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
             this.ipfs.pin.add(filePointer);
-            
+
             LOGGER.debug("File pined in IPFS [hash="+hash+"]");
             
         } catch (IOException ex) {

@@ -79,6 +79,7 @@ $ docker-compose -f docker-compose.yml up
 | store_index | Store & Index content | POST | /ipfs-store/store_index |
 | fetch | Get content | GET | /ipfs-store/fetch/{index}/{hash} |
 | search | Search content | POST | /ipfs-store/search/{index} |
+| search | Search content | GET | /ipfs-store/search/{index} |
 
 ### Details
 
@@ -140,28 +141,28 @@ Index IPFS content into the search engine
 
 ```
 {
-	"index": "documents", 
-	"id": "hello_doc",
-	"content_type": "application/pdf",
-	"hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
-	"index_fields": [
-		{
-			"name": "title",
-			"value": "Hello Doc"
-		}, 
-		{
-			"name": "author",
-			"value": "Gregoire Jeanmart"
-		}, 
-		{
-			"name": "votes",
-			"value": 10
-		}, 
-		{
-			"name": "date_created",
-			"value": 1518700549
-		}
-	]
+  "index": "documents", 
+  "id": "hello_doc",
+  "content_type": "application/pdf",
+  "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
+  "index_fields": [
+    {
+      "name": "title",
+      "value": "Hello Doc"
+    }, 
+    {
+      "name": "author",
+      "value": "Gregoire Jeanmart"
+    }, 
+    {
+      "name": "votes",
+      "value": 10
+    }, 
+    {
+      "name": "date_created",
+      "value": 1518700549
+    }
+  ]
 }
 ```
    
@@ -213,28 +214,28 @@ Store content in IPFS and index it into the search engine
 
 ```
 {
-	"index": "documents", 
-	"id": "hello_doc",
-	"content_type": "application/pdf",
-	"hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
-	"index_fields": [
-		{
-			"name": "title",
-			"value": "Hello Doc"
-		}, 
-		{
-			"name": "author",
-			"value": "Gregoire Jeanmart"
-		}, 
-		{
-			"name": "votes",
-			"value": 10
-		}, 
-		{
-			"name": "date_created",
-			"value": 1518700549
-		}
-	]
+  "index": "documents", 
+  "id": "hello_doc",
+  "content_type": "application/pdf",
+  "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
+  "index_fields": [
+    {
+      "name": "title",
+      "value": "Hello Doc"
+    }, 
+    {
+      "name": "author",
+      "value": "Gregoire Jeanmart"
+    }, 
+    {
+      "name": "votes",
+      "value": 10
+    }, 
+    {
+      "name": "date_created",
+      "value": 1518700549
+    }
+  ]
 }
 ```
    
@@ -291,7 +292,7 @@ $ curl \
 Search content accross an index using a dedicated query language
 
 -   **URL** `http://localhost:8040/ipfs-store/search/{index}`
--   **Method:** `POST`
+-   **Method:** `GET` or `POST` 
 -   **Header:**  
 
 | Key | Value | 
@@ -306,6 +307,7 @@ Search content accross an index using a dedicated query language
 | pageSize | Int | no | 20 | Page Size / Limit |
 | sort | String | no |  | Sorting attribute |
 | dir | ASC/DESC | no | ASC | Sorting direction |
+| query | String | no |  | Query URL encoded (for GET call) |
 
 
 -   **Data Params** 
@@ -336,23 +338,23 @@ The `search` operation allows to run a multi-criteria search against an index. T
 
 ```
 {
-	"query": [
-		{
-			"name": "title",
-			"operation": "contains",
-			"value": "Hello"
-		},
-		{
-			"names": ["author", "title"],
-			"operation": "full_text",
-			"value": "Gregoire"
-		},
-		{
-			"name": "votes",
-			"operation": "lt",
-			"value": "5"
-		}
-	]
+  "query": [
+    {
+      "name": "title",
+      "operation": "contains",
+      "value": "Hello"
+    },
+    {
+      "names": ["author", "title"],
+      "operation": "full_text",
+      "value": "Gregoire"
+    },
+    {
+      "name": "votes",
+      "operation": "lt",
+      "value": "5"
+    }
+  ]
 }
 ```
 
@@ -365,7 +367,13 @@ curl -X POST \
     -d '{"query":[{"name":"title","operation":"contains","value":"Hello"},{"name":"author","operation":"equals","value":"Gregoire Jeanmart"},{"name":"votes","operation":"lt","value":"5"}]}'
 ``` 
    
-
+    
+```
+curl -X GET \
+  'http://localhost:8040/ipfs-store/search/documents?page=1&size=2&query=%7B%22query%22%3A%5B%7B%22name%22%3A%22votes%22%2C%22operation%22%3A%22lt%22%2C%22value%22%3A%225%22%7D%5D%7D' \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+``` 
 
 -   **Success Response:**
     

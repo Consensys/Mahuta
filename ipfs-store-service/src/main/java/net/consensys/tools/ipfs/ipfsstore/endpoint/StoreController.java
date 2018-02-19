@@ -151,7 +151,7 @@ public class StoreController {
 
     
     /**
-     * Search contents
+     * Search contents By HTTP POST request
      * 
      * @param index         Index name
      * @param pageNo        Page no [optional - default 1]
@@ -164,7 +164,7 @@ public class StoreController {
      * @throws ServiceException
      */
     @RequestMapping(value = "${api.search.uri}", method = RequestMethod.POST, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Page<Metadata> getFile(
+    public @ResponseBody Page<Metadata> searchContentsByPost(
             @PathVariable(value = "index") String index, 
             @RequestParam(value = "page", defaultValue = DEFAULT_PAGE_NO, required = false) int pageNo,
             @RequestParam(value = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
@@ -173,6 +173,45 @@ public class StoreController {
             @RequestBody Query query) 
                     throws ServiceException {
         
+        return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
+    }
+    
+    /**
+     * Search contents By HTTP GET request
+     * 
+     * @param index         Index name
+     * @param pageNo        Page no [optional - default 1]
+     * @param pageSize      Page size [optional - default 20]
+     * @param sortAttribute Sorting attribute [optional]
+     * @param sortDirection Sorting direction [optional - default ASC]
+     * @param query         Query
+     * @return              List of result
+     * 
+     * @throws ServiceException
+     */
+    @RequestMapping(value = "${api.search.uri}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody Page<Metadata> searchContentsByGet(
+            @PathVariable(value = "index") String index, 
+            @RequestParam(value = "page", defaultValue = DEFAULT_PAGE_NO, required = false) int pageNo,
+            @RequestParam(value = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sort", required = false) String sortAttribute,
+            @RequestParam(value = "dir", defaultValue = "ASC", required = false) Sort.Direction sortDirection,
+            @RequestParam(value = "query", required = false) String queryStr) 
+                    throws ServiceException {
+        
+        try {
+            Query query = this.mapper.readValue(queryStr, Query.class);
+            
+            return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
+            
+        } catch (IOException e) {
+           LOGGER.error("Error in the rest controller", e);
+           throw new ServiceException(e);
+        }  
+    }
+
+    private Page<Metadata> executeSearch(String index, int pageNo, int pageSize, String sortAttribute, Sort.Direction sortDirection, Query query) throws ServiceException{
+        
         PageRequest pagination = null;
         if(sortAttribute == null || sortAttribute.isEmpty()) {
             pagination = new PageRequest(pageNo, pageSize);
@@ -180,7 +219,7 @@ public class StoreController {
             pagination = new PageRequest(pageNo, pageSize, new Sort(sortDirection, sortAttribute));
         }
         
-        return this.storeService.searchFiles(index, query, pagination);
+        return this.storeService.searchFiles(index, query, pagination);  
     }
     
     
