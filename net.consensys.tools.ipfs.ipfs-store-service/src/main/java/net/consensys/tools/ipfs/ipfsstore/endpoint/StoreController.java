@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +21,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
@@ -40,11 +46,14 @@ public class StoreController {
     private static final String DEFAULT_PAGE_SIZE = "20";  
     private static final String DEFAULT_PAGE_NO   = "1"; 
     
+    private ObjectMapper mapper;
+    
     private StoreService storeService;
     
     @Autowired
     public StoreController(StoreService storeService) {
         this.storeService = storeService;
+        this.mapper = new ObjectMapper();
     }
 
     /**
@@ -57,7 +66,7 @@ public class StoreController {
      */
     @RequestMapping(value = "${api.store.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.ALL_VALUE)
     public @ResponseBody StoreResponse storeFile(
-            @RequestParam(value="file", required = true) MultipartFile file) 
+            @RequestParam(value="file", required = true) @Valid @NotNull @NotBlank MultipartFile file) 
                     throws ServiceException {
 
         try {
@@ -79,10 +88,28 @@ public class StoreController {
      */
     @RequestMapping(value = "${api.index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse indexFile(
-            @RequestBody IndexerRequest request) 
+            @RequestBody @Valid @NotNull IndexerRequest request) 
                     throws ServiceException {
 
         return this.storeService.indexFile(request);
+    }
+    
+    @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody IndexerResponse storeAndIndexFile(
+            @RequestPart("request") @Valid @NotNull String requestStr, // Spring MVC doesn't support multipart with complex object
+            @RequestPart("file") @Valid @NotNull @NotBlank MultipartFile file) 
+                    throws ServiceException {
+
+        try {
+            IndexerRequest request = mapper.readValue(requestStr, IndexerRequest.class);
+            
+            return this.storeService.storeAndIndexFile(file.getBytes(), request);
+            
+        } catch (IOException e) {
+           LOGGER.error("Error in the rest controller", e);
+           throw new ServiceException(e);
+        }     
+        
     }
 
     /**

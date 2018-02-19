@@ -19,6 +19,8 @@ api:
       uri: /store
    index:
       uri: /index
+   store_index:
+      uri: /store_index
    search:
       uri: /search/{index}
    fetch:
