@@ -36,6 +36,6 @@ public class Metadata {
         if(indexFields == null) {
             return null;
         }
-        return indexFields.stream().filter(f->f.getName()==indexFieldName).findFirst().map(f->f.getValue()).orElse(null);
+        return indexFields.stream().filter(f->f.getName().equals(indexFieldName)).findFirst().map(f->f.getValue()).orElse(null);
     }
 }

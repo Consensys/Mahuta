@@ -106,7 +106,7 @@ public class StoreServiceImpl implements StoreService {
         } catch (ServiceException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
-        }
+        } 
     }
 
     @Override
@@ -139,7 +139,7 @@ public class StoreServiceImpl implements StoreService {
         try {
             Query query = new Query();
             query.equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
-            Page<Metadata> search = this.searchFiles(index, query, new PageRequest(0, 1));
+            Page<Metadata> search = this.searchFiles(index, query, new PageRequest(1, 1));
             
             if(search.getTotalElements() == 0) {
                 throw new NotFoundException("File [hash="+hash+"] not found in the index ["+index+"]");

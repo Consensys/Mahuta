@@ -145,11 +145,15 @@ public class ElasticSearchIndexDao implements IndexDao {
         
         try {
             
+
+            int p = (pageable.getPageNumber() < 0) ? 1 : pageable.getPageNumber();
+            int l = (pageable.getPageSize() < 1) ? 1 : pageable.getPageSize();
+            
             SearchRequestBuilder requestBuilder = client.prepareSearch(indexName)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setQuery(convertQuery(query))
-                    .setFrom((pageable.getPageNumber()-1)*pageable.getPageSize()) 
-                    .setSize(pageable.getPageSize());
+                    .setFrom((p-1)*l) 
+                    .setSize(l);
     
             if(pageable.getSort() != null) {
                 Iterator<Order> orderIterator = pageable.getSort().iterator();

@@ -26,8 +26,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreClientException;
-import net.consensys.tools.ipfs.ipfsstore.client.java.service.IPFSStoreClientService;
+import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
+import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreCustomRepository;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 
@@ -41,7 +41,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     protected static final Class<?>   ID_CLASS = String.class;
     protected static final Class<?>   HASH_CLASS = String.class;
     
-    protected IPFSStoreClientService client;
+    protected IPFSStore client;
     
     protected String indexName;
 
@@ -59,7 +59,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     
     private String attributeHash;
     
-    public IPFSStoreCustomRepositoryImpl(IPFSStoreClientService client, String indexName, Set<String> indexFields, Class<E> entityClazz) {
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Class<E> entityClazz) {
         this.client = client;
         this.indexName = indexName;
         this.indexFields = indexFields;
@@ -72,11 +72,11 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         if(indexFields != null) allFields.addAll(indexFields);
         if(externalIndexFields != null) allFields.addAll(externalIndexFields);
         
-        this.attributeHash = DEFAULT_ATTRIBUTE_ID;
-        this.attributeId = DEFAULT_ATTRIBUTE_HASH;
+        this.attributeHash = DEFAULT_ATTRIBUTE_HASH;
+        this.attributeId = DEFAULT_ATTRIBUTE_ID;
     }
     
-    public IPFSStoreCustomRepositoryImpl(IPFSStoreClientService client, String indexName, Set<String> indexFields, Class<E> entityClazz , String attributeId, String attributeHash) {
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Class<E> entityClazz , String attributeId, String attributeHash) {
         this.client = client;
         this.indexName = indexName;
         this.indexFields = indexFields;
@@ -121,7 +121,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
             
             return entity;
             
-        } catch(IPFSStoreClientException e) {
+        } catch(IPFSStoreException e) {
             LOGGER.error("Find By Hash  [hash="+hash+"]", e);
             return null;
         }
@@ -140,7 +140,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             return hash;
             
-        } catch(IPFSStoreClientException e) {
+        } catch(IPFSStoreException e) {
             LOGGER.error("Error while saving the entity ["+entity+"]", e);
             return null;
         }
@@ -161,7 +161,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
             
             return new PageImpl<>(result, pageable, searchAndFetch.getTotalElements());
             
-        } catch(IPFSStoreClientException e) {
+        } catch(IPFSStoreException e) {
             LOGGER.error("Find all [pageable="+pageable+"]", e);
             return null;
         }        

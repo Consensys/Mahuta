@@ -36,6 +36,7 @@ import net.consensys.tools.ipfs.ipfsstore.dto.StoreResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
+import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 @RestController
 @RequestMapping("${api.base}")
@@ -93,11 +94,11 @@ public class StoreController {
 
         return this.storeService.indexFile(request);
     }
-    
+
     @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse storeAndIndexFile(
-            @RequestPart("request") @Valid @NotNull String requestStr, // Spring MVC doesn't support multipart with complex object
-            @RequestPart("file") @Valid @NotNull @NotBlank MultipartFile file) 
+            @RequestPart(name="request", required=true) @Valid @NotNull String requestStr, 
+            @RequestPart(name="file", required=true) @Valid @NotNull @NotBlank String file) 
                     throws ServiceException {
 
         try {
@@ -109,7 +110,6 @@ public class StoreController {
            LOGGER.error("Error in the rest controller", e);
            throw new ServiceException(e);
         }     
-        
     }
 
     /**
@@ -200,7 +200,10 @@ public class StoreController {
                     throws ServiceException {
         
         try {
-            Query query = this.mapper.readValue(queryStr, Query.class);
+            Query query = null;
+            if(!Strings.isEmpty(queryStr)) {
+                query = this.mapper.readValue(queryStr, Query.class);
+            }
             
             return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
             

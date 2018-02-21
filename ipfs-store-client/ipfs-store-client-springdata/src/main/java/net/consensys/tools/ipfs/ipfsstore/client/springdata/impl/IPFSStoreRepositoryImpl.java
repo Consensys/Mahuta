@@ -13,20 +13,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreClientException;
-import net.consensys.tools.ipfs.ipfsstore.client.java.service.IPFSStoreClientService;
+import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
+import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreRepository;
 
 public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSStoreCustomRepositoryImpl<E, ID> implements IPFSStoreRepository<E, ID> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreRepositoryImpl.class);
  
     @Autowired
-    public IPFSStoreRepositoryImpl(IPFSStoreClientService client, String indexName, Set<String> indexFields, Class<E> entityClazz) {
+    public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Class<E> entityClazz) {
         super(client, indexName, indexFields, entityClazz);
     }
   
     @Autowired
-    public IPFSStoreRepositoryImpl(IPFSStoreClientService client, String indexName, Set<String> indexFields, Class<E> entityClazz, String attributeId, String attributeHash) {
+    public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Class<E> entityClazz, String attributeId, String attributeHash) {
         super(client, indexName, indexFields, entityClazz, attributeId, attributeHash);
     }
     
@@ -64,7 +64,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
 
             return entity;
             
-        } catch(IPFSStoreClientException e) {
+        } catch(IPFSStoreException e) {
             LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
             return null;
         } catch (NoSuchMethodException e) {
@@ -96,7 +96,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
 
             return entity;
             
-        } catch(IPFSStoreClientException e) {
+        } catch(IPFSStoreException e) {
             LOGGER.error("Error while retrieving the entity [id"+id+"]", e);
             return null;
         }
@@ -131,7 +131,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
                 return false;
             }
             
-        } catch(IPFSStoreClientException e) {
+        } catch(IPFSStoreException e) {
             LOGGER.error("Error while retrieving the entity [id"+id+"]", e);
             return false;
         }

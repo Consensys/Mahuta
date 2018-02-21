@@ -1,6 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.client.java.exception;
 
-public class IPFSStoreClientException extends Exception {
+public class IPFSStoreException extends Exception {
 
     private static final long serialVersionUID = 3153727787764151573L;
 
@@ -8,7 +8,7 @@ public class IPFSStoreClientException extends Exception {
      * This constructor will not take any parameter it called Exception class
      * default constructor.
      */
-    public IPFSStoreClientException() {
+    public IPFSStoreException() {
         super();
     }
 
@@ -19,7 +19,7 @@ public class IPFSStoreClientException extends Exception {
      * @param message
      *            is the String text or special message given by user.
      */
-    public IPFSStoreClientException(String message) {
+    public IPFSStoreException(String message) {
         super(message);
     }
 
@@ -33,7 +33,7 @@ public class IPFSStoreClientException extends Exception {
      * @param cause
      *            is the object of throwable cause
      */
-    public IPFSStoreClientException(String message, Throwable cause) {
+    public IPFSStoreException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -44,7 +44,7 @@ public class IPFSStoreClientException extends Exception {
      * @param cause
      *            is the object of throwable cause
      */
-    public IPFSStoreClientException(Throwable cause) {
+    public IPFSStoreException(Throwable cause) {
         super(cause);
     }
 

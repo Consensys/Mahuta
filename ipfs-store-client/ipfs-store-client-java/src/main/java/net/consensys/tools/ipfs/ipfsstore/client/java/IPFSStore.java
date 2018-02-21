@@ -1,4 +1,4 @@
-package net.consensys.tools.ipfs.ipfsstore.client.java.service.impl;
+package net.consensys.tools.ipfs.ipfsstore.client.java;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,8 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreClientException;
-import net.consensys.tools.ipfs.ipfsstore.client.java.service.IPFSStoreClientService;
+import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.IPFSStoreWrapper;
 import net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.impl.RestIPFSStoreWrapperImpl;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
@@ -28,111 +27,115 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 
-public class IPFSStoreClientServiceImpl implements IPFSStoreClientService {
+/**
+ * IPFS Store Java Client
+ * 
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
+ *
+ */
+public class IPFSStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreClientServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStore.class);
+    
+    private static final String ID_ATTRIBUTE = "_id";
     
     private final IPFSStoreWrapper wrapper;
     
-    public IPFSStoreClientServiceImpl(String endpoint) {
+    public IPFSStore(String endpoint) {
         this.wrapper = new RestIPFSStoreWrapperImpl(endpoint);
     }
     
-    @Override
-    public String store(String filePath) throws IPFSStoreClientException {
+    /**
+     * 
+     * @param filePath
+     * @return
+     * @throws IPFSStoreException
+     */
+    public String store(String filePath) throws IPFSStoreException {
         
         try {
             return this.store(new FileInputStream(filePath));
             
         } catch(FileNotFoundException e) {
-            throw new IPFSStoreClientException(e);
+            throw new IPFSStoreException(e);
         }
     }
 
-    @Override
-    public String store(InputStream is) throws IPFSStoreClientException {
+    public String store(InputStream is) throws IPFSStoreException {
         try {
             return this.wrapper.store(IOUtils.toByteArray(is));
             
         } catch(IOException e) {
-            throw new IPFSStoreClientException(e);
+            throw new IPFSStoreException(e);
         }
     }
 
-    @Override
-    public String index(String indexName, String hash) throws IPFSStoreClientException {
+    public String index(String indexName, String hash) throws IPFSStoreException {
         return this.index(indexName, hash, null);
     }
 
-    @Override
-    public String index(String indexName, String hash, String id) throws IPFSStoreClientException {
+    public String index(String indexName, String hash, String id) throws IPFSStoreException {
         return this.index(indexName, hash, id, null);
     }
 
-    @Override
-    public String index(String indexName, String hash, String id, String contentType) throws IPFSStoreClientException {
+    public String index(String indexName, String hash, String id, String contentType) throws IPFSStoreException {
         return this.index(indexName, hash, id, contentType, new ArrayList<>());
     }
 
-    @Override
     public String index(String indexName, String hash, String id, String contentType, Map<String, Object> indexFields)
-            throws IPFSStoreClientException {
+            throws IPFSStoreException {
         
         return this.index(indexName, hash, id, contentType, convert(indexFields));
     }
 
-    @Override
     public String index(String indexName, String hash, String id, String contentType, List<IndexField> indexFields)
-            throws IPFSStoreClientException {
+            throws IPFSStoreException {
 
         return this.wrapper.index(createRequest(indexName, hash, id, contentType, indexFields)).
                 getDocumentId();
     }
 
-    @Override
-    public String index(InputStream file, String indexName) throws IPFSStoreClientException {
+    public String index(InputStream file, String indexName) throws IPFSStoreException {
         return this.index(file, indexName, null);
     }
 
-    @Override
-    public String index(InputStream file, String indexName, String id) throws IPFSStoreClientException {
+    public String index(InputStream file, String indexName, String id) throws IPFSStoreException {
         return this.index(file, indexName, id, null);
     }
 
-    @Override
-    public String index(InputStream file, String indexName, String id, String contentType) throws IPFSStoreClientException {
+    public String index(InputStream file, String indexName, String id, String contentType) throws IPFSStoreException {
         return this.index(file, indexName, id, contentType, new ArrayList<>());
     }
 
-    @Override
     public String index(InputStream file, String indexName, String id, String contentType,
-            Map<String, Object> indexFields) throws IPFSStoreClientException {
+            Map<String, Object> indexFields) throws IPFSStoreException {
         return this.index(file, indexName, id, contentType, convert(indexFields));
     }
 
-    @Override
     public String index(InputStream file, String indexName, String id, String contentType,
-            List<IndexField> indexFields) throws IPFSStoreClientException {
+            List<IndexField> indexFields) throws IPFSStoreException {
          
-        return this.wrapper.index(createRequest(indexName, this.store(file), id, contentType, indexFields)).
-                getDocumentId();
+        try {
+            return this.wrapper.storeAndIndex(IOUtils.toByteArray(file), createRequest(indexName, null, id, contentType, indexFields)).
+                    getDocumentId();
+            
+        } catch(IOException e) {
+            throw new IPFSStoreException(e);
+        }
     }
 
-    @Override
-    public byte[]  get(String indexName, String hash) throws IPFSStoreClientException {
+    public byte[]  get(String indexName, String hash) throws IPFSStoreException {
         return this.wrapper.fetch(indexName, hash);
     }
 
-    @Override
-    public byte[] getById(String indexName, String id) throws IPFSStoreClientException {
+    public byte[] getById(String indexName, String id) throws IPFSStoreException {
         return this.get(indexName, this.getMetadataById(indexName, id).getHash());
     }
 
 
-    @Override
-    public Metadata getMetadataById(String indexName, String id) throws IPFSStoreClientException {
+    public Metadata getMetadataById(String indexName, String id) throws IPFSStoreException {
         Query query = Query.newQuery();
-        query.equals("id", id);
+        query.equals(ID_ATTRIBUTE, id);
         
         Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(1, 1));
         if(searchResult.getTotalElements() == 0) {
@@ -143,30 +146,25 @@ public class IPFSStoreClientServiceImpl implements IPFSStoreClientService {
         return searchResult.getContent().get(0);
     }
     
-    @Override
-    public Page<Metadata> search(String indexName) throws IPFSStoreClientException {
+    public Page<Metadata> search(String indexName) throws IPFSStoreException {
         return this.search(indexName, null);
     }
 
-    @Override
-    public Page<Metadata> search(String indexName, Query query) throws IPFSStoreClientException {
+    public Page<Metadata> search(String indexName, Query query) throws IPFSStoreException {
         return this.search(indexName, query, null);
     }
 
-    @Override
-    public Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreClientException {
+    public Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreException {
         return this.wrapper.search(indexName, query, pageable);
     }
 
-    @Override
     public Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize)
-            throws IPFSStoreClientException {
+            throws IPFSStoreException {
         return this.search(indexName, query, pageNo, pageSize, null, null);
     }
 
-    @Override
     public Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize, String sortAttribute,
-            Direction sortDirection) throws IPFSStoreClientException {
+            Direction sortDirection) throws IPFSStoreException {
         
         PageRequest pagination = null;
         if(sortAttribute == null || sortAttribute.isEmpty()) {
@@ -178,25 +176,22 @@ public class IPFSStoreClientServiceImpl implements IPFSStoreClientService {
         return this.search(indexName, query, pagination);
     }
 
-    @Override
-    public Page<byte[]> searchAndFetch(String indexName) throws IPFSStoreClientException {
+    public Page<byte[]> searchAndFetch(String indexName) throws IPFSStoreException {
         return this.searchAndFetch(indexName, null);
     }
 
-    @Override
-    public Page<byte[]> searchAndFetch(String indexName, Query query) throws IPFSStoreClientException {
+    public Page<byte[]> searchAndFetch(String indexName, Query query) throws IPFSStoreException {
         return this.searchAndFetch(indexName, query, null);
     }
     
-    @Override
     public Page<byte[]> searchAndFetch(String indexName, Query query, Pageable pageable)
-            throws IPFSStoreClientException {
+            throws IPFSStoreException {
         Page<Metadata> search = this.wrapper.search(indexName, query, pageable);
         
         List<byte[]> contentList = search.getContent().stream().map(m->{
             try {
                 return this.get(indexName, m.getHash());
-            } catch (IPFSStoreClientException e) {
+            } catch (IPFSStoreException e) {
                 LOGGER.error("Error while fetching " + m.getHash(), e);
                 return null;
             }
@@ -205,15 +200,13 @@ public class IPFSStoreClientServiceImpl implements IPFSStoreClientService {
         return new PageImpl<>(contentList, pageable, search.getTotalElements());
     }
 
-    @Override
     public Page<byte[]> searchAndFetch(String indexName, Query query, int pageNo, int pageSize)
-            throws IPFSStoreClientException {
+            throws IPFSStoreException {
         return this.searchAndFetch(indexName, query, pageNo, pageSize, null, null);
     }
 
-    @Override
     public Page<byte[]> searchAndFetch(String indexName, Query query, int pageNo, int pageSize, String sortAttribute,
-            Direction sortDirection) throws IPFSStoreClientException {
+            Direction sortDirection) throws IPFSStoreException {
         
         PageRequest pagination = null;
         if(sortAttribute == null || sortAttribute.isEmpty()) {
