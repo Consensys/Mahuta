@@ -2,6 +2,7 @@ package net.consensys.tools.ipfs.ipfsstore.client.java.wrapper;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.client.RestTemplate;
 
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreClientException;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
@@ -52,4 +53,10 @@ public interface IPFSStoreWrapper {
      * @throws IPFSStoreClientException
      */
     Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreClientException;
+    
+    /**
+     * get client
+     * @return Rest Client
+     */
+    RestTemplate getClient();
 }

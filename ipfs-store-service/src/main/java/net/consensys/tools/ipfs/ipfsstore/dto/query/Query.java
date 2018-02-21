@@ -26,6 +26,15 @@ public class Query {
     public Query() {
         this.filterClauses = new ArrayList<>();
     }
+    
+    public static Query newQuery() {
+        return new Query();
+    }
+    
+    public static Query newQuery(List<Filter> filterClauses) {
+        return new Query(filterClauses);
+    }
+
     public Query(List<Filter> filterClauses) {
         this.filterClauses = filterClauses;
     }

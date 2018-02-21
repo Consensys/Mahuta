@@ -1,7 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.client.java.service;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -31,12 +30,20 @@ public interface IPFSStoreClientService {
     String index(InputStream file, String indexName, String id, String contentType, Map<String, Object> indexFields) throws IPFSStoreClientException;
     String index(InputStream file, String indexName, String id, String contentType, List<IndexField> indexFields) throws IPFSStoreClientException;
 
-    OutputStream get(String indexName, String hash) throws IPFSStoreClientException;
+    byte[] get(String indexName, String hash) throws IPFSStoreClientException;
+    byte[] getById(String indexName, String id) throws IPFSStoreClientException;
+    Metadata getMetadataById(String indexName, String id) throws IPFSStoreClientException;
     
     Page<Metadata> search(String indexName) throws IPFSStoreClientException;
     Page<Metadata> search(String indexName, Query query) throws IPFSStoreClientException;
     Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreClientException;
     Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize) throws IPFSStoreClientException;
     Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize, String sortAttribute, Sort.Direction sortDirection) throws IPFSStoreClientException;
+    
+    Page<byte[]> searchAndFetch(String indexName) throws IPFSStoreClientException;
+    Page<byte[]> searchAndFetch(String indexName, Query query) throws IPFSStoreClientException;
+    Page<byte[]> searchAndFetch(String indexName, Query query, Pageable pageable) throws IPFSStoreClientException;
+    Page<byte[]> searchAndFetch(String indexName, Query query, int pageNo, int pageSize) throws IPFSStoreClientException;
+    Page<byte[]> searchAndFetch(String indexName, Query query, int pageNo, int pageSize, String sortAttribute, Sort.Direction sortDirection) throws IPFSStoreClientException;
     
 }

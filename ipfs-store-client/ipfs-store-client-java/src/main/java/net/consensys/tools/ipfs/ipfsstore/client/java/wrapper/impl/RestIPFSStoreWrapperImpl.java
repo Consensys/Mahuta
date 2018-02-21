@@ -49,10 +49,10 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     private static final String FETCH_API_PATH = "/fetchh";
     private static final String SEARCH_API_PATH = "/search";
     
-    private RestTemplate restTemplate;
-    private ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
     
-    private String endpoint;
+    private final String endpoint;
     
     public RestIPFSStoreWrapperImpl(String endpoint) {
         this.endpoint = endpoint;
@@ -175,6 +175,10 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             LOGGER.error("Error while searching [indexName="+indexName+", query="+query+"]", ex);
             throw new IPFSStoreClientException("Error while searching  [indexName="+indexName+", query=\"+query+\"]", ex);
         } 
+    }
+
+    public RestTemplate getClient() {
+        return restTemplate;
     }
 
 }

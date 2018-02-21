@@ -16,6 +16,8 @@
 
     <modules>
         <module>ipfs-store-client-java</module>
+        <module>ipfs-store-client-cli</module>
+        <module>ipfs-store-client-springdata</module>
     </modules>
 
 </project>
