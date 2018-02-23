@@ -1,5 +1,11 @@
 package net.consensys.tools.ipfs.ipfsstore.client.java.exception;
 
+/**
+ * IPFSStoreException
+ * 
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
+ *
+ */
 public class IPFSStoreException extends Exception {
 
     private static final long serialVersionUID = 3153727787764151573L;

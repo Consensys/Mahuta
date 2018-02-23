@@ -2,7 +2,6 @@ package net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.impl;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -31,7 +28,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
-import net.consensys.tools.ipfs.ipfsstore.client.java.utils.RequestLoggingInterceptor;
 import net.consensys.tools.ipfs.ipfsstore.client.java.utils.RestResponsePage;
 import net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.IPFSStoreWrapper;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
@@ -50,13 +46,15 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(RestIPFSStoreWrapperImpl.class);
 
-    private static final String BASE_API_PATH = "/ipfs-store";
-    private static final String STORE_API_PATH = "/store";
-    private static final String INDEX_API_PATH = "/index";
-    private static final String FETCH_API_PATH = "/fetch";
-    private static final String SEARCH_API_PATH = "/search";
-    private static final String STORE_INDEX_API_PATH = "/store_index";
-    private static final String DEFAULT_MIMETYPE = "application/octet-stream";
+    private static final String BASE_API_PATH           = "/ipfs-store";
+    private static final String STORE_API_PATH          = "/store";
+    private static final String INDEX_API_PATH          = "/index";
+    private static final String FETCH_API_PATH          = "/fetch";
+    private static final String SEARCH_API_PATH         = "/search";
+    private static final String STORE_INDEX_API_PATH    = "/store_index";
+    private static final String DEFAULT_MIMETYPE        = "application/octet-stream";
+    private static final String MULTIPART_FILE          = "file";
+    private static final String MULTIPART_REQUEST       = "request";
     
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper;
@@ -65,10 +63,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     
     public RestIPFSStoreWrapperImpl(String endpoint) {
         this.endpoint = endpoint;
-        this.restTemplate = new RestTemplate();
-        //this.restTemplate = new RestTemplate();
-        //this.restTemplate.setInterceptors(Collections.singletonList(new RequestLoggingInterceptor()));
         
+        this.restTemplate = new RestTemplate();
         
         this.mapper = new ObjectMapper();
         this.mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
@@ -81,13 +77,13 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             LOGGER.debug("store [] ...");
  
             MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
-            bodyMap.add("file", new ByteArrayResource(file));
+            bodyMap.add(MULTIPART_FILE, new ByteArrayResource(file));
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(bodyMap, headers);
 
             ResponseEntity<StoreResponse> response = restTemplate.exchange(
-                    this.endpoint+BASE_API_PATH+STORE_API_PATH,
+                    this.endpoint + BASE_API_PATH + STORE_API_PATH,
                     HttpMethod.POST, 
                     requestEntity, 
                     StoreResponse.class);
@@ -103,6 +99,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     }
 
     public IndexerResponse index(IndexerRequest request) throws IPFSStoreException {
+        
         try {
             LOGGER.debug("index [request="+request+"] ...");
 
@@ -111,7 +108,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             HttpEntity<IndexerRequest> httpRequest = new HttpEntity<IndexerRequest>(request, httpHeader);
             
             IndexerResponse response = restTemplate.postForObject(
-                    this.endpoint+BASE_API_PATH+INDEX_API_PATH,
+                    this.endpoint + BASE_API_PATH + INDEX_API_PATH,
                     httpRequest, 
                     IndexerResponse.class);
             
@@ -144,22 +141,16 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
              HttpEntity<byte[]> contentHttpEntity = new HttpEntity<>(file, contentHeader);
               
              // putting the two parts in one request
-             multipartRequest.add("file", contentHttpEntity);
-             multipartRequest.add("request", requestHttpEntity);
+             multipartRequest.add(MULTIPART_FILE, contentHttpEntity);
+             multipartRequest.add(MULTIPART_REQUEST, requestHttpEntity);
              
-
+             // creating the final request
              HttpHeaders headers = new HttpHeaders();
              headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-              
              HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest);
 
-//             IndexerResponse response = restTemplate.postForObject(
-//                     this.endpoint+BASE_API_PATH+STORE_INDEX_API_PATH,
-//                     requestEntity, 
-//                     IndexerResponse.class);
-             
              ResponseEntity<IndexerResponse> response = restTemplate.exchange(
-                     this.endpoint+BASE_API_PATH+STORE_INDEX_API_PATH,
+                     this.endpoint + BASE_API_PATH + STORE_INDEX_API_PATH,
                      HttpMethod.POST, 
                      requestEntity, 
                      IndexerResponse.class);
@@ -172,7 +163,6 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
              LOGGER.error("Error while storing and indexing the content request="+request, ex);
              throw new IPFSStoreException("Error while storing and indexing the content request="+request, ex);
          } 
-     
     }
 
     public byte[] fetch(String indexName, String hash) throws IPFSStoreException {
@@ -188,8 +178,10 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             HttpEntity<String> entity = new HttpEntity<String>(headers);
 
             ResponseEntity<byte[]> response = restTemplate.exchange(
-                    this.endpoint+BASE_API_PATH+FETCH_API_PATH+"/"+indexName+"/"+hash,
-                    HttpMethod.GET, entity, byte[].class);
+                    this.endpoint + BASE_API_PATH + FETCH_API_PATH + "/" + indexName + "/" + hash,
+                    HttpMethod.GET, 
+                    entity, 
+                    byte[].class);
 
             LOGGER.debug("fetch [indexName="+indexName+", hash="+hash+"] : "+response);
             
@@ -206,7 +198,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         try {
             LOGGER.debug("Search [indexName="+indexName+", query="+query+"] ...");
 
-            UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(this.endpoint + BASE_API_PATH + SEARCH_API_PATH)
+            UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
+                    .fromUriString(this.endpoint + BASE_API_PATH + SEARCH_API_PATH)
                     .path("/"+indexName);
 
             if(query != null) {

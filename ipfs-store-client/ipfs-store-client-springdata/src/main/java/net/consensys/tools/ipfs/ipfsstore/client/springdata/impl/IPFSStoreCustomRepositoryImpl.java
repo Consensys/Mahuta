@@ -41,25 +41,23 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     protected static final Class<?>   ID_CLASS = String.class;
     protected static final Class<?>   HASH_CLASS = String.class;
     
-    protected IPFSStore client;
+    protected final IPFSStore client;
     
-    protected String indexName;
+    protected final String indexName;
 
-    protected Set<String> indexFields;
+    protected final Set<String> indexFields;
 
-    protected Set<String> externalIndexFields;
-
-    protected Set<String> allFields;
+    protected final Set<String> allFields;
     
-    protected Class<E> entityClazz;
+    protected final Class<E> entityClazz;
     
-    protected ObjectMapper mapper;
+    protected final ObjectMapper mapper;
     
-    private String attributeId;
+    private final String attributeId;
     
-    private String attributeHash;
+    private final String attributeHash;
     
-    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Class<E> entityClazz) {
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz) {
         this.client = client;
         this.indexName = indexName;
         this.indexFields = indexFields;
@@ -76,7 +74,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         this.attributeId = DEFAULT_ATTRIBUTE_ID;
     }
     
-    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Class<E> entityClazz , String attributeId, String attributeHash) {
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz , String attributeId, String attributeHash) {
         this.client = client;
         this.indexName = indexName;
         this.indexFields = indexFields;

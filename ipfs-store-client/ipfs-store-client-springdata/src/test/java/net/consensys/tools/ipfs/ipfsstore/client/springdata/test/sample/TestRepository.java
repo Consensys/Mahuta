@@ -8,7 +8,7 @@ import net.consensys.tools.ipfs.ipfsstore.client.springdata.impl.IPFSStoreReposi
 public class TestRepository extends IPFSStoreRepositoryImpl<Entity, String> {
 
     public TestRepository(IPFSStore client, String index, Set<String> indexFields, Class<Entity> entityClazz){
-        super(client, index, indexFields, entityClazz);
+        super(client, index, indexFields, null, entityClazz);
     }
 
 }

@@ -11,6 +11,13 @@ import org.springframework.data.domain.Sort;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * RestResponsePage is a JSON serializable version of org.springframework.data.domain.PageImpl<T>
+ * 
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
+ *
+ * @param <T> Type of object 
+ */
 @Getter
 @Setter
 public class RestResponsePage<T> extends PageImpl<T> {

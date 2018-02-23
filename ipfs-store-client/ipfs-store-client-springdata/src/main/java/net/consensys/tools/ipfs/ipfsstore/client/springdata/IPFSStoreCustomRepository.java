@@ -32,7 +32,7 @@ public interface IPFSStoreCustomRepository<E extends Object, ID extends Serializ
     E findByHash(String hash);
     
     /**
-     * Save a document without attributing ID and Hash
+     * Save a document without attributing an ID and a Hash to the object (no reflection)
      * @param entity    Entity to save
      * @return          Unique hash of the file
      */
