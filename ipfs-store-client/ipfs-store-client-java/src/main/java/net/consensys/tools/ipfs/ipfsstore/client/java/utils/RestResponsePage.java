@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,11 +31,17 @@ public class RestResponsePage<T> extends PageImpl<T> {
     private int totalPages;
     private int numberOfElements;
     private long totalElements;
-    private boolean previousPage;
-    private boolean first;
-    private boolean nextPage;
-    private boolean last;
     private List<T> content;
+
+    @JsonIgnore
+    private boolean previousPage;
+    @JsonIgnore
+    private boolean first;
+    @JsonIgnore
+    private boolean nextPage;
+    @JsonIgnore
+    private boolean last;
+    @JsonIgnore
     private Sort sort;
 
     public RestResponsePage(List<T> content, Pageable pageable, long total) {

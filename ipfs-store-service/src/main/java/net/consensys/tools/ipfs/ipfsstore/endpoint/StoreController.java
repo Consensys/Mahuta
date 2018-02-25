@@ -65,7 +65,7 @@ public class StoreController {
      * 
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.store.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.ALL_VALUE)
+    @RequestMapping(value = "${api.store.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody StoreResponse storeFile(
             @RequestParam(value="file", required = true) @Valid @NotNull @NotBlank MultipartFile file) 
                     throws ServiceException {
@@ -95,10 +95,10 @@ public class StoreController {
         return this.storeService.indexFile(request);
     }
 
-    @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse storeAndIndexFile(
             @RequestPart(name="request", required=true) @Valid @NotNull String requestStr, 
-            @RequestPart(name="file", required=true) @Valid @NotNull @NotBlank String file) 
+            @RequestPart(name="file", required=true) @Valid @NotNull @NotBlank MultipartFile file) 
                     throws ServiceException {
 
         try {

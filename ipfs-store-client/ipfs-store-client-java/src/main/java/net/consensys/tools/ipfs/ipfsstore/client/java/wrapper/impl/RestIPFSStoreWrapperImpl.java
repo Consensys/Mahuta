@@ -2,6 +2,7 @@ package net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.impl;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,14 +75,31 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public String store(byte[] file) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("store [] ...");
+            LOGGER.debug("store [size="+file.length +"] ...");
  
-            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
-            bodyMap.add(MULTIPART_FILE, new ByteArrayResource(file));
+            ByteArrayResource content = new ByteArrayResource(file) {
+                @Override
+                public String getFilename() {
+                    return UUID.randomUUID().toString();
+                }
+            };
+            
+            MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+            
+            // creating an HttpEntity for the binary part
+            HttpHeaders contentHeader = new HttpHeaders();
+            //contentHeader.setContentType(MediaType.valueOf(request.getContentType() == null ? DEFAULT_MIMETYPE : request.getContentType())); 
+            HttpEntity<ByteArrayResource> contentHttpEntity = new HttpEntity<>(content, contentHeader);
+            
+
+            // putting the two parts in one request
+            multipartRequest.add(MULTIPART_FILE, contentHttpEntity);
+            
+            // creating the final request
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(bodyMap, headers);
-
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest);
+            
             ResponseEntity<StoreResponse> response = restTemplate.exchange(
                     this.endpoint + BASE_API_PATH + STORE_API_PATH,
                     HttpMethod.POST, 
@@ -128,6 +146,13 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
          try {
              LOGGER.debug("storeAndIndex [request="+request+"] ...");
 
+             ByteArrayResource content = new ByteArrayResource(file) {
+                 @Override
+                 public String getFilename() {
+                     return UUID.randomUUID().toString();
+                 }
+             };
+             
              MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
              
              // creating an HttpEntity for the JSON part
@@ -138,8 +163,9 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
              // creating an HttpEntity for the binary part
              HttpHeaders contentHeader = new HttpHeaders();
              contentHeader.setContentType(MediaType.valueOf(request.getContentType() == null ? DEFAULT_MIMETYPE : request.getContentType())); 
-             HttpEntity<byte[]> contentHttpEntity = new HttpEntity<>(file, contentHeader);
-              
+             HttpEntity<ByteArrayResource> contentHttpEntity = new HttpEntity<>(content, contentHeader);
+             
+
              // putting the two parts in one request
              multipartRequest.add(MULTIPART_FILE, contentHttpEntity);
              multipartRequest.add(MULTIPART_REQUEST, requestHttpEntity);

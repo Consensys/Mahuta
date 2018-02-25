@@ -16,16 +16,35 @@
 
 	<dependencies>
 
+
+	    <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter</artifactId>
+	    </dependency>
+
 		<!-- Internal dependencies -->
 		<dependency>
 			<groupId>net.consensys.tools.ipfs</groupId>
 			<artifactId>ipfs-store-client-java</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.springframework.shell</groupId>
+		    <artifactId>spring-shell-starter</artifactId>
+		    <version>2.0.0.RELEASE</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>com.github.drapostolos</groupId>
+		    <artifactId>type-parser</artifactId>
+		    <version>0.6.0</version>
+		</dependency>
 
 	</dependencies>
 
 	<build>
+        <finalName>ipfs-store-cli</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -35,6 +54,20 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 				</configuration>
+			</plugin>
+			<plugin>
+			    <groupId>org.springframework.boot</groupId>
+			    <artifactId>spring-boot-maven-plugin</artifactId>
+			    <executions>
+			        <execution>
+			            <goals>
+			                <goal>repackage</goal>
+			            </goals>
+			            <configuration>
+			                <classifier>exec</classifier>
+			            </configuration>
+			        </execution>
+			    </executions>
 			</plugin>
 		</plugins>
 	</build>

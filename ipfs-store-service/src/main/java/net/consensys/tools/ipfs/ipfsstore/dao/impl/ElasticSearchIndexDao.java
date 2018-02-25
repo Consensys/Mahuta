@@ -18,6 +18,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,12 +115,7 @@ public class ElasticSearchIndexDao implements IndexDao {
                 throw new NotFoundException("Document [indexName="+indexName+", id="+id+"] not found");
             }
             
-            Metadata metadata = new Metadata(
-                    response.getIndex(),
-                    response.getId(),
-                    response.getSourceAsMap().get(HASH_INDEX_KEY).toString(),
-                    response.getSourceAsMap().get(CONTENT_TYPE_INDEX_KEY).toString(),
-                    convert(response.getSourceAsMap()));
+            Metadata metadata = convert(response.getIndex(), response.getId(), response.getSourceAsMap());
             
             LOGGER.debug("Search one document in ElasticSearch [indexName="+indexName+", id="+id+"] : " + metadata);
 
@@ -168,16 +164,8 @@ public class ElasticSearchIndexDao implements IndexDao {
             LOGGER.trace("Search documents in ElasticSearch [query="+query+"] : " + searchResponse);
 
             List<Metadata> result = Arrays.stream(searchResponse.getHits().getHits())
-                    .map(hit -> {
-                        return new Metadata(
-                                hit.getIndex(),
-                                hit.getId(),
-                                hit.getSourceAsMap().get(HASH_INDEX_KEY).toString(),
-                                hit.getSourceAsMap().get(CONTENT_TYPE_INDEX_KEY).toString(),
-                                convert(hit.getSourceAsMap()));
-                    })
+                    .map(hit -> convert(hit.getIndex(), hit.getId(), hit.getSourceAsMap()))
                     .collect(Collectors.toList());
-            
             
             LOGGER.debug("Search documents in ElasticSearch [indexName="+indexName+", query="+query+"] : " + result);
             
@@ -275,6 +263,37 @@ public class ElasticSearchIndexDao implements IndexDao {
                  ));
 
         return result;
+    }
+    
+    /**
+     * Convert a ElasticSearch result to a Metadata
+     * @param index         Index
+     * @param id            ID
+     * @param sourceMap     Map of attributes
+     * @return              Metadata
+     */
+    private static Metadata convert(String index, String id, Map<String, Object> sourceMap) {
+        String hash = null;
+        String contentType = null;
+        
+        if(sourceMap!= null) {
+            
+            // Extract special key __hash
+            if(sourceMap.containsKey(HASH_INDEX_KEY) && sourceMap.get(HASH_INDEX_KEY) != null) {
+                hash = sourceMap.get(HASH_INDEX_KEY).toString();
+            }
+            // Extract special key __content_type
+            if(sourceMap.containsKey(CONTENT_TYPE_INDEX_KEY) && sourceMap.get(CONTENT_TYPE_INDEX_KEY) != null) {
+                contentType = sourceMap.get(CONTENT_TYPE_INDEX_KEY).toString();
+            }
+        }
+        
+        return new Metadata(
+                index,
+                id,
+                hash,
+                contentType,
+                convert(sourceMap));
     }
     
     /**
