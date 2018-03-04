@@ -27,6 +27,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -46,6 +47,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dao.impl.ElasticSearchIndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
@@ -60,6 +66,7 @@ public class ElasticSearchDAOTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchDAOTest.class);
     
     private IndexDao underTest;
+    private ObjectMapper mapper = new ObjectMapper();
     
     @MockBean
     private TransportClient client;
@@ -95,7 +102,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
     
     @Test
-    public void indexCreateSuccessTest() throws DaoException {
+    public void indexCreateSuccessTest() throws DaoException, JsonParseException, JsonMappingException, IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -115,7 +122,7 @@ public class ElasticSearchDAOTest {
         IndexResponse indexResponse = mock(IndexResponse.class);
         IndexRequestBuilder indexRequestBuilder = mock(IndexRequestBuilder.class);
         Mockito.when(client.prepareIndex(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.setSource(any(Map.class))).thenReturn(indexRequestBuilder);
+        Mockito.when(indexRequestBuilder.setSource(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
         Mockito.when(indexRequestBuilder.get()).thenReturn(indexResponse);
         Mockito.when(indexResponse.getId()).thenReturn(documentId);
 
@@ -123,22 +130,23 @@ public class ElasticSearchDAOTest {
         String docReturned = underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
         // #################################################
 
-        ArgumentCaptor<Map> argumentCaptorSource = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<String> argumentCaptorSource = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorIndexName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorIndexType = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorDocumentId = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(1)).prepareIndex(argumentCaptorIndexName.capture(), argumentCaptorIndexType.capture(), argumentCaptorDocumentId.capture()); 
-        Mockito.verify(indexRequestBuilder, Mockito.times(1)).setSource(argumentCaptorSource.capture());
+        Mockito.verify(indexRequestBuilder, Mockito.times(1)).setSource(argumentCaptorSource.capture(), eq(XContentType.JSON));
         Mockito.verify(indexRequestBuilder, Mockito.times(1)).get(); 
         
-        Map<String, Object> sourceCaptured = argumentCaptorSource.<Map> getValue();
+        String sourceCaptured = argumentCaptorSource.<Map> getValue();
+        Map<String, Object> source = mapper.readValue(sourceCaptured, new TypeReference<Map<String, Object>>() {});
         String indexNameCaptured = argumentCaptorIndexName.<String> getValue();
         String indexTypeCaptured = argumentCaptorIndexType.<String> getValue();
         String documentIdCaptured = argumentCaptorDocumentId.<String> getValue();
         
-        assertEquals(sourceCaptured.get(IndexDao.HASH_INDEX_KEY), hash);
-        assertEquals(sourceCaptured.get(IndexDao.CONTENT_TYPE_INDEX_KEY), contentType);
-        assertEquals(sourceCaptured.get(customAttributeKey), customAttributeVal);
+        assertEquals(source.get(IndexDao.HASH_INDEX_KEY), hash);
+        assertEquals(source.get(IndexDao.CONTENT_TYPE_INDEX_KEY), contentType);
+        assertEquals(source.get(customAttributeKey), customAttributeVal);
         assertEquals(indexNameCaptured, indexName.toLowerCase());
         assertEquals(indexTypeCaptured, indexName.toLowerCase());
         assertEquals(documentIdCaptured, documentId);
@@ -147,7 +155,7 @@ public class ElasticSearchDAOTest {
     }
     
     @Test
-    public void indexCreateSuccessNoAttributeTest() throws DaoException {
+    public void indexCreateSuccessNoAttributeTest() throws DaoException, JsonParseException, JsonMappingException, IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -165,7 +173,7 @@ public class ElasticSearchDAOTest {
         IndexResponse indexResponse = mock(IndexResponse.class);
         IndexRequestBuilder indexRequestBuilder = mock(IndexRequestBuilder.class);
         Mockito.when(client.prepareIndex(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.setSource(any(Map.class))).thenReturn(indexRequestBuilder);
+        Mockito.when(indexRequestBuilder.setSource(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
         Mockito.when(indexRequestBuilder.get()).thenReturn(indexResponse);
         Mockito.when(indexResponse.getId()).thenReturn(documentId);
 
@@ -173,21 +181,22 @@ public class ElasticSearchDAOTest {
         String docReturned = underTest.index(indexName, documentId, hash, contentType, null);
         // #################################################
 
-        ArgumentCaptor<Map> argumentCaptorSource = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<String> argumentCaptorSource = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorIndexName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorIndexType = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorDocumentId = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(1)).prepareIndex(argumentCaptorIndexName.capture(), argumentCaptorIndexType.capture(), argumentCaptorDocumentId.capture()); 
-        Mockito.verify(indexRequestBuilder, Mockito.times(1)).setSource(argumentCaptorSource.capture());
+        Mockito.verify(indexRequestBuilder, Mockito.times(1)).setSource(argumentCaptorSource.capture(), eq(XContentType.JSON));
         Mockito.verify(indexRequestBuilder, Mockito.times(1)).get(); 
         
-        Map<String, Object> sourceCaptured = argumentCaptorSource.<Map> getValue();
+        String sourceCaptured = argumentCaptorSource.<String> getValue();
+        Map<String, Object> source = mapper.readValue(sourceCaptured, new TypeReference<Map<String, Object>>() {});
         String indexNameCaptured = argumentCaptorIndexName.<String> getValue();
         String indexTypeCaptured = argumentCaptorIndexType.<String> getValue();
         String documentIdCaptured = argumentCaptorDocumentId.<String> getValue();
         
-        assertEquals(sourceCaptured.get(IndexDao.HASH_INDEX_KEY), hash);
-        assertEquals(sourceCaptured.get(IndexDao.CONTENT_TYPE_INDEX_KEY), contentType);
+        assertEquals(source.get(IndexDao.HASH_INDEX_KEY), hash);
+        assertEquals(source.get(IndexDao.CONTENT_TYPE_INDEX_KEY), contentType);
         assertEquals(indexNameCaptured, indexName.toLowerCase());
         assertEquals(indexTypeCaptured, indexName.toLowerCase());
         assertEquals(documentIdCaptured, documentId);
@@ -196,7 +205,7 @@ public class ElasticSearchDAOTest {
     }
     
     @Test
-    public void indexUpdateSuccessTest() throws DaoException {
+    public void indexUpdateSuccessTest() throws DaoException, JsonParseException, JsonMappingException, IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -216,7 +225,7 @@ public class ElasticSearchDAOTest {
         UpdateResponse indexResponse = mock(UpdateResponse.class);
         UpdateRequestBuilder indexRequestBuilder = mock(UpdateRequestBuilder.class);
         Mockito.when(client.prepareUpdate(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.setDoc(any(Map.class))).thenReturn(indexRequestBuilder);
+        Mockito.when(indexRequestBuilder.setDoc(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
         Mockito.when(indexRequestBuilder.get()).thenReturn(indexResponse);
         Mockito.when(indexResponse.getId()).thenReturn(documentId);
 
@@ -224,22 +233,23 @@ public class ElasticSearchDAOTest {
         String docReturned = underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
         // #################################################
 
-        ArgumentCaptor<Map> argumentCaptorSource = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<String> argumentCaptorSource = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorIndexName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorIndexType = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> argumentCaptorDocumentId = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(1)).prepareUpdate(argumentCaptorIndexName.capture(), argumentCaptorIndexType.capture(), argumentCaptorDocumentId.capture()); 
-        Mockito.verify(indexRequestBuilder, Mockito.times(1)).setDoc(argumentCaptorSource.capture());
+        Mockito.verify(indexRequestBuilder, Mockito.times(1)).setDoc(argumentCaptorSource.capture(), eq(XContentType.JSON));
         Mockito.verify(indexRequestBuilder, Mockito.times(1)).get(); 
         
-        Map<String, Object> sourceCaptured = argumentCaptorSource.<Map> getValue();
+        String sourceCaptured = argumentCaptorSource.<Map> getValue();
+        Map<String, Object> source = mapper.readValue(sourceCaptured, new TypeReference<Map<String, Object>>() {});
         String indexNameCaptured = argumentCaptorIndexName.<String> getValue();
         String indexTypeCaptured = argumentCaptorIndexType.<String> getValue();
         String documentIdCaptured = argumentCaptorDocumentId.<String> getValue();
         
-        assertEquals(sourceCaptured.get(IndexDao.HASH_INDEX_KEY), hash);
-        assertEquals(sourceCaptured.get(IndexDao.CONTENT_TYPE_INDEX_KEY), contentType);
-        assertEquals(sourceCaptured.get(customAttributeKey), customAttributeVal);
+        assertEquals(source.get(IndexDao.HASH_INDEX_KEY), hash);
+        assertEquals(source.get(IndexDao.CONTENT_TYPE_INDEX_KEY), contentType);
+        assertEquals(source.get(customAttributeKey), customAttributeVal);
         assertEquals(indexNameCaptured, indexName.toLowerCase());
         assertEquals(indexTypeCaptured, indexName.toLowerCase());
         assertEquals(documentIdCaptured, documentId);

@@ -73,6 +73,8 @@ public class StoreServiceImpl implements StoreService {
         
         validate(request);
         
+        LOGGER.trace(request);
+        
         try {
             indexDao.createIndex(request.getIndexName()); // Create the index if it doesn't exist
             
@@ -147,6 +149,20 @@ public class StoreServiceImpl implements StoreService {
             
             return search.getContent().get(0);
             
+        } catch (DaoException ex) {
+            LOGGER.error("Exception occur:", ex);
+            throw new ServiceException(ex.getMessage());
+        }
+    }
+
+
+
+    @Override
+    public void createIndex(String index) throws ServiceException {
+        
+        try {
+            this.indexDao.createIndex(index);
+        
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());

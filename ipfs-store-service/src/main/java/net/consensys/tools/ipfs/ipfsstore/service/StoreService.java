@@ -91,4 +91,13 @@ public interface StoreService {
      * @throws ServiceException
      */
     Page<Metadata> searchFiles(String index, Query query, Pageable pagination) throws ServiceException;
+    
+    /**
+     * Create an index
+     * 
+     * @param name   Index name
+     * 
+     * @throws ServiceException
+     */
+    void createIndex(String index) throws ServiceException;
 }

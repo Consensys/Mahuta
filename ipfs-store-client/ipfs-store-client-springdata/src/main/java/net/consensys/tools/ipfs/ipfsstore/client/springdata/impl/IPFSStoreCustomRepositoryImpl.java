@@ -34,8 +34,8 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> implements IPFSStoreCustomRepository<E, ID> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreCustomRepositoryImpl.class);
 
-    protected static final Charset     DEFAULT_ENCODING = StandardCharsets.UTF_8;
-    protected static final String      DEFAULT_CONTENT_TYPE = "application/json";
+    protected static final Charset    DEFAULT_ENCODING = StandardCharsets.UTF_8;
+    protected static final String     DEFAULT_CONTENT_TYPE = "application/json";
     protected static final String     DEFAULT_ATTRIBUTE_ID = "id";
     protected static final String     DEFAULT_ATTRIBUTE_HASH = "hash";
     protected static final Class<?>   ID_CLASS = String.class;
@@ -149,9 +149,9 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     protected Page<E> search(Query query, Pageable pageable) {
         
         try {
-            LOGGER.debug("Find all [pageable="+pageable+"] ...");
+            LOGGER.debug("Find all [pageable="+pageable+", query="+query+"] ...");
 
-            Page<byte[]> searchAndFetch = this.client.searchAndFetch(indexName, null, pageable);
+            Page<byte[]> searchAndFetch = this.client.searchAndFetch(indexName, query, pageable);
             
             List<E> result = searchAndFetch.getContent().stream().map(b->deserialize(b)).collect(Collectors.toList());
 

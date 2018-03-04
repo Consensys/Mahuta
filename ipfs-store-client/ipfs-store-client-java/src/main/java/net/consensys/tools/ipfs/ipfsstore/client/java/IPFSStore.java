@@ -54,6 +54,15 @@ public class IPFSStore {
         this.wrapper = new RestIPFSStoreWrapperImpl(endpoint);
     }
     
+    /**
+     * Constructor: takes the IPFS-store service wrapper object
+     * 
+     * @param wrapper
+     */
+    public IPFSStore(IPFSStoreWrapper wrapper) {
+        this.wrapper = wrapper;
+    }
+    
 
     
     /* *********************************************
@@ -493,6 +502,17 @@ public class IPFSStore {
         }
         
         return this.searchAndFetch(indexName, query, pagination);
+    }
+    
+    /**
+     * Create a new index 
+     * 
+     * @param index Index name
+     * 
+     * @throws IPFSStoreException
+     */
+    public void createIndex(String index) throws IPFSStoreException {
+        this.wrapper.createIndex(index);
     }
     
     /**

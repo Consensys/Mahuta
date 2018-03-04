@@ -64,6 +64,13 @@ public interface IPFSStoreWrapper {
     Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreException;
     
     /**
+     * create index
+     * @param indexName
+     * @throws IPFSStoreException
+     */
+    void createIndex(String indexName) throws IPFSStoreException;
+    
+    /**
      * get client
      * @return Rest Client
      */

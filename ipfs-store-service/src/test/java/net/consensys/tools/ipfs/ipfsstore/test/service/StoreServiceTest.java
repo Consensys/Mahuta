@@ -8,6 +8,7 @@ import static org.mockito.Matchers.eq;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.impl.nio.codecs.IdentityDecoder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -469,4 +470,23 @@ public class StoreServiceTest {
         // #################################################
         
     }
+    
+    @Test
+    public void createTest() throws Exception {
+
+        String index = "AAAAAA";
+        
+
+        // #################################################
+        underTest.createIndex(index);
+        // #################################################
+         
+        ArgumentCaptor<String> argumentCaptorIndexName = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(indexDao, Mockito.times(1)).createIndex(argumentCaptorIndexName.capture()); 
+        String indexCaptured = argumentCaptorIndexName.<String> getValue();
+
+        assertEquals(index, indexCaptured);
+        
+    }
+    
 }

@@ -398,7 +398,7 @@ public class IPFSStoreRepositoryTest {
             }
         }).collect(Collectors.toList());
         Page<byte[]> content = new PageImpl<>(contentList, pagination, total);
-        Mockito.when(client.searchAndFetch(eq(index), eq(null), eq(pagination))).thenReturn(content);
+        Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenReturn(content);
 
         // #################################################
         Page<Entity> result = underTest.findByfullTextSearch("search ", pagination);

@@ -880,4 +880,21 @@ public class IPFSStoreTest {
        assertEquals(result.getContent().get(0).getIndexFieldValue("author"), author);
     }
     
+    
+    
+    @Test
+    public void createIndex() throws Exception {
+                
+        // MOCK
+        mockServer.expect(requestTo(ENDPOINT+"/ipfs-store/config/index/"+INDEX_NAME))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withSuccess());
+        
+        // ###########################
+        this.undertest.createIndex(INDEX_NAME);
+        // ###########################
+
+
+    }
+    
 }

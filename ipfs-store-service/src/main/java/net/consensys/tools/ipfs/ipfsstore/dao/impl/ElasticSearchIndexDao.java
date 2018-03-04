@@ -15,16 +15,25 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 
 import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
@@ -45,13 +54,25 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     private static final Logger LOGGER = Logger.getLogger(IPFSStorageDao.class);
     
-    private TransportClient client;
+    private final ObjectMapper mapper;
+    
+    private final TransportClient client;
     
     /*
      * Constructor
      */
     @Autowired
     public ElasticSearchIndexDao(TransportClient client) {
+        mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
+        
         this.client = client;
     }
      
@@ -76,14 +97,18 @@ public class ElasticSearchIndexDao implements IndexDao {
                 source.putAll(convert(indexFields)); 
             }
             
+            LOGGER.debug(source);
+            
             if(!this.doesExist(indexName, documentId)) {
                 response = client.prepareIndex(indexName.toLowerCase(), indexName.toLowerCase(), documentId)
-                    .setSource(source)
+                    .setSource(convertObjectToJsonString(source), XContentType.JSON)
+                    //.setSource(source)
                     .get();
                 
             } else {
                 response = client.prepareUpdate(indexName.toLowerCase(), indexName.toLowerCase(), documentId)
-                    .setDoc(source)
+                    .setDoc(convertObjectToJsonString(source), XContentType.JSON)
+                    //.setDoc(source)
                     .get();               
             }
             
@@ -92,7 +117,7 @@ public class ElasticSearchIndexDao implements IndexDao {
             return response.getId();
             
         } catch(Exception ex) {
-            LOGGER.debug("Error while indexing document into ElasticSearch [indexName="+indexName+", documentId="+documentId+", indexFields="+indexFields+"]", ex);
+            LOGGER.error("Error while indexing document into ElasticSearch [indexName="+indexName+", documentId="+documentId+", indexFields="+indexFields+"]", ex);
             throw new DaoException("Error while indexing document into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -125,7 +150,7 @@ public class ElasticSearchIndexDao implements IndexDao {
             LOGGER.warn("Error while searching into ElasticSearch [indexName="+indexName+", id="+id+"]", ex);
             throw ex;
         } catch(Exception ex) {
-            LOGGER.debug("Error while searching into ElasticSearch [indexName="+indexName+", id="+id+"]", ex);
+            LOGGER.error("Error while searching into ElasticSearch [indexName="+indexName+", id="+id+"]", ex);
             throw new DaoException("Error while searching into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -141,8 +166,7 @@ public class ElasticSearchIndexDao implements IndexDao {
         
         try {
             
-
-            int p = (pageable.getPageNumber() < 0) ? 1 : pageable.getPageNumber();
+            int p = (pageable.getPageNumber() < 1) ? 1 : pageable.getPageNumber();
             int l = (pageable.getPageSize() < 1) ? 1 : pageable.getPageSize();
             
             SearchRequestBuilder requestBuilder = client.prepareSearch(indexName)
@@ -172,7 +196,7 @@ public class ElasticSearchIndexDao implements IndexDao {
             return result;
             
         } catch(Exception ex) {
-            LOGGER.debug("Error while searching documents into ElasticSearch [query="+query+"]", ex);
+            LOGGER.error("Error while searching documents into ElasticSearch [query="+query+"]", ex);
             throw new DaoException("Error while searching documents into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -196,14 +220,14 @@ public class ElasticSearchIndexDao implements IndexDao {
             return countResponse.getHits().getTotalHits();
             
         } catch(Exception ex) {
-            LOGGER.debug("Error while counting into ElasticSearch [query="+query+"]", ex);
+            LOGGER.error("Error while counting into ElasticSearch [query="+query+"]", ex);
             throw new DaoException("Error while counting into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
     public void createIndex(String indexName) throws DaoException {
-        LOGGER.info("Create index in ElasticSearch [indexName="+indexName+"] ...");
+        LOGGER.debug("Create index in ElasticSearch [indexName="+indexName+"] ...");
 
         // Validation
         if(Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName cannot be null or empty");
@@ -215,14 +239,14 @@ public class ElasticSearchIndexDao implements IndexDao {
             
             if(!exists) {
                 client.admin().indices().prepareCreate(indexName).get();
-                LOGGER.info("Index created in ElasticSearch [indexName="+indexName+"]");
+                LOGGER.debug("Index created in ElasticSearch [indexName="+indexName+"]");
 
             } else {
-                LOGGER.info("Index already exists in ElasticSearch [indexName="+indexName+"]");
+                LOGGER.debug("Index already exists in ElasticSearch [indexName="+indexName+"]");
             }
 
         } catch(Exception ex) {
-            LOGGER.debug("Error while creating the index into ElasticSearch [indexName="+indexName+"]", ex);
+            LOGGER.error("Error while creating the index into ElasticSearch [indexName="+indexName+"]", ex);
             throw new DaoException("Error while creating the index into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -374,4 +398,19 @@ public class ElasticSearchIndexDao implements IndexDao {
         
         return elasticSearchQuery;
     }
+    
+    /**
+     * 
+     * @param object
+     * @return
+     */
+    public String convertObjectToJsonString(Object object) {
+        try {
+            String response = mapper.writeValueAsString(object);
+            return response;
+        } catch (JsonProcessingException ex) {
+            LOGGER.error("Exception occur:{}", ex);
+        }
+        return null;
+}
 }

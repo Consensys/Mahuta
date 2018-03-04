@@ -12,6 +12,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,6 +41,7 @@ import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 @RestController
 @RequestMapping("${api.base}")
+@Profile("default")
 public class StoreController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(StoreController.class);
@@ -56,6 +58,22 @@ public class StoreController {
         this.storeService = storeService;
         this.mapper = new ObjectMapper();
     }
+    
+    /**
+     * Create an index
+     * 
+     * @param index     Index name
+     * 
+     * @throws ServiceException
+     */
+    @RequestMapping(value = "${api.config_index.uri}", method = RequestMethod.POST)
+    public void createIndex(
+            @PathVariable(value = "index") String index) 
+                    throws ServiceException {
+
+        this.storeService.createIndex(index);
+    }
+    
 
     /**
      * Store a content (any type) on IPFS
@@ -95,6 +113,15 @@ public class StoreController {
         return this.storeService.indexFile(request);
     }
 
+    /**
+     * Store and Index a content
+     * 
+     * @param requestStr    Request containing IDs, Hash and metadata
+     * @param file          File sent as a Multipart
+     * @return              Response containing the tuple (index, ID, hash)
+     * 
+     * @throws ServiceException
+     */
     @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse storeAndIndexFile(
             @RequestPart(name="request", required=true) @Valid @NotNull String requestStr, 

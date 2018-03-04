@@ -53,6 +53,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     private static final String FETCH_API_PATH          = "/fetch";
     private static final String SEARCH_API_PATH         = "/search";
     private static final String STORE_INDEX_API_PATH    = "/store_index";
+    private static final String CREATE_INDEX_API_PATH    = "/config/index";
     private static final String DEFAULT_MIMETYPE        = "application/octet-stream";
     private static final String MULTIPART_FILE          = "file";
     private static final String MULTIPART_REQUEST       = "request";
@@ -70,6 +71,24 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         this.mapper = new ObjectMapper();
         this.mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    @Override
+    public void createIndex(String indexName) throws IPFSStoreException {
+        try {
+            LOGGER.debug("createIndex [indexName="+indexName +"] ...");
+ 
+            restTemplate.postForLocation(
+                    this.endpoint + BASE_API_PATH + CREATE_INDEX_API_PATH + "/" + indexName,
+                    null);
+            
+            LOGGER.debug("Index [indexName="+indexName +"] created !");
+            
+            
+        } catch(RestClientException ex) {
+            LOGGER.error("Error while creating the index [index="+indexName+"]", ex);
+            throw new IPFSStoreException("Error while creating the index [index="+indexName+"]", ex);
+        }  
     }
     
     public String store(byte[] file) throws IPFSStoreException {
