@@ -362,7 +362,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
     
     @Test
-    public void searchByIdSuccessTest() throws DaoException {
+    public void searchByIdSuccessTest() throws DaoException, NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -411,7 +411,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void searchByIdKOIllegalArgumentsTest1() throws IOException, DaoException {
+    public void searchByIdKOIllegalArgumentsTest1() throws IOException, DaoException, NotFoundException {
         String documentId = null;
         
         // #################################################
@@ -420,7 +420,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void searchByIdKOIllegalArgumentsTest2() throws IOException, DaoException {
+    public void searchByIdKOIllegalArgumentsTest2() throws IOException, DaoException, NotFoundException {
         String documentId = "123";
         
         // #################################################
@@ -430,7 +430,7 @@ public class ElasticSearchDAOTest {
     
     
     @Test(expected=NotFoundException.class)
-    public void searchByIdNotFoundExceptionTest() throws DaoException {
+    public void searchByIdNotFoundExceptionTest() throws DaoException, NotFoundException {
     
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -463,7 +463,7 @@ public class ElasticSearchDAOTest {
     
     
     @Test(expected=DaoException.class)
-    public void searchByIdUnexpectedExceptionTest() throws DaoException {
+    public void searchByIdUnexpectedExceptionTest() throws DaoException, NotFoundException {
     
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";

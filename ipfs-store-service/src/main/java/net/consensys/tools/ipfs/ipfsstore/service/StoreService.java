@@ -7,6 +7,7 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
 
 /**
@@ -67,7 +68,7 @@ public interface StoreService {
      * 
      * @throws ServiceException
      */
-    Metadata getFileMetadataById(String index, String id) throws ServiceException;
+    Metadata getFileMetadataById(String index, String id) throws ServiceException, NotFoundException;
     
     /**
      * Get Content Metadata by File Unique Identifier
@@ -78,7 +79,7 @@ public interface StoreService {
      * 
      * @throws ServiceException
      */
-    Metadata getFileMetadataByHash(String index, String hash) throws ServiceException;
+    Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException;
     
     /**
      * Search in the index a list of content against a multi-criteria search query

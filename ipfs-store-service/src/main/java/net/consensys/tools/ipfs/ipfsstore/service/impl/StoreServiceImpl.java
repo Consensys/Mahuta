@@ -124,7 +124,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Metadata getFileMetadataById(String index, String id) throws ServiceException {
+    public Metadata getFileMetadataById(String index, String id) throws ServiceException, NotFoundException {
         
         try {
             return this.indexDao.searchById(index, id); 
@@ -132,27 +132,23 @@ public class StoreServiceImpl implements StoreService {
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
+        } catch (NotFoundException ex) {
+            throw ex;
         }
     }
 
     @Override
-    public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException {
+    public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException {
         
-        try {
-            Query query = new Query();
-            query.equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
-            Page<Metadata> search = this.searchFiles(index, query, new PageRequest(1, 1));
-            
-            if(search.getTotalElements() == 0) {
-                throw new NotFoundException("File [hash="+hash+"] not found in the index ["+index+"]");
-            }
-            
-            return search.getContent().get(0);
-            
-        } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
+        Query query = new Query();
+        query.equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
+        Page<Metadata> search = this.searchFiles(index, query, new PageRequest(1, 1));
+        
+        if(search.getTotalElements() == 0) {
+            throw new NotFoundException("File [hash="+hash+"] not found in the index ["+index+"]");
         }
+        
+        return search.getContent().get(0);
     }
 
 

@@ -9,7 +9,7 @@ package net.consensys.tools.ipfs.ipfsstore.exception;
  *
  * @author Joshua Cassidy <joshua.cassidy@consensys.net>
  */
-public class NotFoundException extends DaoException{
+public class NotFoundException extends BaseException {
     
     private static final long serialVersionUID = -1577067446504139812L;
 

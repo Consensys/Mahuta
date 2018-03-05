@@ -355,7 +355,7 @@ public class StoreServiceTest {
     }
     
     
-    @Test(expected=ServiceException.class)
+    @Test(expected=NotFoundException.class)
     public void getFileMetadataNotFoundExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -428,7 +428,7 @@ public class StoreServiceTest {
         
     }
     
-    @Test(expected=ServiceException.class)
+    @Test(expected=NotFoundException.class)
     public void getFileMetadataByHashNotFoundTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";

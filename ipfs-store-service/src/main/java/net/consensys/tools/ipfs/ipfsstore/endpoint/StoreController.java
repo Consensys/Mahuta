@@ -12,7 +12,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,13 +34,13 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.StoreResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 @RestController
 @RequestMapping("${api.base}")
-//@Profile("default")
 public class StoreController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(StoreController.class);
@@ -159,7 +158,7 @@ public class StoreController {
         try {
             Metadata metadata = storeService.getFileMetadataByHash(index, hash);
             response.setContentType(metadata.getContentType());
-        } catch(ServiceException notFoundException) {
+        } catch(NotFoundException e) {
             response.setContentType("application/octet-stream");
         }
         
