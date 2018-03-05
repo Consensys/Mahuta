@@ -113,6 +113,11 @@ public class ElasticSearchIndexDao implements IndexDao {
             }
             
             LOGGER.debug("Document indexed ElasticSearch [indexName="+indexName+", documentId="+documentId+", indexFields="+indexFields+"]. Result ID=" + response.getId());
+
+            
+            // ###################
+            this.refreshIndex(indexName);
+            // ##################
             
             return response.getId();
             
@@ -400,9 +405,9 @@ public class ElasticSearchIndexDao implements IndexDao {
     }
     
     /**
-     * 
-     * @param object
-     * @return
+     * Convert an object to a JSON String
+     * @param object    Object to convert to a JSON
+     * @return          JSON representation of the object
      */
     public String convertObjectToJsonString(Object object) {
         try {
@@ -412,5 +417,13 @@ public class ElasticSearchIndexDao implements IndexDao {
             LOGGER.error("Exception occur:{}", ex);
         }
         return null;
-}
+    }
+    
+    /**
+     * Refresh an index
+     * @param index Index name
+     */
+    private void refreshIndex(String index) {
+        this.client.admin().indices().prepareRefresh(index).get();
+    }
 }

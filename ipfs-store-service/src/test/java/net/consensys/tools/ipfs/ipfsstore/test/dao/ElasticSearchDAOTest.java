@@ -17,6 +17,12 @@ import java.util.concurrent.ExecutionException;
 
 import org.assertj.core.util.Arrays;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
+import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -26,6 +32,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.client.AdminClient;
+import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -39,6 +47,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +72,9 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
+@PrepareForTest({TransportClient.class, AdminClient.class})
 public class ElasticSearchDAOTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchDAOTest.class);
@@ -74,8 +88,13 @@ public class ElasticSearchDAOTest {
     private String indexName = "myIndex";
     
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
+        
+        client = PowerMockito.mock(TransportClient.class);
+        
+        PowerMockito.whenNew(TransportClient.class).withAnyArguments().thenReturn(client);
+        
         underTest = new ElasticSearchIndexDao(client);
     }
     
@@ -114,17 +133,27 @@ public class ElasticSearchDAOTest {
         // Mock
         GetResponse getResponse = mock(GetResponse.class);
         GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.setRefresh(eq(true))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.get()).thenReturn(getResponse);
-        Mockito.when(getResponse.isExists()).thenReturn(false);
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.setRefresh(eq(true))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenReturn(getResponse);
+        when(getResponse.isExists()).thenReturn(false);
         
         IndexResponse indexResponse = mock(IndexResponse.class);
         IndexRequestBuilder indexRequestBuilder = mock(IndexRequestBuilder.class);
-        Mockito.when(client.prepareIndex(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.setSource(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.get()).thenReturn(indexResponse);
-        Mockito.when(indexResponse.getId()).thenReturn(documentId);
+        PowerMockito.when(client.prepareIndex(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
+        when(indexRequestBuilder.setSource(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
+        when(indexRequestBuilder.get()).thenReturn(indexResponse);
+        when(indexResponse.getId()).thenReturn(documentId);
+        
+
+        AdminClient adminClient= PowerMockito.mock(AdminClient.class);
+        IndicesAdminClient indicesAdminClient= mock(IndicesAdminClient.class);
+        RefreshRequestBuilder refreshRequestBuilder= mock(RefreshRequestBuilder.class);
+        RefreshResponse refreshResponse= mock(RefreshResponse.class);
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        when(indicesAdminClient.prepareRefresh(eq(indexName))).thenReturn(refreshRequestBuilder);
+        when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
 
         // #################################################
         String docReturned = underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
@@ -165,17 +194,27 @@ public class ElasticSearchDAOTest {
         // Mock
         GetResponse getResponse = mock(GetResponse.class);
         GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.setRefresh(eq(true))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.get()).thenReturn(getResponse);
-        Mockito.when(getResponse.isExists()).thenReturn(false);
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.setRefresh(eq(true))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenReturn(getResponse);
+        when(getResponse.isExists()).thenReturn(false);
         
         IndexResponse indexResponse = mock(IndexResponse.class);
         IndexRequestBuilder indexRequestBuilder = mock(IndexRequestBuilder.class);
-        Mockito.when(client.prepareIndex(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.setSource(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.get()).thenReturn(indexResponse);
-        Mockito.when(indexResponse.getId()).thenReturn(documentId);
+        PowerMockito.when(client.prepareIndex(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
+        when(indexRequestBuilder.setSource(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
+        when(indexRequestBuilder.get()).thenReturn(indexResponse);
+        when(indexResponse.getId()).thenReturn(documentId);
+        
+
+        AdminClient adminClient= PowerMockito.mock(AdminClient.class);
+        IndicesAdminClient indicesAdminClient= mock(IndicesAdminClient.class);
+        RefreshRequestBuilder refreshRequestBuilder= mock(RefreshRequestBuilder.class);
+        RefreshResponse refreshResponse= mock(RefreshResponse.class);
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        when(indicesAdminClient.prepareRefresh(eq(indexName))).thenReturn(refreshRequestBuilder);
+        when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
 
         // #################################################
         String docReturned = underTest.index(indexName, documentId, hash, contentType, null);
@@ -217,17 +256,28 @@ public class ElasticSearchDAOTest {
         // Mock
         GetResponse getResponse = mock(GetResponse.class);
         GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.setRefresh(eq(true))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.get()).thenReturn(getResponse);
-        Mockito.when(getResponse.isExists()).thenReturn(true);
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.setRefresh(eq(true))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenReturn(getResponse);
+        when(getResponse.isExists()).thenReturn(true);
         
         UpdateResponse indexResponse = mock(UpdateResponse.class);
         UpdateRequestBuilder indexRequestBuilder = mock(UpdateRequestBuilder.class);
-        Mockito.when(client.prepareUpdate(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.setDoc(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
-        Mockito.when(indexRequestBuilder.get()).thenReturn(indexResponse);
-        Mockito.when(indexResponse.getId()).thenReturn(documentId);
+        PowerMockito.when(client.prepareUpdate(anyString(), anyString(), eq(documentId))).thenReturn(indexRequestBuilder);
+        when(indexRequestBuilder.setDoc(any(String.class), eq(XContentType.JSON))).thenReturn(indexRequestBuilder);
+        when(indexRequestBuilder.get()).thenReturn(indexResponse);
+        when(indexResponse.getId()).thenReturn(documentId);
+        
+
+        AdminClient adminClient= PowerMockito.mock(AdminClient.class);
+        IndicesAdminClient indicesAdminClient= mock(IndicesAdminClient.class);
+        RefreshRequestBuilder refreshRequestBuilder= mock(RefreshRequestBuilder.class);
+        RefreshResponse refreshResponse= mock(RefreshResponse.class);
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        when(indicesAdminClient.prepareRefresh(eq(indexName))).thenReturn(refreshRequestBuilder);
+        when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
+        when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
 
         // #################################################
         String docReturned = underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
@@ -297,7 +347,7 @@ public class ElasticSearchDAOTest {
         
         
         // Mock
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenThrow(new RuntimeException());
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenThrow(new RuntimeException());
 
         // #################################################
         underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
@@ -327,14 +377,14 @@ public class ElasticSearchDAOTest {
         sourceMap.put(customAttributeKey, customAttributeVal);
         
         GetResponse getResponse = mock(GetResponse.class);
-        Mockito.when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
-        Mockito.when(getResponse.getId()).thenReturn(documentId);
-        Mockito.when(getResponse.getIndex()).thenReturn(indexName);
-        Mockito.when(getResponse.isExists()).thenReturn(true);
+        when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
+        when(getResponse.getId()).thenReturn(documentId);
+        when(getResponse.getIndex()).thenReturn(indexName);
+        when(getResponse.isExists()).thenReturn(true);
         
         GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.get()).thenReturn(getResponse);
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenReturn(getResponse);
         
         // #################################################
         Metadata meta = underTest.searchById(indexName, documentId);
@@ -396,14 +446,14 @@ public class ElasticSearchDAOTest {
         sourceMap.put(customAttributeKey, customAttributeVal);
         
         GetResponse getResponse = mock(GetResponse.class);
-        Mockito.when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
-        Mockito.when(getResponse.getId()).thenReturn(documentId);
-        Mockito.when(getResponse.getIndex()).thenReturn(indexName);
-        Mockito.when(getResponse.isExists()).thenReturn(false);
+        when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
+        when(getResponse.getId()).thenReturn(documentId);
+        when(getResponse.getIndex()).thenReturn(indexName);
+        when(getResponse.isExists()).thenReturn(false);
         
         GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.get()).thenReturn(getResponse);
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenReturn(getResponse);
     
         // #################################################
         underTest.searchById(indexName, documentId);
@@ -429,14 +479,14 @@ public class ElasticSearchDAOTest {
         sourceMap.put(customAttributeKey, customAttributeVal);
         
         GetResponse getResponse = mock(GetResponse.class);
-        Mockito.when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
-        Mockito.when(getResponse.getId()).thenReturn(documentId);
-        Mockito.when(getResponse.getIndex()).thenReturn(indexName);
-        Mockito.when(getResponse.isExists()).thenReturn(true);
+        when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
+        when(getResponse.getId()).thenReturn(documentId);
+        when(getResponse.getIndex()).thenReturn(indexName);
+        when(getResponse.isExists()).thenReturn(true);
         
         GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
-        Mockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
-        Mockito.when(getRequestBuilder.get()).thenThrow(new RuntimeException());
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenThrow(new RuntimeException());
     
         // #################################################
         underTest.searchById(indexName, documentId);
@@ -483,19 +533,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, null);
@@ -566,19 +616,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -636,19 +686,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -706,19 +756,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -776,19 +826,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -847,19 +897,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -917,19 +967,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -988,19 +1038,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -1059,19 +1109,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -1130,19 +1180,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         List<Metadata> searchResult = underTest.search(pagination, indexName, query);
@@ -1203,19 +1253,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         underTest.search(null, indexName, null);
@@ -1256,19 +1306,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
         
         // #################################################
         underTest.search(pagination, null, null);
@@ -1310,19 +1360,19 @@ public class ElasticSearchDAOTest {
         when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
-        Mockito.when(listenableActionFuture.actionGet()).thenThrow(new RuntimeException());
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setFrom(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(anyInt())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.addSort(any(FieldSortBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenThrow(new RuntimeException());
         
         // #################################################
         underTest.search(pagination, indexName, null);
@@ -1345,16 +1395,16 @@ public class ElasticSearchDAOTest {
         when(searchHits.getTotalHits()).thenReturn(total);
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(eq(0))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.get()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(eq(0))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.get()).thenReturn(searchResponse);
         
         // #################################################
         long totalResult = underTest.count(indexName, null);
@@ -1388,16 +1438,16 @@ public class ElasticSearchDAOTest {
         when(searchHits.getTotalHits()).thenReturn(total);
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(eq(0))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.get()).thenReturn(searchResponse);
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(eq(0))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.get()).thenReturn(searchResponse);
         
         // #################################################
         underTest.count(null, null);
@@ -1416,16 +1466,16 @@ public class ElasticSearchDAOTest {
         when(searchHits.getTotalHits()).thenReturn(total);
         
         SearchResponse searchResponse = mock(SearchResponse.class);
-        Mockito.when(searchResponse.getHits()).thenReturn(searchHits);
+        when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 
         SearchRequestBuilder searchRequestBuilder = mock(SearchRequestBuilder.class);
-        Mockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.setSize(eq(0))).thenReturn(searchRequestBuilder);
-        Mockito.when(searchRequestBuilder.get()).thenThrow(new RuntimeException());
+        PowerMockito.when(client.prepareSearch(anyString())).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSearchType(eq(SearchType.DFS_QUERY_THEN_FETCH))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setQuery(any(QueryBuilder.class))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.setSize(eq(0))).thenReturn(searchRequestBuilder);
+        when(searchRequestBuilder.get()).thenThrow(new RuntimeException());
         
         // #################################################
         underTest.count(indexName, null);
@@ -1441,67 +1491,67 @@ public class ElasticSearchDAOTest {
     // #########################################################
     
     // Need to use PowerMockito to mock a final method
-//    @Test
-//    public void createIndexSuccessTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
-//
-//        long total = 10;
-//        
-//        // Mock
-//
-//        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
-//        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
-//        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
-//        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
-//        AdminClient adminClient = mock(AdminClient.class);
-//        Mockito.when(client.admin()).thenReturn(adminClient);
-//        Mockito.when(adminClient.indices()).thenReturn(indicesAdminClient);
-//        Mockito.when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
-//        Mockito.when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
-//        Mockito.when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
-//        Mockito.when(indicesExistsResponse.isExists()).thenReturn(false);
-//        
-//
-//        CreateIndexResponse  createIndexResponse  = mock(CreateIndexResponse.class);
-//        CreateIndexRequestBuilder createIndexRequestBuilder = mock(CreateIndexRequestBuilder.class);
-//        Mockito.when(indicesAdminClient.prepareCreate(any(String.class))).thenReturn(createIndexRequestBuilder);
-//        Mockito.when(createIndexRequestBuilder.get()).thenReturn(createIndexResponse);
-//        
-//        // #################################################
-//        underTest.createIndex(indexName);
-//        // #################################################
-//        
-//        ArgumentCaptor<String> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(String.class);
-//        Mockito.verify(indicesAdminClient, Mockito.times(1)).prepareCreate(argumentCaptorQueryBuilder.capture()); 
-//        String indexNameCaptured = argumentCaptorQueryBuilder.<String> getValue();
-//        assertEquals(indexName, indexNameCaptured);
-//        
-//        
-//    }
+    @Test
+    public void createIndexSuccessTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+
+        long total = 10;
+        
+        // Mock
+
+        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
+        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
+        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
+        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
+        AdminClient adminClient = mock(AdminClient.class);
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
+        when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
+        when(indicesExistsResponse.isExists()).thenReturn(false);
+        
+
+        CreateIndexResponse  createIndexResponse  = mock(CreateIndexResponse.class);
+        CreateIndexRequestBuilder createIndexRequestBuilder = mock(CreateIndexRequestBuilder.class);
+        when(indicesAdminClient.prepareCreate(any(String.class))).thenReturn(createIndexRequestBuilder);
+        when(createIndexRequestBuilder.get()).thenReturn(createIndexResponse);
+        
+        // #################################################
+        underTest.createIndex(indexName);
+        // #################################################
+        
+        ArgumentCaptor<String> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(indicesAdminClient, Mockito.times(1)).prepareCreate(argumentCaptorQueryBuilder.capture()); 
+        String indexNameCaptured = argumentCaptorQueryBuilder.<String> getValue();
+        assertEquals(indexName, indexNameCaptured);
+        
+        
+    }
     
-//    @Test
-//    public void createIndexAlreadyExistTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
-//
-//        long total = 10;
-//        
-//        // Mock
-//
-//        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
-//        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
-//        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
-//        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
-//        AdminClient adminClient = mock(AdminClient.class);
-//        Mockito.when(client.admin()).thenReturn(adminClient);
-//        Mockito.when(adminClient.indices()).thenReturn(indicesAdminClient);
-//        Mockito.when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
-//        Mockito.when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
-//        Mockito.when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
-//        Mockito.when(indicesExistsResponse.isExists()).thenReturn(true);
-//        
-//        // #################################################
-//        underTest.createIndex(indexName);
-//        // #################################################
-//        
-//    }
+    @Test
+    public void createIndexAlreadyExistTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+
+        long total = 10;
+        
+        // Mock
+
+        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
+        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
+        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
+        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
+        AdminClient adminClient = mock(AdminClient.class);
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
+        when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
+        when(indicesExistsResponse.isExists()).thenReturn(true);
+        
+        // #################################################
+        underTest.createIndex(indexName);
+        // #################################################
+        
+    }
     
     @Test(expected=IllegalArgumentException.class)
     public void createIndexIllegalArgumentExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
@@ -1513,28 +1563,28 @@ public class ElasticSearchDAOTest {
         
     }
     
-//    @Test(expected=DaoException.class)
-//    public void createIndexUnexpectedExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
-//
-//        long total = 10;
-//        
-//        // Mock
-//        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
-//        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
-//        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
-//        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
-//        AdminClient adminClient = mock(AdminClient.class);
-//        Mockito.when(client.admin()).thenReturn(adminClient);
-//        Mockito.when(adminClient.indices()).thenReturn(indicesAdminClient);
-//        Mockito.when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
-//        Mockito.when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
-//        Mockito.when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
-//        Mockito.when(indicesExistsResponse.isExists()).thenThrow(new RuntimeException());
-//
-//        // #################################################
-//        underTest.createIndex(indexName);
-//        // #################################################
-//
-//        
-//    }
+    @Test(expected=DaoException.class)
+    public void createIndexUnexpectedExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+
+        long total = 10;
+        
+        // Mock
+        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
+        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
+        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
+        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
+        AdminClient adminClient = mock(AdminClient.class);
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
+        when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
+        when(indicesExistsResponse.isExists()).thenThrow(new RuntimeException());
+
+        // #################################################
+        underTest.createIndex(indexName);
+        // #################################################
+
+        
+    }
 }
