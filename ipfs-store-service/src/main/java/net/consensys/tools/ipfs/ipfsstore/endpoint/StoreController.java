@@ -41,7 +41,7 @@ import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 @RestController
 @RequestMapping("${api.base}")
-@Profile("default")
+//@Profile("default")
 public class StoreController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(StoreController.class);

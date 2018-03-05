@@ -25,7 +25,5 @@ api:
       uri: /search/{index}
    fetch:
       uri: /fetch/{index}/{hash}
-   fetch:
-      uri: /fetch/{index}/{hash}
    config_index:
       uri: /config/index/{index}
