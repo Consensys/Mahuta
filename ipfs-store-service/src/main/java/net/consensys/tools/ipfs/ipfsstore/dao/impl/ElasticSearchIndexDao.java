@@ -22,6 +22,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
@@ -52,11 +53,15 @@ import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 @Service
 public class ElasticSearchIndexDao implements IndexDao {
 
-    private static final Logger LOGGER = Logger.getLogger(IPFSStorageDao.class);
+    private static final Logger LOGGER = Logger.getLogger(ElasticSearchIndexDao.class);
+    private static final String NULL = "null"; //must be lower case
     
     private final ObjectMapper mapper;
     
     private final TransportClient client;
+    
+    @Value("${parameters.indexNullValue}")
+    private boolean indexNullValue;
     
     /*
      * Constructor
@@ -102,22 +107,17 @@ public class ElasticSearchIndexDao implements IndexDao {
             if(!this.doesExist(indexName, documentId)) {
                 response = client.prepareIndex(indexName.toLowerCase(), indexName.toLowerCase(), documentId)
                     .setSource(convertObjectToJsonString(source), XContentType.JSON)
-                    //.setSource(source)
                     .get();
                 
             } else {
                 response = client.prepareUpdate(indexName.toLowerCase(), indexName.toLowerCase(), documentId)
                     .setDoc(convertObjectToJsonString(source), XContentType.JSON)
-                    //.setDoc(source)
                     .get();               
             }
             
             LOGGER.debug("Document indexed ElasticSearch [indexName="+indexName+", documentId="+documentId+", indexFields="+indexFields+"]. Result ID=" + response.getId());
 
-            
-            // ###################
             this.refreshIndex(indexName);
-            // ##################
             
             return response.getId();
             
@@ -279,7 +279,7 @@ public class ElasticSearchIndexDao implements IndexDao {
      * @param indexFields   List of IndexField
      * @return              Map
      */
-    private static Map<String, Object> convert(List<IndexField> indexFields) {
+    private Map<String, Object> convert(List<IndexField> indexFields) {
         if(indexFields == null) {
             return null;
         }
@@ -288,10 +288,23 @@ public class ElasticSearchIndexDao implements IndexDao {
                 .stream()
                 .collect(Collectors.toMap(
                         field -> field.getName(), 
-                        field -> field.getValue()
+                        field -> handleNullValue(field.getValue())
                  ));
 
         return result;
+    }
+    
+    /**
+     * Replace null or empty string value by NULL to add it in the index (E.S. doesn't index null value)
+     * @param value Value
+     * @return      Value replaced by NULL if null or empty
+     */
+    private Object handleNullValue(Object value) {
+        if(indexNullValue && ( value == null || (value instanceof String && ((String)value).length() == 0)) ) {
+            return NULL;
+        } else {
+            return value;
+        } 
     }
     
     /**
@@ -347,7 +360,7 @@ public class ElasticSearchIndexDao implements IndexDao {
      * @param query     IPFS-Store Query 
      * @return          ElasticSearch query
      */
-    private static QueryBuilder convertQuery(Query query) {
+    private QueryBuilder convertQuery(Query query) {
         LOGGER.trace("Converting query: " +query);
         
         BoolQueryBuilder elasticSearchQuery = QueryBuilders.boolQuery();
@@ -357,37 +370,40 @@ public class ElasticSearchIndexDao implements IndexDao {
         }
         
         query.getFilterClauses().stream().forEach(f -> {
+            
+            Object value = handleNullValue( f.getValue());
+            
             try {
 
                 switch(f.getOperation()) {
                 case full_text:
-                    elasticSearchQuery.must(QueryBuilders.multiMatchQuery(f.getValue(), f.getNames()).lenient(true));
+                    elasticSearchQuery.must(QueryBuilders.multiMatchQuery(value, f.getNames()).lenient(true));
                     break;  
                 case equals:
-                    elasticSearchQuery.must(QueryBuilders.termQuery(f.getName(), f.getValue()));
+                    elasticSearchQuery.must(QueryBuilders.termQuery(f.getName(), value));
                     break;  
                 case not_equals:
-                    elasticSearchQuery.mustNot(QueryBuilders.termQuery(f.getName(), f.getValue()));
+                    elasticSearchQuery.mustNot(QueryBuilders.termQuery(f.getName(), value));
                     break;  
                 case contains:
-                    elasticSearchQuery.must(QueryBuilders.matchQuery(f.getName(), f.getValue()));
+                    elasticSearchQuery.must(QueryBuilders.matchQuery(f.getName(), value));
                     break;  
                 case in:
                     elasticSearchQuery.filter(QueryBuilders.termsQuery(
                             f.getName(), 
-                            Arrays.asList((Object[])f.getValue()).stream().map((o)->o.toString().toLowerCase()).collect(Collectors.toList())));
+                            Arrays.asList((Object[])value).stream().map((o)->o.toString().toLowerCase()).collect(Collectors.toList())));
                     break;  
                 case lt:
-                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).lt(f.getValue()));
+                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).lt(value));
                     break;  
                 case lte:
-                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).lte(f.getValue()));
+                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).lte(value));
                     break;  
                 case gt:
-                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).gt(f.getValue()));
+                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).gt(value));
                     break;  
                 case gte:
-                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).gte(f.getValue()));
+                    elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).gte(value));
                     break; 
                 default:
                     LOGGER.warn("Operation ["+f.getOperation()+"] not supported for  filter ["+f+"]- Ignore it!");

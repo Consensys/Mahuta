@@ -275,7 +275,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         if(indexFields != null) {
             indexFieldsMap = indexFields.stream().collect(Collectors.toMap(
                         i -> i, 
-                        i -> jsonNode.at(formatIndexField(i))
+                        i -> deserialize(jsonNode.at(formatIndexField(i)))
                       ));
         }
         
@@ -285,6 +285,26 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         }
         
         return indexFieldsMap;
+    }
+    
+    /**
+     * Deserialize a JSONNode to a primitive object
+     * @param node JSON node
+     * @return  primitive object
+     */
+    public static Object deserialize(JsonNode node) {
+
+        if (node == null || node.isMissingNode() || node.isNull() || node.asText().length() == 0) {
+            return  ""; //Because toMap doesn't accept null value ...
+        } else if (node.isBoolean()) {
+            return  node.asBoolean();
+        } else if (node.isLong()) {
+            return  node.asLong();
+        } else if (node.isDouble()) {
+            return  node.asDouble();
+        } else {
+            return node.asText();
+        }
     }
     
     /**

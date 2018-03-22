@@ -27,3 +27,6 @@ api:
       uri: /fetch/{index}/{hash}
    config_index:
       uri: /config/index/{index}
+      
+parameters:
+    indexNullValue: true
