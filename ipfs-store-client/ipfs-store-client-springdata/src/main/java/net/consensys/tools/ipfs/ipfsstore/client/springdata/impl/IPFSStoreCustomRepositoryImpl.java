@@ -113,7 +113,13 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         try {
             LOGGER.debug("Find By Hash [hash="+hash+"]");
 
-            E entity = deserialize(this.client.get(indexName, hash));
+            byte[] content = this.client.get(indexName, hash);
+            
+            if(content == null) {
+                return null;
+            }
+            
+            E entity = deserialize(content);
             
             LOGGER.debug("Find By Hash  [hash="+hash+"] : " + entity);
             

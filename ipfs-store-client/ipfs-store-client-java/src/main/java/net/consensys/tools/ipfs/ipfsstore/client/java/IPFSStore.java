@@ -306,7 +306,13 @@ public class IPFSStore {
      * @throws IPFSStoreException
      */
     public byte[] getById(String indexName, String id) throws IPFSStoreException {
-        return this.get(indexName, this.getMetadataById(indexName, id).getHash());
+        Metadata metadata = this.getMetadataById(indexName, id);
+        if(metadata != null) {
+            return this.get(indexName, metadata.getHash());
+            
+        } else {
+            return null;
+        }
     }
 
     /**

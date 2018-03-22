@@ -90,7 +90,13 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
         try {
             LOGGER.debug("Retrieve entity [id="+id+"] ...");
             
-            E entity = deserialize(this.client.getById(indexName, id.toString()));
+            byte[] content = this.client.getById(indexName, id.toString());
+            
+            if(content == null) {
+                return null;
+            }
+            
+            E entity = deserialize(content);
 
             LOGGER.debug("Entity [id="+id+"] retrieved. entity="+entity);
 
