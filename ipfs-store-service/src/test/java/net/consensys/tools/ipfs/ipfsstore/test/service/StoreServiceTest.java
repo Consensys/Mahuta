@@ -44,55 +44,55 @@ public class StoreServiceTest {
     private StorageDao storageDao;
     @MockBean
     private IndexDao indexDao;
-    
+
     private StoreService underTest;
 
-    
+
     @Before
     public void setup() {
         underTest = new StoreServiceImpl(indexDao, storageDao);
     }
-    
+
     @Test
     public void storeFileSuccessTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String path = "pdf-sample.pdf";
         byte[] pdf = TestUtils.getFile(path);
-        
+
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
 
 
         // #################################################
-        String hashReturned= underTest.storeFile(pdf);
+        String hashReturned = underTest.storeFile(pdf);
         // #################################################
-         
+
         ArgumentCaptor<byte[]> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(byte[].class);
-        Mockito.verify(storageDao, Mockito.times(1)).createContent(argumentCaptorQueryBuilder.capture()); 
-        byte[] bytesCaptured = argumentCaptorQueryBuilder.<byte[]> getValue();
+        Mockito.verify(storageDao, Mockito.times(1)).createContent(argumentCaptorQueryBuilder.capture());
+        byte[] bytesCaptured = argumentCaptorQueryBuilder.<byte[]>getValue();
 
         assertEquals(pdf, bytesCaptured);
         assertEquals(hash, hashReturned);
-        
+
     }
-    
-    @Test(expected=ServiceException.class)
+
+    @Test(expected = ServiceException.class)
     public void storeFileExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String path = "pdf-sample.pdf";
         byte[] pdf = TestUtils.getFile(path);
-        
+
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenThrow(new DaoException(""));
 
         // #################################################
         underTest.storeFile(pdf);
         // #################################################
-        
+
     }
-    
+
     @Test
     public void indexFileSuccessTest() throws Exception {
 
@@ -102,14 +102,14 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
-        
+
         // Mock
         Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenReturn(id);
 
@@ -117,17 +117,17 @@ public class StoreServiceTest {
         // #################################################
         IndexerResponse response = underTest.indexFile(request);
         // #################################################
-         
+
 
         assertEquals(id, response.getDocumentId());
         assertEquals(hash, response.getHash());
         assertEquals(index, response.getIndexName());
-        
-        Mockito.verify(indexDao, Mockito.times(1)).index(eq(index), eq(id), eq(hash), eq(contentType), anyList()); 
-        
+
+        Mockito.verify(indexDao, Mockito.times(1)).index(eq(index), eq(id), eq(hash), eq(contentType), anyList());
+
     }
-    
-    @Test(expected=ServiceException.class)
+
+    @Test(expected = ServiceException.class)
     public void indexFileExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -136,14 +136,14 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
-        
+
         // Mock
         Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
 
@@ -152,10 +152,10 @@ public class StoreServiceTest {
         underTest.indexFile(request);
         // #################################################
 
-        
+
     }
-    
-    @Test(expected=ServiceException.class)
+
+    @Test(expected = ServiceException.class)
     public void indexFileInvalidInputTest() throws Exception {
 
         String hash = null;
@@ -164,14 +164,14 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(null);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
-        
+
         // Mock
         Mockito.when(indexDao.index(eq(index), eq(id), eq(null), eq(contentType), anyList())).thenThrow(new DaoException(""));
 
@@ -179,11 +179,10 @@ public class StoreServiceTest {
         // #################################################
         underTest.indexFile(request);
         // #################################################
-        
 
-        
+
     }
-    
+
     @Test
     public void storeAndIndexFileSuccessTest() throws Exception {
 
@@ -195,14 +194,14 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
-        
+
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
         Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenReturn(id);
@@ -211,23 +210,23 @@ public class StoreServiceTest {
         // #################################################
         IndexerResponse response = underTest.storeAndIndexFile(pdf, request);
         // #################################################
-         
+
 
         assertEquals(id, response.getDocumentId());
         assertEquals(hash, response.getHash());
         assertEquals(index, response.getIndexName());
-        
+
         ArgumentCaptor<byte[]> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(byte[].class);
-        Mockito.verify(storageDao, Mockito.times(1)).createContent(argumentCaptorQueryBuilder.capture()); 
-        byte[] bytesCaptured = argumentCaptorQueryBuilder.<byte[]> getValue();
+        Mockito.verify(storageDao, Mockito.times(1)).createContent(argumentCaptorQueryBuilder.capture());
+        byte[] bytesCaptured = argumentCaptorQueryBuilder.<byte[]>getValue();
 
         assertEquals(pdf, bytesCaptured);
-        
-        Mockito.verify(indexDao, Mockito.times(1)).index(eq(index), eq(id), eq(hash), eq(contentType), anyList()); 
-        
+
+        Mockito.verify(indexDao, Mockito.times(1)).index(eq(index), eq(id), eq(hash), eq(contentType), anyList());
+
     }
-    
-    @Test(expected=ServiceException.class)
+
+    @Test(expected = ServiceException.class)
     public void storeAndIndexFileUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -238,14 +237,14 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
-        
+
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
         Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
@@ -255,8 +254,8 @@ public class StoreServiceTest {
         underTest.storeAndIndexFile(pdf, request);
         // #################################################
     }
-    
-    @Test(expected=ServiceException.class)
+
+    @Test(expected = ServiceException.class)
     public void storeAndIndexFileInvalidInputdExceptionTest() throws Exception {
 
         String hash = "";
@@ -267,14 +266,14 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
-        
+
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
         Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
@@ -282,38 +281,38 @@ public class StoreServiceTest {
 
         // #################################################
         underTest.storeAndIndexFile(pdf, request);
-        
+
         // #################################################
     }
-    
-    
+
+
     @Test
     public void getFileSuccessTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String path = "pdf-sample.pdf";
         byte[] pdf = TestUtils.getFile(path);
-        
+
         // Mock
         Mockito.when(storageDao.getContent(eq(hash))).thenReturn(pdf);
 
 
         // #################################################
-        byte[] fileReturned= underTest.getFileByHash(hash);
+        byte[] fileReturned = underTest.getFileByHash(hash);
         // #################################################
-         
+
         assertEquals(pdf, fileReturned);
-        
-        Mockito.verify(storageDao, Mockito.times(1)).getContent(eq(hash)); 
-        
+
+        Mockito.verify(storageDao, Mockito.times(1)).getContent(eq(hash));
+
     }
-    
-    
-    @Test(expected=ServiceException.class)
+
+
+    @Test(expected = ServiceException.class)
     public void getFileUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
-        
+
         // Mock
         Mockito.when(storageDao.getContent(eq(hash))).thenThrow(new DaoException(""));
 
@@ -322,10 +321,10 @@ public class StoreServiceTest {
         underTest.getFileByHash(hash);
         // #################################################
 
-        
+
     }
-    
-    
+
+
     @Test
     public void getFileMetadataSuccessTest() throws Exception {
 
@@ -335,26 +334,26 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         // Mock
         Mockito.when(indexDao.searchById(eq(index), eq(id))).thenReturn(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
 
         // #################################################
         Metadata metadataReturned = underTest.getFileMetadataById(index, id);
         // #################################################
-         
+
         assertEquals(metadataReturned.getContentType(), contentType);
         assertEquals(metadataReturned.getHash(), hash);
         assertEquals(metadataReturned.getIndexName(), index);
         assertEquals(metadataReturned.getDocumentId(), id);
         assertEquals(metadataReturned.getIndexFieldValue(attribute), value);
-        
-        Mockito.verify(indexDao, Mockito.times(1)).searchById(eq(index), eq(id)); 
-        
+
+        Mockito.verify(indexDao, Mockito.times(1)).searchById(eq(index), eq(id));
+
     }
-    
-    
-    @Test(expected=NotFoundException.class)
+
+
+    @Test(expected = NotFoundException.class)
     public void getFileMetadataNotFoundExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -363,7 +362,7 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         // Mock
         Mockito.when(indexDao.searchById(eq(index), eq(id))).thenThrow(new NotFoundException(""));
 
@@ -371,11 +370,11 @@ public class StoreServiceTest {
         underTest.getFileMetadataById(index, id);
         // #################################################
 
-        
+
     }
-    
-    
-    @Test(expected=ServiceException.class)
+
+
+    @Test(expected = ServiceException.class)
     public void getFileMetadataUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -384,7 +383,7 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         // Mock
         Mockito.when(indexDao.searchById(eq(index), eq(id))).thenThrow(new DaoException(""));
 
@@ -392,10 +391,10 @@ public class StoreServiceTest {
         underTest.getFileMetadataById(index, id);
         // #################################################
 
-        
+
     }
-    
-    
+
+
     @Test
     public void getFileMetadataByHashSuccessTest() throws Exception {
 
@@ -405,7 +404,7 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         // Mock
         List<Metadata> list = new ArrayList<>();
         list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
@@ -415,19 +414,19 @@ public class StoreServiceTest {
         // #################################################
         Metadata metadataReturned = underTest.getFileMetadataByHash(index, hash);
         // #################################################
-         
+
         assertEquals(metadataReturned.getContentType(), contentType);
         assertEquals(metadataReturned.getHash(), hash);
         assertEquals(metadataReturned.getIndexName(), index);
         assertEquals(metadataReturned.getDocumentId(), id);
         assertEquals(metadataReturned.getIndexFieldValue(attribute), value);
-        
-        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(index), any(Query.class)); 
-        Mockito.verify(indexDao, Mockito.times(1)).count(eq(index), any(Query.class)); 
-        
+
+        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(index), any(Query.class));
+        Mockito.verify(indexDao, Mockito.times(1)).count(eq(index), any(Query.class));
+
     }
-    
-    @Test(expected=NotFoundException.class)
+
+    @Test(expected = NotFoundException.class)
     public void getFileMetadataByHashNotFoundTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -436,7 +435,7 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         // Mock
         List<Metadata> list = new ArrayList<>();
         Mockito.when(indexDao.search(any(Pageable.class), eq(index), any(Query.class))).thenReturn(list);
@@ -445,10 +444,10 @@ public class StoreServiceTest {
         // #################################################
         underTest.getFileMetadataByHash(index, hash);
         // ################################################# 
-        
+
     }
 
-    @Test(expected=ServiceException.class)
+    @Test(expected = ServiceException.class)
     public void getFileMetadataByHashUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -457,7 +456,7 @@ public class StoreServiceTest {
         String id = "hello_doc";
         String attribute = "author";
         String value = "Gregoire Jeanmart";
-        
+
         // Mock
         List<Metadata> list = new ArrayList<>();
         list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
@@ -467,25 +466,25 @@ public class StoreServiceTest {
         // #################################################
         underTest.getFileMetadataByHash(index, hash);
         // #################################################
-        
+
     }
-    
+
     @Test
     public void createTest() throws Exception {
 
         String index = "AAAAAA";
-        
+
 
         // #################################################
         underTest.createIndex(index);
         // #################################################
-         
+
         ArgumentCaptor<String> argumentCaptorIndexName = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(indexDao, Mockito.times(1)).createIndex(argumentCaptorIndexName.capture()); 
-        String indexCaptured = argumentCaptorIndexName.<String> getValue();
+        Mockito.verify(indexDao, Mockito.times(1)).createIndex(argumentCaptorIndexName.capture());
+        String indexCaptured = argumentCaptorIndexName.<String>getValue();
 
         assertEquals(index, indexCaptured);
-        
+
     }
-    
+
 }

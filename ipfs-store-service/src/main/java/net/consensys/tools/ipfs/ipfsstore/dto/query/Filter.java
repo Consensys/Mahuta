@@ -10,16 +10,16 @@ import lombok.ToString;
 
 /**
  * A filter represent an operation on an index field based on a value
- * 
- * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 @NoArgsConstructor
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Filter {
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @JsonProperty("name")
     private String name;
 
@@ -27,11 +27,13 @@ public class Filter {
     @JsonProperty("names")
     private String[] names;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @JsonProperty("operation")
     private QueryOperation operation;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @JsonProperty("value")
     private Object value;
 
@@ -52,8 +54,8 @@ public class Filter {
      * If the attribute 'names' is null, we return 'name'
      */
     public String[] getNames() {
-        if(names == null || names.length == 0) {
-            return new String[] {name};
+        if (names == null || names.length == 0) {
+            return new String[]{name};
         } else {
             return names;
         }

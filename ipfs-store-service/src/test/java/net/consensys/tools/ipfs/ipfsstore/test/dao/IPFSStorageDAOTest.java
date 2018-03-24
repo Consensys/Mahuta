@@ -36,48 +36,46 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 public class IPFSStorageDAOTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStorageDAOTest.class);
-    
+
     private StorageDao underTest;
-    
+
     @Mock
     private IPFS ipfs;
-    
+
     @Before
     public void setup() throws Exception {
         underTest = new IPFSStorageDao(ipfs);
-        
+
     }
-    
-    
+
+
     // #########################################################
     // ####################### createContent
     // #########################################################
-    
+
     @Test
     public void createContentTest() throws Exception {
         String content = "{\"hello\": \"world\"}";
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
-        
+
         // Mock
-        
+
         List<MerkleNode> merklenodes = new ArrayList<>();
         MerkleNode merklenode = new MerkleNode(hash);
-        merklenodes.add(merklenode);   
-        
+        merklenodes.add(merklenode);
+
         List<Multihash> multiHashes = new ArrayList<>();
         Multihash multiHash = Multihash.fromBase58(hash);
-        multiHashes.add(multiHash);          
-        
+        multiHashes.add(multiHash);
 
-        
-        
+
         IPFS ipfsMock = mock(IPFS.class);
         PowerMockito.whenNew(IPFS.class).withArguments(anyString(), anyInt()).thenReturn(ipfsMock);
-        
+
         IPFS ipfsTest = new IPFS("localhost", 9999);
-        
+
         StorageDao underTest2 = new IPFSStorageDao(ipfsTest);
-        
+
         Mockito.when(ipfsTest.add(any(ByteArrayWrapper.class))).thenReturn(merklenodes);
         //TODO find a way to mock ipfs.pin
 //        Mockito.when(ipfsTest.pin.add(any(Multihash.class))).thenReturn(multiHashes);
@@ -92,79 +90,78 @@ public class IPFSStorageDAOTest {
 //        
 //        Mockito.verify(ipfs, Mockito.times(1)).add(any(ByteArrayWrapper.class));  
     }
-    
-    @Test(expected=DaoException.class)
+
+    @Test(expected = DaoException.class)
     public void createContentTestException() throws IOException, DaoException {
         String content = "{\"hello\": \"world\"}";
-        
+
         // Mock
         Mockito.when(ipfs.add(any(ByteArrayWrapper.class))).thenThrow(new IOException(""));
-        
+
         // #################################################
         underTest.createContent(content.getBytes());
         // ################################################# 
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void createNullContentTestException() throws IOException, DaoException {
-        
+
         // #################################################
         underTest.createContent(null);
         // ################################################# 
     }
-    
 
-    
+
     // #########################################################
     // ####################### getContent
     // #########################################################
-    
+
     @Test
     public void getContentTest() throws IOException, DaoException {
         String content = "{\"hello\": \"world\"}";
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
-        
+
         // Mock
         Mockito.when(ipfs.cat(any(Multihash.class))).thenReturn(content.getBytes());
-        
+
         // #################################################
         byte[] contentResult = underTest.getContent(hash);
         // #################################################
-        
-        LOGGER.debug("contentResult="+new String(contentResult));
-        
+
+        LOGGER.debug("contentResult=" + new String(contentResult));
+
         assertEquals("Content should be " + content, content, new String(contentResult));
-        
-        Mockito.verify(ipfs, Mockito.times(1)).cat(any(Multihash.class));  
+
+        Mockito.verify(ipfs, Mockito.times(1)).cat(any(Multihash.class));
     }
 
-    @Test(expected=DaoException.class)
+    @Test(expected = DaoException.class)
     public void getContentTestException() throws IOException, DaoException {
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
-        
+
         // Mock
         Mockito.when(ipfs.cat(any(Multihash.class))).thenThrow(new IOException(""));
-        
+
         // #################################################
         underTest.getContent(hash);
         // ################################################# 
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void getContentTestIllegalArgumentException() throws IOException, DaoException {
         // #################################################
         underTest.getContent("");
         // ################################################# 
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void getContentTestIllegalArgumentException2() throws IOException, DaoException {
         // #################################################
         underTest.getContent(null);
         // ################################################# 
     }
-    
-    
+
+
 //    // #########################################################
 //    // ####################### pin
 //    // #########################################################
@@ -239,6 +236,6 @@ public class IPFSStorageDAOTest {
 //        underTest.unpin("");
 //        // ################################################# 
 //    }
-    
-    
+
+
 }

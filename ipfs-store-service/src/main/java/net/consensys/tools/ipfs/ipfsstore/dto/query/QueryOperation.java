@@ -2,9 +2,8 @@ package net.consensys.tools.ipfs.ipfsstore.dto.query;
 
 /**
  * Query operation allowed for filtering search in the index
- * 
- * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 public enum QueryOperation {
 

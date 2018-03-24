@@ -18,19 +18,19 @@ public class IndexerRequest {
     @NotNull
     @JsonProperty("index")
     private String indexName;
-    
+
     @JsonProperty("id")
     private String documentId;
 
     @NotNull
     @JsonProperty("hash")
     private String hash;
-    
+
     @JsonProperty("content_type")
     private String contentType;
-    
+
     @JsonProperty("index_fields")
     private List<IndexField> indexFields;
-    
-    
+
+
 }

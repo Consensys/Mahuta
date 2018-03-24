@@ -17,30 +17,30 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Metadata implements Serializable{
+public class Metadata implements Serializable {
 
     private static final long serialVersionUID = -1081353592236209521L;
 
     @JsonProperty("index")
     private String indexName;
-    
+
     @JsonProperty("id")
     private String documentId;
-    
+
     @JsonProperty("hash")
     private String hash;
-    
+
     @JsonProperty("content_type")
     private String contentType;
-    
+
     @JsonProperty("index_fields")
     private List<IndexField> indexFields;
-    
+
     public Object getIndexFieldValue(String indexFieldName) {
-        if(indexFields == null) {
+        if (indexFields == null) {
             return null;
         }
-        return indexFields.stream().filter(f->f.getName().equals(indexFieldName)).findFirst().map(IndexField::getValue).orElse(null);
+        return indexFields.stream().filter(f -> f.getName().equals(indexFieldName)).findFirst().map(IndexField::getValue).orElse(null);
     }
 
     @Override

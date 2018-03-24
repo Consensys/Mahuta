@@ -34,12 +34,12 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> implements IPFSStoreCustomRepository<E, ID> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreCustomRepositoryImpl.class);
 
-    protected static final Charset    DEFAULT_ENCODING = StandardCharsets.UTF_8;
-    protected static final String     DEFAULT_CONTENT_TYPE = "application/json";
-    protected static final String     DEFAULT_ATTRIBUTE_ID = "id";
-    protected static final String     DEFAULT_ATTRIBUTE_HASH = "hash";
-    protected static final Class<?>   ID_CLASS = String.class;
-    protected static final Class<?>   HASH_CLASS = String.class;
+    protected static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
+    protected static final String DEFAULT_CONTENT_TYPE = "application/json";
+    protected static final String DEFAULT_ATTRIBUTE_ID = "id";
+    protected static final String DEFAULT_ATTRIBUTE_HASH = "hash";
+    protected static final Class<?> ID_CLASS = String.class;
+    protected static final Class<?> HASH_CLASS = String.class;
 
     protected final IPFSStore client;
 
@@ -67,14 +67,14 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
         // Merge Direct fields and External fields
         allFields = new HashSet<>();
-        if(indexFields != null) allFields.addAll(indexFields);
-        if(externalIndexFields != null) allFields.addAll(externalIndexFields);
+        if (indexFields != null) allFields.addAll(indexFields);
+        if (externalIndexFields != null) allFields.addAll(externalIndexFields);
 
         this.attributeHash = DEFAULT_ATTRIBUTE_HASH;
         this.attributeId = DEFAULT_ATTRIBUTE_ID;
     }
 
-    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz , String attributeId, String attributeHash) {
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz, String attributeId, String attributeHash) {
         this.client = client;
         this.indexName = indexName;
         this.indexFields = indexFields;
@@ -84,8 +84,8 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
         // Merge Direct fields and External fields
         allFields = new HashSet<>();
-        if(indexFields != null) allFields.addAll(indexFields);
-        if(externalIndexFields != null) allFields.addAll(externalIndexFields);
+        if (indexFields != null) allFields.addAll(indexFields);
+        if (externalIndexFields != null) allFields.addAll(externalIndexFields);
 
         this.attributeHash = attributeHash;
         this.attributeId = attributeId;
@@ -115,7 +115,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             byte[] content = this.client.get(indexName, hash);
 
-            if(content == null) {
+            if (content == null) {
                 return null;
             }
 
@@ -125,7 +125,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             return entity;
 
-        } catch(IPFSStoreException e) {
+        } catch (IPFSStoreException e) {
             LOGGER.error("Find By Hash " + printHash(hash), e);
             return null;
         }
@@ -144,12 +144,11 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             return hash;
 
-        } catch(IPFSStoreException e) {
+        } catch (IPFSStoreException e) {
             LOGGER.error("Error while saving the entity " + printEntity(entity), e);
             return null;
         }
     }
-
 
 
     protected Page<E> search(Query query, Pageable pageable) {
@@ -165,7 +164,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             return new PageImpl<>(result, pageable, searchAndFetch.getTotalElements());
 
-        } catch(IPFSStoreException e) {
+        } catch (IPFSStoreException e) {
             LOGGER.error("Find all " + printQuery(query, pageable), e);
             return null;
         }
@@ -185,7 +184,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         try {
             return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
         } catch (JsonProcessingException e1) {
-            LOGGER.error("Error while serialising the entity [entity="+e+"]", e);
+            LOGGER.error("Error while serialising the entity [entity=" + e + "]", e);
             return null;
         }
     }
@@ -202,9 +201,8 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     /**
      * Invoke the ID getter on the entity (using reflection)
      *
-     * @param obj   Entity
-     * @return      ID
-     *
+     * @param obj Entity
+     * @return ID
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      * @throws InvocationTargetException
@@ -212,9 +210,9 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
      * @throws SecurityException
      */
     protected String getId(Object obj) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Method fieldGetter = entityClazz.getMethod("get"+attributeId.substring(0, 1).toUpperCase() + attributeId.substring(1));
+        Method fieldGetter = entityClazz.getMethod("get" + attributeId.substring(0, 1).toUpperCase() + attributeId.substring(1));
         Object id = fieldGetter.invoke(obj);
-        if(id == null) {
+        if (id == null) {
             return null;
         } else {
             return id.toString();
@@ -224,9 +222,8 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     /**
      * Invoke the ID setter on the entity (using reflection)
      *
-     * @param obj   Entity
-     * @param id    ID
-     *
+     * @param obj Entity
+     * @param id  ID
      * @throws NoSuchMethodException
      * @throws SecurityException
      * @throws IllegalAccessException
@@ -234,16 +231,15 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
      * @throws InvocationTargetException
      */
     protected void setId(Object obj, String id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method setter= entityClazz.getMethod("set"+attributeId.substring(0, 1).toUpperCase() + attributeId.substring(1), ID_CLASS);
+        Method setter = entityClazz.getMethod("set" + attributeId.substring(0, 1).toUpperCase() + attributeId.substring(1), ID_CLASS);
         setter.invoke(obj, id);
     }
 
     /**
      * Invoke the hash setter on the entity (using reflection)
      *
-     * @param obj   Entity
-     * @param hash  Hash
-     *
+     * @param obj  Entity
+     * @param hash Hash
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      * @throws InvocationTargetException
@@ -251,12 +247,11 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
      * @throws SecurityException
      */
     protected void setHash(Object obj, String hash) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Method setter= entityClazz.getMethod("set"+attributeHash.substring(0, 1).toUpperCase() + attributeHash.substring(1), HASH_CLASS);
+        Method setter = entityClazz.getMethod("set" + attributeHash.substring(0, 1).toUpperCase() + attributeHash.substring(1), HASH_CLASS);
         setter.invoke(obj, hash);
     }
 
     /**
-     *
      * @param object
      * @param indexFields
      * @param externalIndexFields
@@ -270,15 +265,15 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         JsonNode jsonNode = mapper.valueToTree(object);
 
         // Extract value from path in the object
-        if(indexFields != null) {
+        if (indexFields != null) {
             indexFieldsMap = indexFields.stream().collect(Collectors.toMap(
-                        i -> i,
-                        i -> deserialize(jsonNode.at(formatIndexField(i)))
-                      ));
+                    i -> i,
+                    i -> deserialize(jsonNode.at(formatIndexField(i)))
+            ));
         }
 
         // Add potential external index fields
-        if(externalIndexFields != null) {
+        if (externalIndexFields != null) {
             indexFieldsMap.putAll(externalIndexFields);
         }
 
@@ -287,19 +282,20 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
     /**
      * Deserialize a JSONNode to a primitive object
+     *
      * @param node JSON node
-     * @return  primitive object
+     * @return primitive object
      */
     public static Object deserialize(JsonNode node) {
 
         if (node == null || node.isMissingNode() || node.isNull() || node.asText().length() == 0) {
-            return  ""; //Because toMap doesn't accept null value ...
+            return ""; //Because toMap doesn't accept null value ...
         } else if (node.isBoolean()) {
-            return  node.asBoolean();
+            return node.asBoolean();
         } else if (node.isLong()) {
-            return  node.asLong();
+            return node.asLong();
         } else if (node.isDouble()) {
-            return  node.asDouble();
+            return node.asDouble();
         } else {
             return node.asText();
         }
@@ -307,8 +303,9 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
     /**
      * Format an index field (like user_id or current.text) to a json path (/user_id or /current/text)
-     * @param     indexField field
-     * @return  Index field formatted
+     *
+     * @param indexField field
+     * @return Index field formatted
      */
     protected static String formatIndexField(String indexField) {
         indexField = "/" + indexField;
@@ -317,19 +314,19 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         return indexField;
     }
 
-    private String printFullTextSearch(String fullTextCriteria, Pageable pagination){
-        return "[fullTextCriteria="+fullTextCriteria+", pageable="+pagination+"]";
+    private String printFullTextSearch(String fullTextCriteria, Pageable pagination) {
+        return "[fullTextCriteria=" + fullTextCriteria + ", pageable=" + pagination + "]";
     }
 
-    private String printHash(String hash){
-        return "[hash="+hash+"]";
+    private String printHash(String hash) {
+        return "[hash=" + hash + "]";
     }
 
-    private String printEntity(E entity){
-        return "[entity="+entity+"]";
+    private String printEntity(E entity) {
+        return "[entity=" + entity + "]";
     }
 
-    private String printQuery(Query query, Pageable pageable){
-        return "[pageable="+pageable+", query="+query+"]";
+    private String printQuery(Query query, Pageable pageable) {
+        return "[pageable=" + pageable + ", query=" + query + "]";
     }
 }

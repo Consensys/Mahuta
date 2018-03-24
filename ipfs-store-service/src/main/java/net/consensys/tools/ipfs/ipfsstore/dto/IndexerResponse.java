@@ -17,12 +17,12 @@ public class IndexerResponse {
 
     @JsonProperty("index")
     private String indexName;
-    
+
     @JsonProperty("id")
     private String documentId;
-    
+
     @JsonProperty("hash")
     private String hash;
-    
-    
+
+
 }

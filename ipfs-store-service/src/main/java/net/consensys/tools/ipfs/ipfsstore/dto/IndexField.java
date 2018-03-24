@@ -16,7 +16,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndexField implements Serializable{
+public class IndexField implements Serializable {
 
     private static final long serialVersionUID = -6885033319679117199L;
     @JsonProperty("name")

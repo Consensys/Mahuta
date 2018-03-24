@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Profile;
 @Profile("default")
 @ComponentScan({"net.consensys.tools.ipfs.ipfsstore"})
 public class Application {
-    
+
     private static final Logger LOGGER = Logger.getLogger(Application.class);
     private static final String NAME = "IPFS-STORE";
-    
+
     public static void main(String[] args) {
-        LOGGER.info("############### Starting Application ["+NAME+"] ... ############### ");
+        LOGGER.info("############### Starting Application [" + NAME + "] ... ############### ");
         SpringApplication.run(Application.class, args);
-        LOGGER.info("############### Application ["+NAME+"] Started ! ############### ");
+        LOGGER.info("############### Application [" + NAME + "] Started ! ############### ");
     }
 }

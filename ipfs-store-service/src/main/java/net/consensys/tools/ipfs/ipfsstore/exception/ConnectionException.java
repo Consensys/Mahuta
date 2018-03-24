@@ -20,7 +20,7 @@ public class ConnectionException extends BaseException {
      * throwable object in constructor of BaseException class.
      *
      * @param message is the String text or special message given by user.
-     * @param cause is the object of throwable cause
+     * @param cause   is the object of throwable cause
      */
     public ConnectionException(String message, Throwable cause) {
         super(message, cause);

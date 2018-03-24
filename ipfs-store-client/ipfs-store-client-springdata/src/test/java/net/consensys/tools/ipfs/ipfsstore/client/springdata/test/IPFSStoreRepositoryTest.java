@@ -48,7 +48,7 @@ public class IPFSStoreRepositoryTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreRepositoryTest.class);
     private static final String CONTENT_TYPE = "application/json";
-    
+
     private IPFSStoreRepository<Entity, String> underTest;
     private final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -66,34 +66,34 @@ public class IPFSStoreRepositoryTest {
         indexFields.add("id");
         indexFields.add("name");
         indexFields.add("age");
-        
+
 //        externalIndexFields = new HashSet<String>();
 //        externalIndexFields.add("content");
-        
+
         underTest = new TestRepository(client, index, indexFields, Entity.class);
     }
-    
-    
+
+
     @Test
     public void save() throws Exception {
         Entity entity = Factory.getEntity();
         String hash = "ABC";
 
         Mockito.when(client.index(any(InputStream.class), eq(index), anyString(), eq(CONTENT_TYPE), any(Map.class))).thenReturn(hash);
-        
+
         // #################################################
         Entity entitySaved = underTest.save(entity);
         // #################################################
-        
+
         LOGGER.debug(entitySaved.toString());
-        
+
         assertEquals("Entity Name should be " + entity.getName(), entity.getName(), entitySaved.getName());
         assertEquals("Entity Age should be " + entity.getAge(), entity.getAge(), entitySaved.getAge());
         assertNotNull("Entity ID shouldn't be null", entitySaved.getId());
-        
+
         Mockito.verify(client, Mockito.times(1)).index(any(InputStream.class), eq(index), anyString(), eq(CONTENT_TYPE), any(Map.class));
     }
-    
+
     @Test
     public void saveWithID() throws Exception {
         String id = "123";
@@ -105,16 +105,16 @@ public class IPFSStoreRepositoryTest {
         // #################################################
         Entity entitySaved = underTest.save(entity);
         // #################################################
-        
+
         LOGGER.debug(entitySaved.toString());
-        
+
         assertEquals("Entity Name should be " + entity.getName(), entity.getName(), entitySaved.getName());
         assertEquals("Entity Age should be " + entity.getAge(), entity.getAge(), entitySaved.getAge());
         assertEquals("Entity ID should be " + id, id, entitySaved.getId());
 
         Mockito.verify(client, Mockito.times(1)).index(any(InputStream.class), eq(index), eq(id), eq(CONTENT_TYPE), any(Map.class));
     }
-    
+
     @Test
     public void saveException() throws Exception {
         String id = "123";
@@ -125,47 +125,46 @@ public class IPFSStoreRepositoryTest {
         // #################################################
         Entity entitySaved = underTest.save(entity);
         // #################################################
-        
+
         assertNull("Entity should be null", entitySaved);
-        
+
         Mockito.verify(client, Mockito.times(1)).index(any(InputStream.class), eq(index), eq(id), eq(CONTENT_TYPE), any(Map.class));
     }
-    
+
     @Test
     public void saveWithoutAutosetup() throws Exception {
         Entity entity = Factory.getEntity();
         String hash = "ABC";
 
         Mockito.when(client.store(any(InputStream.class))).thenReturn(hash);
-        
+
         // #################################################
         String hashReturned = underTest.saveWithoutAutoSetup(entity);
         // #################################################
 
         assertEquals(hashReturned, hash);
-        
+
         Mockito.verify(client, Mockito.times(1)).store(any(InputStream.class));
     }
 
     @Test
     public void findOne() throws Exception {
         Entity entity = Factory.getEntity(Factory.ID);
-        
+
         Mockito.when(client.getById(eq(index), eq(Factory.ID))).thenReturn(MAPPER.writeValueAsBytes(entity));
 
         // #################################################
         Entity entityFetched = underTest.findOne(Factory.ID);
         // #################################################
-        
+
         LOGGER.debug(entityFetched.toString());
-        
+
         assertEquals("Entity Name should be " + entity.getName(), entity.getName(), entityFetched.getName());
         assertEquals("Entity Age should be " + entity.getAge(), entity.getAge(), entityFetched.getAge());
         assertEquals("Entity ID should be " + entity.getId(), entity.getId(), entityFetched.getId());
-        
+
         Mockito.verify(client, Mockito.times(1)).getById(eq(index), eq(Factory.ID));
     }
-    
 
 
     @Test
@@ -177,7 +176,7 @@ public class IPFSStoreRepositoryTest {
         // #################################################
 
         assertNull("Entity should be null", entityFetched);
-        
+
         Mockito.verify(client, Mockito.times(1)).getById(eq(index), eq(Factory.ID));
     }
 
@@ -186,8 +185,8 @@ public class IPFSStoreRepositoryTest {
         int total = 50;
         Pageable pagination = new PageRequest(IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_SIZE);
         Page<Entity> page = Factory.getEntities(total, pagination);
-        
-        List<byte[]> contentList = page.getContent().stream().map(e->{
+
+        List<byte[]> contentList = page.getContent().stream().map(e -> {
             try {
                 return MAPPER.writeValueAsBytes(e);
             } catch (JsonProcessingException e1) {
@@ -200,13 +199,13 @@ public class IPFSStoreRepositoryTest {
         // #################################################
         Page<Entity> result = (Page<Entity>) underTest.findAll();
         // #################################################
-        
+
         LOGGER.debug(result.toString());
-        
-        assertEquals("Result should contain "+IPFSStoreRepository.DEFAULT_PAGE_SIZE+" elements", IPFSStoreRepository.DEFAULT_PAGE_SIZE, result.getContent().size());
-        assertEquals("Result should have a total of "+total+" elements", total, result.getTotalElements());
-        assertEquals("Result should have be on page no "+IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_NO, result.getNumber());
-        
+
+        assertEquals("Result should contain " + IPFSStoreRepository.DEFAULT_PAGE_SIZE + " elements", IPFSStoreRepository.DEFAULT_PAGE_SIZE, result.getContent().size());
+        assertEquals("Result should have a total of " + total + " elements", total, result.getTotalElements());
+        assertEquals("Result should have be on page no " + IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_NO, result.getNumber());
+
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), eq(null), eq(pagination));
     }
 
@@ -216,7 +215,7 @@ public class IPFSStoreRepositoryTest {
         Pageable pagination = new PageRequest(1, 5);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
-        List<byte[]> contentList = page.getContent().stream().map(e->{
+        List<byte[]> contentList = page.getContent().stream().map(e -> {
             try {
                 return MAPPER.writeValueAsBytes(e);
             } catch (JsonProcessingException e1) {
@@ -229,13 +228,13 @@ public class IPFSStoreRepositoryTest {
         // #################################################
         Page<Entity> result = underTest.findAll(pagination);
         // #################################################
-        
+
         LOGGER.debug(result.toString());
-        
-        assertEquals("Result should contain "+pagination.getPageSize()+" elements", pagination.getPageSize(), result.getContent().size());
-        assertEquals("Result should have a total of "+total+" elements", total, result.getTotalElements());
-        assertEquals("Result should have be on page no "+ pagination.getPageNumber(), pagination.getPageNumber(), result.getNumber());
-        
+
+        assertEquals("Result should contain " + pagination.getPageSize() + " elements", pagination.getPageSize(), result.getContent().size());
+        assertEquals("Result should have a total of " + total + " elements", total, result.getTotalElements());
+        assertEquals("Result should have be on page no " + pagination.getPageNumber(), pagination.getPageNumber(), result.getNumber());
+
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), eq(null), eq(pagination));
     }
 
@@ -245,8 +244,8 @@ public class IPFSStoreRepositoryTest {
         Sort sort = new Sort(Direction.ASC, "id");
         Pageable pagination = new PageRequest(IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_SIZE, sort);
         Page<Entity> page = Factory.getEntities(total, pagination);
-        
-        List<byte[]> contentList = page.getContent().stream().map(e->{
+
+        List<byte[]> contentList = page.getContent().stream().map(e -> {
             try {
                 return MAPPER.writeValueAsBytes(e);
             } catch (JsonProcessingException e1) {
@@ -259,21 +258,21 @@ public class IPFSStoreRepositoryTest {
         // #################################################
         Page<Entity> result = (Page<Entity>) underTest.findAll(sort);
         // #################################################
-        
+
         LOGGER.debug(result.toString());
-        
-        assertEquals("Result should contain "+IPFSStoreRepository.DEFAULT_PAGE_SIZE+" elements", IPFSStoreRepository.DEFAULT_PAGE_SIZE, result.getContent().size());
-        assertEquals("Result should have a total of "+total+" elements", total, result.getTotalElements());
-        assertEquals("Result should have be on page no "+IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_NO, result.getNumber());
-        
-        
+
+        assertEquals("Result should contain " + IPFSStoreRepository.DEFAULT_PAGE_SIZE + " elements", IPFSStoreRepository.DEFAULT_PAGE_SIZE, result.getContent().size());
+        assertEquals("Result should have a total of " + total + " elements", total, result.getTotalElements());
+        assertEquals("Result should have be on page no " + IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_NO, result.getNumber());
+
+
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), eq(null), eq(pagination));
     }
 
     @Test
     public void findAllException() throws Exception {
         Pageable pagination = new PageRequest(1, 5);
-        
+
         Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenThrow(new IPFSStoreException(new Exception("error")));
 
         // #################################################
@@ -281,102 +280,106 @@ public class IPFSStoreRepositoryTest {
         // #################################################
 
         assertNull("result should be null", result);
-        
+
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), eq(null), eq(pagination));
     }
-    
 
 
     @Test
     public void exists() throws Exception {
-        
+
         String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
-        
+
         Metadata metadata = new Metadata();
         metadata.setDocumentId(Factory.ID);
         metadata.setHash(hash);
         metadata.setContentType(CONTENT_TYPE);
         metadata.setIndexName(index);
-        
+
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenReturn(metadata);
 
         // #################################################
         boolean exist = underTest.exists(Factory.ID);
         // #################################################
-                
+
         assertEquals(true, exist);
-        
+
         Mockito.verify(client, Mockito.times(1)).getMetadataById(eq(index), eq(Factory.ID));
         // #################################################
     }
-    
+
 
     @Test
     public void doesNotExist() throws Exception {
-        
+
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenReturn(null);
 
         // #################################################
         boolean exist = underTest.exists(Factory.ID);
         // #################################################
-                
+
         assertEquals(false, exist);
-        
-        Mockito.verify(client, Mockito.times(1)).getMetadataById(eq(index), eq(Factory.ID)); 
+
+        Mockito.verify(client, Mockito.times(1)).getMetadataById(eq(index), eq(Factory.ID));
         // #################################################
     }
-    
 
 
     @Test
     public void existsExeption() throws Exception {
-        
-        
+
+
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenThrow(new IPFSStoreException());
 
         // #################################################
         underTest.exists(Factory.ID);
         // #################################################
     }
-    
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void saveIterable() throws Exception {
         // #################################################
         underTest.save(Factory.getEntities(5));
         // #################################################
     }
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void delete() throws Exception {
         // #################################################
         underTest.delete("123");
         // #################################################
     }
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void deleteIterable() throws Exception {
         // #################################################
         underTest.delete(Factory.getEntities(5));
         // #################################################
     }
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void deleteAll() throws Exception {
         // #################################################
         underTest.deleteAll();
         // #################################################
     }
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void count() throws Exception {
         // #################################################
         underTest.count();
         // #################################################
     }
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void findAllIterable() throws Exception {
         List<String> ids = new ArrayList<>();
         // #################################################
         underTest.findAll(ids);
         // #################################################
     }
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void deleteEntiy() throws Exception {
         // #################################################
         underTest.delete(Factory.getEntity());
@@ -388,8 +391,8 @@ public class IPFSStoreRepositoryTest {
         int total = 10;
         Pageable pagination = new PageRequest(1, 5);
         Page<Entity> page = Factory.getEntities(total, pagination);
-        
-        List<byte[]> contentList = page.getContent().stream().map(e->{
+
+        List<byte[]> contentList = page.getContent().stream().map(e -> {
             try {
                 return MAPPER.writeValueAsBytes(e);
             } catch (JsonProcessingException e1) {
@@ -402,47 +405,47 @@ public class IPFSStoreRepositoryTest {
         // #################################################
         Page<Entity> result = underTest.findByfullTextSearch("search ", pagination);
         // #################################################
-        
+
         LOGGER.debug(result.toString());
-        
-        assertEquals("Result should contain "+pagination.getPageSize()+" elements", pagination.getPageSize(), result.getContent().size());
-        assertEquals("Result should have a total of "+total+" elements", total, result.getTotalElements());
-        assertEquals("Result should have be on page no "+ pagination.getPageNumber(), pagination.getPageNumber(), result.getNumber());
-        
+
+        assertEquals("Result should contain " + pagination.getPageSize() + " elements", pagination.getPageSize(), result.getContent().size());
+        assertEquals("Result should have a total of " + total + " elements", total, result.getTotalElements());
+        assertEquals("Result should have be on page no " + pagination.getPageNumber(), pagination.getPageNumber(), result.getNumber());
+
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), any(Query.class), eq(pagination));
     }
-    
+
     @Test
     public void findByfullTextSearchException() throws Exception {
         Pageable pagination = new PageRequest(1, 5);
-        
+
         Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenThrow(new IPFSStoreException("error", new Exception()));
 
         // #################################################
         Page<Entity> result = underTest.findByfullTextSearch("search ", pagination);
         // #################################################
-        
+
         assertNull("result should be null", result);
-        
+
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), any(Query.class), eq(pagination));
     }
-    
-    
+
+
     @Test
     public void findByHash() throws Exception {
         String hash = "ABC";
         Entity entity = Factory.getEntity();
-        
+
         Mockito.when(client.get(eq(index), (eq(hash)))).thenReturn(MAPPER.writeValueAsBytes(entity));
 
         // #################################################
         Entity result = underTest.findByHash(hash);
         // #################################################
-        
+
         LOGGER.debug(result.toString());
-        
-        assertEquals("Result Name should be "+entity.getName(), entity.getName(), result.getName());
-        
+
+        assertEquals("Result Name should be " + entity.getName(), entity.getName(), result.getName());
+
         Mockito.verify(client, Mockito.times(1)).get(eq(index), eq(hash));
     }
 }

@@ -17,17 +17,16 @@ import lombok.Setter;
 
 /**
  * RestResponsePage is a JSON serializable version of org.springframework.data.domain.PageImpl<T>
- * 
- * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
- * @param <T> Type of object 
+ * @param <T> Type of object
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 @Getter
 @Setter
 public class RestResponsePage<T extends Serializable> extends PageImpl<T> {
 
     private static final long serialVersionUID = 1L;
-    
+
     private int number;
     private int size;
     private int totalPages;
