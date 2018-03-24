@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
  * @param <E>   Entity type
  * @param <ID>  Entity ID type
  */
-public interface IPFSStoreCustomRepository<E extends Object, ID extends Serializable> {
+public interface IPFSStoreCustomRepository<E, ID extends Serializable> {
 
     /**
      * Find elements in the repository by full text search

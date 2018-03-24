@@ -50,20 +50,19 @@ public class IPFSStoreRepositoryTest {
     private static final String CONTENT_TYPE = "application/json";
     
     private IPFSStoreRepository<Entity, String> underTest;
-    private ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     @MockBean
     private IPFSStore client;
-    
+
     private String index;
-    private Set<String> indexFields;
 //    private Set<String> externalIndexFields;
-    
+
     @Before
     public void setup() {
         index = "test";
-        
-        indexFields = new HashSet<String>();
+
+        Set<String> indexFields = new HashSet<>();
         indexFields.add("id");
         indexFields.add("name");
         indexFields.add("age");
@@ -305,9 +304,9 @@ public class IPFSStoreRepositoryTest {
         boolean exist = underTest.exists(Factory.ID);
         // #################################################
                 
-        assertEquals(exist, true);
+        assertEquals(true, exist);
         
-        Mockito.verify(client, Mockito.times(1)).getMetadataById(eq(index), eq(Factory.ID)); 
+        Mockito.verify(client, Mockito.times(1)).getMetadataById(eq(index), eq(Factory.ID));
         // #################################################
     }
     
@@ -321,7 +320,7 @@ public class IPFSStoreRepositoryTest {
         boolean exist = underTest.exists(Factory.ID);
         // #################################################
                 
-        assertEquals(exist, false);
+        assertEquals(false, exist);
         
         Mockito.verify(client, Mockito.times(1)).getMetadataById(eq(index), eq(Factory.ID)); 
         // #################################################
@@ -349,7 +348,7 @@ public class IPFSStoreRepositoryTest {
     @Test(expected=UnsupportedOperationException.class)
     public void delete() throws Exception {
         // #################################################
-        underTest.delete("123");;
+        underTest.delete("123");
         // #################################################
     }
     @Test(expected=UnsupportedOperationException.class)
@@ -361,7 +360,7 @@ public class IPFSStoreRepositoryTest {
     @Test(expected=UnsupportedOperationException.class)
     public void deleteAll() throws Exception {
         // #################################################
-        underTest.deleteAll();;
+        underTest.deleteAll();
         // #################################################
     }
     @Test(expected=UnsupportedOperationException.class)
@@ -372,7 +371,7 @@ public class IPFSStoreRepositoryTest {
     }
     @Test(expected=UnsupportedOperationException.class)
     public void findAllIterable() throws Exception {
-        List<String> ids = new ArrayList<String>();
+        List<String> ids = new ArrayList<>();
         // #################################################
         underTest.findAll(ids);
         // #################################################

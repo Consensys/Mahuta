@@ -5,6 +5,6 @@ public enum Operation {
     store,
     index,
     fetch,
-    search;
+    search
 
 }

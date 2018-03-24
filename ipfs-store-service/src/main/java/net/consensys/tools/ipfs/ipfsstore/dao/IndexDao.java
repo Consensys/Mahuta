@@ -22,8 +22,8 @@ public interface IndexDao {
     /**
      * Special keys
      */
-    static final String HASH_INDEX_KEY              = "__hash";
-    static final String CONTENT_TYPE_INDEX_KEY      = "__content_type";
+    String HASH_INDEX_KEY              = "__hash";
+    String CONTENT_TYPE_INDEX_KEY      = "__content_type";
     
     /**
      * Index a content 

@@ -17,7 +17,7 @@ public class Application {
     private static final Logger LOGGER = Logger.getLogger(Application.class);
     private static final String NAME = "IPFS-STORE";
     
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         LOGGER.info("############### Starting Application ["+NAME+"] ... ############### ");
         SpringApplication.run(Application.class, args);
         LOGGER.info("############### Application ["+NAME+"] Started ! ############### ");

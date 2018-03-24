@@ -8,7 +8,6 @@ import static org.mockito.Matchers.eq;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.impl.nio.codecs.IdentityDecoder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -169,12 +168,12 @@ public class StoreServiceTest {
         IndexerRequest request = new IndexerRequest();
         request.setContentType(contentType);
         request.setDocumentId(id);
-        request.setHash(hash);
+        request.setHash(null);
         request.setIndexName(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
         
         // Mock
-        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.index(eq(index), eq(id), eq(null), eq(contentType), anyList())).thenThrow(new DaoException(""));
 
 
         // #################################################

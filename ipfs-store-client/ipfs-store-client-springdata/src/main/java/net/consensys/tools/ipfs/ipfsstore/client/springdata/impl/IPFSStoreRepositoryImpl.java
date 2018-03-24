@@ -38,7 +38,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     @Override
     public <S extends E> S save(S entity, Map<String, Object> externalIndexFields) {
         try {
-            LOGGER.debug("Saving entity [entity="+entity+", externalIndexFields="+externalIndexFields+"] ...");
+            LOGGER.debug("Saving entity " + printEntity(entity, externalIndexFields));
 
             
             // Identifier
@@ -60,27 +60,17 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
             // Add the hash to the entity
             this.setHash(entity, hash);
             
-            LOGGER.debug("Entity [entity="+entity+", externalIndexFields="+externalIndexFields+"] saved. hash="+hash);
+            LOGGER.debug("Entity {0} saved. hash={}" + printEntity(entity, externalIndexFields), hash);
 
             return entity;
             
-        } catch(IPFSStoreException e) {
-            LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
-            return null;
-        } catch (NoSuchMethodException e) {
-            LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
-            return null;
-        } catch (SecurityException e) {
-            LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
-            return null;
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
-            return null;
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
-            return null;
-        } catch (InvocationTargetException e) {
-            LOGGER.error("Error while saving the entity [entity="+entity+", externalIndexFields="+externalIndexFields+"]", e);
+        } catch(IPFSStoreException |
+                NoSuchMethodException |
+                SecurityException |
+                IllegalAccessException |
+                IllegalArgumentException |
+                InvocationTargetException e) {
+            LOGGER.error("Error while saving the entity " + printEntity(entity, externalIndexFields), e);
             return null;
         }
     }
@@ -88,7 +78,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     @Override
     public E findOne(ID id) {
         try {
-            LOGGER.debug("Retrieve entity [id="+id+"] ...");
+            LOGGER.debug("Retrieve entity [id={}]", id);
             
             byte[] content = this.client.getById(indexName, id.toString());
             
@@ -98,12 +88,12 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
             
             E entity = deserialize(content);
 
-            LOGGER.debug("Entity [id="+id+"] retrieved. entity="+entity);
+            LOGGER.debug("Entity [id={}] retrieved. entity={}", id, entity);
 
             return entity;
             
         } catch(IPFSStoreException e) {
-            LOGGER.error("Error while retrieving the entity [id"+id+"]", e);
+            LOGGER.error("Error while retrieving the entity [id={}]", id, e);
             return null;
         }
     }
@@ -131,16 +121,15 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     public boolean exists(Serializable id) {
         
         try {
-            if(this.client.getMetadataById(indexName, id.toString()) != null) {
-                return true;
-            } else {
-                return false;
-            }
-            
+            return (this.client.getMetadataById(indexName, id.toString()) != null);
         } catch(IPFSStoreException e) {
-            LOGGER.error("Error while retrieving the entity [id"+id+"]", e);
+            LOGGER.error("Error while retrieving the entity [id={}]", id, e);
             return false;
         }
+    }
+
+    private <S extends E> String printEntity(S entity, Map<String, Object> externalIndexFields){
+        return "[entity="+entity+", externalIndexFields="+externalIndexFields+"]";
     }
     
     /*

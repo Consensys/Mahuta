@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 public abstract class TestUtils {
     
     public static byte[] getFile(String path) throws Exception {
         ClassLoader classLoader = TestUtils.class.getClassLoader();
-        File file = new File(classLoader.getResource(path).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
 
         FileInputStream fileInputStream = new FileInputStream(file);
         

@@ -32,10 +32,9 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
     private String clusterName;
 
     private TransportClient transportClient;
-    private PreBuiltTransportClient preBuiltTransportClient;
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         try {
             LOGGER.info("Closing ElasticSearch client");
             if (transportClient != null) {
@@ -48,7 +47,7 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
     }
 
     @Override
-    public TransportClient getObject() throws Exception {
+    public TransportClient getObject() {
         return transportClient;
     }
 
@@ -63,7 +62,7 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         buildClient();
     }
 
@@ -73,12 +72,10 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
     protected void buildClient() {
         LOGGER.info("Connecting to ElasticSearch [clusterNodes: "+clusterNodes+"]");
         
-        try {
-            preBuiltTransportClient = new PreBuiltTransportClient(settings());
-
-            String InetSocket[] = clusterNodes.split(":");
-            String address = InetSocket[0];
-            Integer port = Integer.valueOf(InetSocket[1]);
+        try(PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(settings())){
+            String[] inetSocket = clusterNodes.split(":");
+            String address = inetSocket[0];
+            Integer port = Integer.valueOf(inetSocket[1]);
             transportClient = preBuiltTransportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(address), port));
             
             LOGGER.info("Connected to ElasticSearch [clusterNodes: "+clusterNodes+"] : " + transportClient.listedNodes());
@@ -93,11 +90,9 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
      * @return ElasticSearch Settings
      */
     private Settings settings() {
-        Settings settings = Settings.builder()
+        return Settings.builder()
                 .put("cluster.name", clusterName)
                 //TODO more settings
                 .build();
-        
-        return settings;
     }
 }

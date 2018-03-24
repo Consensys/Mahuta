@@ -24,8 +24,10 @@ import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 public class IPFSStorageDao implements StorageDao {
 
     private static final Logger LOGGER = Logger.getLogger(IPFSStorageDao.class);
+
+    private static final String ERROR_NOT_NULL_OR_EMPTY = "cannot be null or empty";
     
-    private IPFS ipfs;
+    private final IPFS ipfs;
 
     @Autowired
     public IPFSStorageDao(IPFS ipfs) {
@@ -38,7 +40,7 @@ public class IPFSStorageDao implements StorageDao {
         LOGGER.debug("Store file in IPFS ...");
         
         // Validation
-        if(content == null) throw new IllegalArgumentException("content cannot be null");
+        if(content == null) throw new IllegalArgumentException("content " + ERROR_NOT_NULL_OR_EMPTY);
         
         try {
             NamedStreamable.ByteArrayWrapper requestFile = new NamedStreamable.ByteArrayWrapper(content);
@@ -48,7 +50,7 @@ public class IPFSStorageDao implements StorageDao {
             
             this.pin(hash);
 
-            LOGGER.debug("Store created in IPFS [hash="+hash+"]");
+            LOGGER.debug("Store created in IPFS " + printHash(hash));
             
             return hash;
             
@@ -61,10 +63,10 @@ public class IPFSStorageDao implements StorageDao {
     @Override
     public byte[] getContent(String hash) throws DaoException {
         
-        LOGGER.debug("Get file in IPFS [hash="+hash+"] ...");
+        LOGGER.debug("Get file in IPFS " + printHash(hash));
         
         // Validation
-        if(Strings.isEmpty(hash)) throw new IllegalArgumentException("hash cannot be null or empty");
+        if(Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
@@ -75,18 +77,18 @@ public class IPFSStorageDao implements StorageDao {
             return content;
             
         } catch (IOException ex) {
-            LOGGER.error("Exception while getting file in IPFS [hash="+hash+"]", ex);
-            throw new DaoException("Exception while getting file in IPFS [hash="+hash+"]: " + ex.getMessage());
+            LOGGER.error("Exception while getting file in IPFS " + printHash(hash), ex);
+            throw new DaoException("Exception while getting file in IPFS " + printHash(hash) + ex.getMessage());
         }
     }
 
     @Override
     public void pin(String hash) throws DaoException {
         
-        LOGGER.debug("pin file in IPFS [hash="+hash+"] ...");
+        LOGGER.debug("pin file in IPFS " + printHash(hash));
         
         // Validation
-        if(Strings.isEmpty(hash)) throw new IllegalArgumentException("hash cannot be null or empty");
+        if(Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
@@ -95,30 +97,34 @@ public class IPFSStorageDao implements StorageDao {
             LOGGER.debug("File pined in IPFS [hash="+hash+"]");
             
         } catch (IOException ex) {
-            LOGGER.error("Exception while pining file in IPFS [hash="+hash+"]", ex);
-            throw new DaoException("Exception while pining file in IPFS [hash="+hash+"]: " + ex.getMessage());
+            LOGGER.error("Exception while pining file in IPFS " + printHash(hash), ex);
+            throw new DaoException("Exception while pining file in IPFS " + printHash(hash) + ": " + ex.getMessage());
         }
     }
 
     @Override
     public void unpin(String hash) throws DaoException {
         
-        LOGGER.debug("unpin file in IPFS [hash="+hash+"] ...");
+        LOGGER.debug("unpin file in IPFS " + printHash(hash));
         
         // Validation
-        if(Strings.isEmpty(hash)) throw new IllegalArgumentException("hash cannot be null or empty");
+        if(Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
         
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
             this.ipfs.pin.rm(filePointer);
             
-            LOGGER.debug("File unpined in IPFS [hash="+hash+"]");
+            LOGGER.debug("File unpined in IPFS " + printHash(hash));
             
         } catch (IOException ex) {
-            LOGGER.error("Exception while pining file in IPFS [hash="+hash+"]", ex);
-            throw new DaoException("Exception while pining file in IPFS [hash="+hash+"]: " + ex.getMessage());
+            LOGGER.error("Exception while pining file in IPFS " + printHash(hash), ex);
+            throw new DaoException("Exception while pining file in IPFS " + printHash(hash) + ex.getMessage());
         }
         
+    }
+
+    private String printHash(String hash){
+        return "[hash="+hash+"]";
     }
 
 }

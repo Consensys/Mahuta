@@ -33,7 +33,7 @@ public class IPFSStoreRepositoryIT {
     private String index;
     private Set<String> indexFields;
     private IPFSStoreRepository<Entity, String> underTest;
-    
+
     @BeforeClass
     public static void setupEnvironment() throws IOException {
         //StubIPFSStoreService.start();
@@ -43,7 +43,7 @@ public class IPFSStoreRepositoryIT {
     public void setUp() throws InterruptedException {
         index = "entity";
         
-        indexFields = new HashSet<String>();
+        indexFields = new HashSet<>();
         indexFields.add("id");
         indexFields.add("name");
         indexFields.add("age");
@@ -83,7 +83,7 @@ public class IPFSStoreRepositoryIT {
         assertTrue(page2.getTotalElements() > 0);
         
         e1.setAge(30);
-        e1 = underTest.save(e1);
+        underTest.save(e1);
         
         
     }

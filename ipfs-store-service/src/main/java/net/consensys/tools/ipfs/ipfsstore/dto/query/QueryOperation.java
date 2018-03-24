@@ -15,7 +15,7 @@ public enum QueryOperation {
     in,             // in the following list
     gt,             // Greater than
     gte,            // Greater than or Equals
-    lt,             // Less than 
-    lte;            // Less than or Equals
-    
+    lt,             // Less than
+    lte             // Less than or Equals
+
 }

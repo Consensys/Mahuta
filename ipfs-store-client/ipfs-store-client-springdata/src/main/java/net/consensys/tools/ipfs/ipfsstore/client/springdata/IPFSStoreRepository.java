@@ -13,17 +13,17 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @param <E>   Entity type
  * @param <ID>  Entity ID type
  */
-public interface IPFSStoreRepository <E extends Object, ID extends Serializable> extends PagingAndSortingRepository<E , ID>, IPFSStoreCustomRepository<E, ID> {
+public interface IPFSStoreRepository <E, ID extends Serializable> extends PagingAndSortingRepository<E , ID>, IPFSStoreCustomRepository<E, ID> {
 
     /**
      * Default Page No
      */
-    static final int DEFAULT_PAGE_NO = 1;
+    int DEFAULT_PAGE_NO = 1;
     
     /**
      * Default Page Size
      */
-    static final int DEFAULT_PAGE_SIZE = 20;
+    int DEFAULT_PAGE_SIZE = 20;
     
     /**
      * Save a document with external indexes

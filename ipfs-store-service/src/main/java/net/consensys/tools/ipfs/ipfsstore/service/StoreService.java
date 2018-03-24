@@ -96,7 +96,7 @@ public interface StoreService {
     /**
      * Create an index
      * 
-     * @param name   Index name
+     * @param index   Index name
      * 
      * @throws ServiceException
      */

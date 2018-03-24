@@ -48,9 +48,9 @@ public class StoreController {
     private static final String DEFAULT_PAGE_SIZE = "20";  
     private static final String DEFAULT_PAGE_NO   = "1"; 
     
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
     
-    private StoreService storeService;
+    private final StoreService storeService;
     
     @Autowired
     public StoreController(StoreService storeService) {
@@ -84,7 +84,7 @@ public class StoreController {
      */
     @RequestMapping(value = "${api.store.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody StoreResponse storeFile(
-            @RequestParam(value="file", required = true) @Valid @NotNull @NotBlank MultipartFile file) 
+            @RequestParam(value="file") @Valid @NotNull @NotBlank MultipartFile file)
                     throws ServiceException {
 
         try {
@@ -123,8 +123,8 @@ public class StoreController {
      */
     @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse storeAndIndexFile(
-            @RequestPart(name="request", required=true) @Valid @NotNull String requestStr, 
-            @RequestPart(name="file", required=true) @Valid @NotNull @NotBlank MultipartFile file) 
+            @RequestPart(name="request") @Valid @NotNull String requestStr,
+            @RequestPart(name="file") @Valid @NotNull @NotBlank MultipartFile file)
                     throws ServiceException {
 
         try {
@@ -210,7 +210,7 @@ public class StoreController {
      * @param pageSize      Page size [optional - default 20]
      * @param sortAttribute Sorting attribute [optional]
      * @param sortDirection Sorting direction [optional - default ASC]
-     * @param query         Query
+     * @param queryStr      Query
      * @return              List of result
      * 
      * @throws ServiceException
@@ -241,7 +241,7 @@ public class StoreController {
 
     private Page<Metadata> executeSearch(String index, int pageNo, int pageSize, String sortAttribute, Sort.Direction sortDirection, Query query) throws ServiceException{
         
-        PageRequest pagination = null;
+        PageRequest pagination;
         if(sortAttribute == null || sortAttribute.isEmpty()) {
             pagination = new PageRequest(pageNo, pageSize);
         } else {

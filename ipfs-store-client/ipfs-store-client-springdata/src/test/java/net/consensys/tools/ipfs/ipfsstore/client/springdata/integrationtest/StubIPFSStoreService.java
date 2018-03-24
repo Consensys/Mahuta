@@ -15,14 +15,14 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 public class StubIPFSStoreService {
 
     private static WireMockServer wireMockServer;    
-    public static String index    = "entity";
-    public static String hash     = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
-    public static String id1       = "ABC";
-    public static String name1     = "Greg";
-    public static int age1         = 30;
-    public static String id2       = "DEF";
-    public static String name2     = "Isabelle";
-    public static int age2         = 28;
+    public static final String index    = "entity";
+    public static final String hash     = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
+    public static final String id1       = "ABC";
+    public static final String name1     = "Greg";
+    public static final int age1         = 30;
+    public static final String id2       = "DEF";
+    public static final String name2     = "Isabelle";
+    public static final int age2         = 28;
 
     static void start() {
 

@@ -2,13 +2,13 @@ package net.consensys.tools.ipfs.ipfsstore.client.cli;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.consensys.tools.ipfs.ipfsstore.exception.ClientShellException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,6 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
@@ -90,10 +89,10 @@ public class IPFSStoreClientShell  {
             @ShellOption(value=ARGS_ID,         defaultValue=NULL           ) String id,
             @ShellOption(value=ARGS_TYPE,       defaultValue=NULL           ) String contentType,
             @ShellOption(value=ARGS_ATTRIBUTES, defaultValue=NULL           ) String attributes) 
-                    throws Exception {
+                    throws ClientShellException {
         
         if(input.equals(NULL) && hash.equals(NULL)) {
-            throw new Exception("--input OR --hash are expected");
+            throw new ClientShellException("--input OR --hash are expected");
         }
         
         IPFSStore client = getClient(host, port);
@@ -104,7 +103,7 @@ public class IPFSStoreClientShell  {
             fields = Arrays.asList(attributes.split("\\s+")).stream().map(field -> {
                 //TODO matcher
                 String[] fieldParts = field.split("=");
-                if(fieldParts != null && fieldParts.length == 2) {
+                if(fieldParts.length == 2) {
                     return new IndexField(fieldParts[0], fieldParts[1]);
                     
                 } else {
@@ -112,22 +111,23 @@ public class IPFSStoreClientShell  {
                 }
             }).collect(Collectors.toList());
         }
-//        
+
         // Store & Index
         if(!input.equals(NULL)) {
-            
-            InputStream is;
-            try {
-                is = new FileInputStream(input);
-            } catch (FileNotFoundException e) {
-                throw new Exception("Invalid --input: " + input, e);
+
+            try(InputStream is = new FileInputStream(input)) {
+                return client.index(is, parseArgument(index), parseArgument(id), parseArgument(contentType), fields);
+            } catch (IOException | IPFSStoreException e) {
+                throw new ClientShellException("Invalid --input: " + input, e);
             }
 
-            return client.index(is, parseArgument(index), parseArgument(id), parseArgument(contentType), fields);
-            
         // Index
         } else {
-            return client.index(index, hash, id, contentType, fields);
+            try {
+                return client.index(index, hash, id, contentType, fields);
+            } catch (IPFSStoreException e) {
+                throw new ClientShellException("Exception indexing IPFS hash: " + hash, e);
+            }
         } 
     }
     
@@ -138,26 +138,27 @@ public class IPFSStoreClientShell  {
             @ShellOption(value=ARGS_OUTPUT, defaultValue=NULL           ) String output,
             @ShellOption(value=ARGS_INDEX                               ) String index,
             @ShellOption(value=ARGS_HASH                                ) String hash) 
-                    throws Exception {
+                    throws ClientShellException {
         
         IPFSStore client = getClient(host, port);
-        
-        byte[] result = client.get(index, hash);
-        
-        if(parseArgument(output) == null) {
-            return new String(result);
-            
-        } else {
-            try {
+
+        try {
+            byte[] result = client.get(index, hash);
+            if(parseArgument(output) == null) {
+                return new String(result);
+
+            } else {
                 FileUtils.writeByteArrayToFile(new File(output), result);
                 return null;
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-                throw new Exception("Invalid output: " + output);
             }
+        } catch (IPFSStoreException e) {
+            throw new ClientShellException("Exception indexing IPFS hash: " + hash, e);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new ClientShellException("Invalid output: " + output);
         }
     }
-    
+
     @ShellMethod(value = "search", key = "search")
     public String search(
             @ShellOption(value=ARGS_HOST,   defaultValue=DEFAULT_HOST   ) String host,
@@ -168,31 +169,27 @@ public class IPFSStoreClientShell  {
             @ShellOption(value=ARGS_SORT,   defaultValue=NULL           ) String sort,
             @ShellOption(value=ARGS_DIR,    defaultValue="ASC"          ) Sort.Direction dir,
             @ShellOption(value=ARGS_QUERY,  defaultValue=NULL           ) String query) 
-                    throws Exception {
-        
+                    throws ClientShellException {
 
         IPFSStore client = getClient(host, port);
-        
-        Query q = null;
-        if(!query.equals(NULL)) {
-            q = mapper.readValue(query, Query.class);
-        }
-        
-        Page<Metadata> result = client.search(parseArgument(index), q, page, size, parseArgument(sort), dir);
-        
-        try {
-          return mapper.writeValueAsString(result);
-        } catch (JsonProcessingException e) {
-          LOGGER.error(e.getMessage(), e);
-          throw new Exception(e.getMessage());
-        }
-    }
-    
 
-    
-    
-    
-    
+        if(!query.equals(NULL)) {
+            try {
+                Query q = mapper.readValue(query, Query.class);
+                Page<Metadata> result = client.search(parseArgument(index), q, page, size, parseArgument(sort), dir);
+                return mapper.writeValueAsString(result);
+            } catch (IPFSStoreException e) {
+                throw new ClientShellException("Exception searching for query " + query, e);
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage(), e);
+                throw new ClientShellException("JSON exception for query" + query);
+            }
+
+        }
+        return null;
+
+    }
+
     private static IPFSStore getClient(String host, Integer port) {
         return new IPFSStore("http://"+host+":"+port);
     }

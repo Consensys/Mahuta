@@ -38,10 +38,10 @@ public class StoreServiceImpl implements StoreService {
     
     private static final Logger LOGGER = Logger.getLogger(StoreServiceImpl.class);
 
-    private Validator validator;
+    private final Validator validator;
     
-    private IndexDao indexDao;
-    private StorageDao storageDao;
+    private final IndexDao indexDao;
+    private final StorageDao storageDao;
     
     @Autowired
     public StoreServiceImpl(IndexDao indexDao, StorageDao storageDao) {
@@ -132,16 +132,13 @@ public class StoreServiceImpl implements StoreService {
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
-        } catch (NotFoundException ex) {
-            throw ex;
         }
     }
 
     @Override
     public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException {
         
-        Query query = new Query();
-        query.equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
+        Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
         Page<Metadata> search = this.searchFiles(index, query, new PageRequest(1, 1));
         
         if(search.getTotalElements() == 0) {
@@ -169,12 +166,10 @@ public class StoreServiceImpl implements StoreService {
     public Page<Metadata> searchFiles(String index, Query query, Pageable pageable) throws ServiceException {
         
         try {            
-            Page<Metadata> page = new PageImpl<>(
+            return new PageImpl<>(
                     indexDao.search(pageable, index, query), 
                     pageable, 
                     indexDao.count(index, query));
-           
-            return page;
             
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
@@ -189,7 +184,7 @@ public class StoreServiceImpl implements StoreService {
      */
     private <O> void validate(O object) throws ServiceException {
         Set<ConstraintViolation<O>> violations = validator.validate(object);
-        if (violations.size() > 0) {
+        if (!violations.isEmpty()) {
             throw new ServiceException(violations.toString());
         } 
     }

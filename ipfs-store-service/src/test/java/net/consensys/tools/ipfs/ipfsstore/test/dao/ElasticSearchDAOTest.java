@@ -80,12 +80,12 @@ public class ElasticSearchDAOTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchDAOTest.class);
     
     private IndexDao underTest;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     
     @MockBean
     private TransportClient client;
     
-    private String indexName = "myIndex";
+    private final String indexName = "myIndex";
     
     @Before
     public void setup() throws Exception {
@@ -121,7 +121,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
     
     @Test
-    public void indexCreateSuccessTest() throws DaoException, JsonParseException, JsonMappingException, IOException {
+    public void indexCreateSuccessTest() throws DaoException, IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -184,7 +184,7 @@ public class ElasticSearchDAOTest {
     }
     
     @Test
-    public void indexCreateSuccessNoAttributeTest() throws DaoException, JsonParseException, JsonMappingException, IOException {
+    public void indexCreateSuccessNoAttributeTest() throws DaoException, IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -244,7 +244,7 @@ public class ElasticSearchDAOTest {
     }
     
     @Test
-    public void indexUpdateSuccessTest() throws DaoException, JsonParseException, JsonMappingException, IOException {
+    public void indexUpdateSuccessTest() throws DaoException, IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -371,7 +371,7 @@ public class ElasticSearchDAOTest {
         String customAttributeVal = "test123";
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -415,7 +415,7 @@ public class ElasticSearchDAOTest {
         String documentId = null;
         
         // #################################################
-        underTest.searchById(indexName, documentId);
+        underTest.searchById(indexName, null);
         // ################################################# 
     }
 
@@ -440,7 +440,7 @@ public class ElasticSearchDAOTest {
         
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -473,7 +473,7 @@ public class ElasticSearchDAOTest {
         
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -518,7 +518,7 @@ public class ElasticSearchDAOTest {
         String customAttributeVal = "test123";
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -600,7 +600,7 @@ public class ElasticSearchDAOTest {
         query.fullText(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -667,11 +667,10 @@ public class ElasticSearchDAOTest {
         String customAttributeKey = "test";
         String customAttributeVal = "test123";
         
-        Query query = new Query();
-        query.equals(customAttributeKey, customAttributeVal);
+        Query query = new Query().equals(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -741,7 +740,7 @@ public class ElasticSearchDAOTest {
         query.notEquals(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -811,7 +810,7 @@ public class ElasticSearchDAOTest {
         query.contains(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -882,7 +881,7 @@ public class ElasticSearchDAOTest {
         query.in(customAttributeKey, customAttributeVal1, customAttributeVal2);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal1);
@@ -952,7 +951,7 @@ public class ElasticSearchDAOTest {
         query.lessThan(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -1023,7 +1022,7 @@ public class ElasticSearchDAOTest {
         query.lessThanOrEquals(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -1094,7 +1093,7 @@ public class ElasticSearchDAOTest {
         query.greaterThan(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -1165,7 +1164,7 @@ public class ElasticSearchDAOTest {
         query.greaterThanOrEquals(customAttributeKey, customAttributeVal);
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -1238,7 +1237,7 @@ public class ElasticSearchDAOTest {
         String customAttributeVal = "test123";
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -1291,7 +1290,7 @@ public class ElasticSearchDAOTest {
         String customAttributeVal = "test123";
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);
@@ -1345,7 +1344,7 @@ public class ElasticSearchDAOTest {
         String customAttributeVal = "test123";
         
         // Mock
-        Map<String, Object> sourceMap = new HashMap<String, Object>();
+        Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
         sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
         sourceMap.put(customAttributeKey, customAttributeVal);

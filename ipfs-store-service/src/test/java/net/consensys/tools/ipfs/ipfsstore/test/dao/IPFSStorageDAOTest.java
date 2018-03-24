@@ -1,17 +1,12 @@
 package net.consensys.tools.ipfs.ipfsstore.test.dao;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static net.consensys.tools.ipfs.ipfsstore.test.utils.TestUtils.*;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +17,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import io.ipfs.api.IPFS;
-import io.ipfs.api.IPFS.Pin;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable.ByteArrayWrapper;
 import io.ipfs.multihash.Multihash;
@@ -67,11 +60,11 @@ public class IPFSStorageDAOTest {
         
         // Mock
         
-        List<MerkleNode> merklenodes = new ArrayList<MerkleNode>();
+        List<MerkleNode> merklenodes = new ArrayList<>();
         MerkleNode merklenode = new MerkleNode(hash);
         merklenodes.add(merklenode);   
         
-        List<Multihash> multiHashes = new ArrayList<Multihash>();
+        List<Multihash> multiHashes = new ArrayList<>();
         Multihash multiHash = Multihash.fromBase58(hash);
         multiHashes.add(multiHash);          
         

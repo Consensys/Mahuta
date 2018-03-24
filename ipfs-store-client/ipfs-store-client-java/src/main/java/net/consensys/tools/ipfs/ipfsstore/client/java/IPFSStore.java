@@ -124,7 +124,7 @@ public class IPFSStore {
      * 
      * @param indexName     Index name
      * @param hash          IPFS hash
-     * @param id            Unique identifier of the content in the index    
+     * @param id            Unique identifier of the content in the index
      * @return              Unique Identifier of the content in the index
      * 
      * @throws IPFSStoreException
@@ -140,7 +140,7 @@ public class IPFSStore {
      * 
      * @param indexName     Index name
      * @param hash          IPFS hash
-     * @param id            Unique identifier of the content in the index   
+     * @param id            Unique identifier of the content in the index
      * @param contentType   Content Type (MIMETYPE) 
      * @return              Unique Identifier of the content in the index
      *         
@@ -157,7 +157,7 @@ public class IPFSStore {
      * 
      * @param indexName     Index name
      * @param hash          IPFS hash
-     * @param id            Unique identifier of the content in the index   
+     * @param id            Unique identifier of the content in the index
      * @param contentType   Content Type (MIMETYPE) 
      * @param indexFields   Attributes (key/value) to attach to the index document for the given hash and ID
      * @return              Unique Identifier of the content in the index
@@ -177,7 +177,7 @@ public class IPFSStore {
      * 
      * @param indexName     Index name
      * @param hash          IPFS hash
-     * @param id            Unique identifier of the content in the index   
+     * @param id            Unique identifier of the content in the index
      * @param contentType   Content Type (MIMETYPE) 
      * @param indexFields   Attributes (key/value) to attach to the index document for the given hash and ID
      * @return              Unique Identifier of the content in the index
@@ -211,7 +211,7 @@ public class IPFSStore {
      * 
      * @param file      Content (Input Stream)
      * @param indexName Index name
-     * @param id        Unique identifier of the content in the index   
+     * @param id        Unique identifier of the content in the index
      * @return          Unique Identifier of the content in the index
      * 
      * @throws IPFSStoreException
@@ -226,7 +226,7 @@ public class IPFSStore {
      * 
      * @param file          Content (Input Stream)
      * @param indexName     Index name
-     * @param id            Unique identifier of the content in the index   
+     * @param id            Unique identifier of the content in the index
      * @param contentType   Content Type (MIMETYPE) 
 
      * @return          Unique Identifier of the content in the index
@@ -244,7 +244,7 @@ public class IPFSStore {
      * 
      * @param file          Content (Input Stream)
      * @param indexName     Index name
-     * @param id            Unique identifier of the content in the index   
+     * @param id            Unique identifier of the content in the index
      * @param contentType   Content Type (MIMETYPE) 
      * @param indexFields   Attributes (key/value) to attach to the index document for the given hash and ID
      * @return          Unique Identifier of the content in the index
@@ -262,7 +262,7 @@ public class IPFSStore {
      * 
      * @param file          Content (Input Stream)
      * @param indexName     Index name
-     * @param id            Unique identifier of the content in the index   
+     * @param id            Unique identifier of the content in the index
      * @param contentType   Content Type (MIMETYPE) 
      * @param indexFields   Attributes (key/value) to attach to the index document for the given hash and ID
      * @return              Unique Identifier of the content in the index
@@ -311,7 +311,7 @@ public class IPFSStore {
             return this.get(indexName, metadata.getHash());
             
         } else {
-            return null;
+            return new byte[0];
         }
     }
 
@@ -325,12 +325,11 @@ public class IPFSStore {
      * @throws IPFSStoreException
      */
     public Metadata getMetadataById(String indexName, String id) throws IPFSStoreException {
-        Query query = Query.newQuery();
-        query.equals(ID_ATTRIBUTE, id);
+        Query query = Query.newQuery().equals(ID_ATTRIBUTE, id);
         
         Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(1, 1));
         if(searchResult.getTotalElements() == 0) {
-            LOGGER.warn("Content [indexName="+indexName+", id="+id+"] not found");
+            LOGGER.warn("Content [indexName={}, id={}] not found", indexName, id);
             return null;
         }
         
@@ -407,7 +406,7 @@ public class IPFSStore {
     public Page<Metadata> search(String indexName, Query query, int pageNo, int pageSize, String sortAttribute,
             Direction sortDirection) throws IPFSStoreException {
         
-        PageRequest pagination = null;
+        PageRequest pagination;
         if(sortAttribute == null || sortAttribute.isEmpty()) {
             pagination = new PageRequest(pageNo, pageSize);
         } else {
@@ -500,7 +499,7 @@ public class IPFSStore {
     public Page<byte[]> searchAndFetch(String indexName, Query query, int pageNo, int pageSize, String sortAttribute,
             Direction sortDirection) throws IPFSStoreException {
         
-        PageRequest pagination = null;
+        PageRequest pagination;
         if(sortAttribute == null || sortAttribute.isEmpty()) {
             pagination = new PageRequest(pageNo, pageSize);
         } else {

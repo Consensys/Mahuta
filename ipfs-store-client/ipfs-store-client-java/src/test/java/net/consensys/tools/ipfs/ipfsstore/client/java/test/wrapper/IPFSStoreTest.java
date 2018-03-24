@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -91,7 +92,7 @@ public class IPFSStoreTest {
         
         // ###########################
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         String hashReturned = this.undertest.store(file.getAbsolutePath());
         // ###########################
         
@@ -119,7 +120,7 @@ public class IPFSStoreTest {
         
         // ###########################
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         String hashReturned = this.undertest.store(new FileInputStream(file));
         // ###########################
         
@@ -251,7 +252,7 @@ public class IPFSStoreTest {
         
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         
         // ###########################
         String idReturned = this.undertest.index(new FileInputStream(file), INDEX_NAME);
@@ -288,7 +289,7 @@ public class IPFSStoreTest {
         
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         
         // ###########################
         String idReturned = this.undertest.index(new FileInputStream(file), INDEX_NAME, id, contentType, indexFields);
@@ -325,7 +326,7 @@ public class IPFSStoreTest {
         
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         
         // ###########################
         this.undertest.index(new FileInputStream(file), INDEX_NAME, id, contentType, indexFields);
@@ -343,7 +344,7 @@ public class IPFSStoreTest {
         String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         FileInputStream is = new FileInputStream(file);
         byte[] bytes = IOUtils.toByteArray(is);
         
@@ -365,7 +366,7 @@ public class IPFSStoreTest {
         String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("pdf-sample.pdf").getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
         FileInputStream is = new FileInputStream(file);
         byte[] bytes = IOUtils.toByteArray(is);
         
@@ -573,12 +574,12 @@ public class IPFSStoreTest {
 
         LOG.info(result.toString());
          
-        assertEquals(result.getTotalElements(), 1);
-       assertEquals(result.getContent().get(0).getIndexName(), INDEX_NAME);
-       assertEquals(result.getContent().get(0).getDocumentId(), id);
-       assertEquals(result.getContent().get(0).getHash(), hash);
-       assertEquals(result.getContent().get(0).getContentType(), contentType);
-       assertEquals(result.getContent().get(0).getIndexFieldValue("author"), author);
+        assertEquals(1, result.getTotalElements());
+       assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+       assertEquals(id, result.getContent().get(0).getDocumentId());
+       assertEquals(hash, result.getContent().get(0).getHash());
+       assertEquals(contentType, result.getContent().get(0).getContentType());
+       assertEquals(author, result.getContent().get(0).getIndexFieldValue("author"));
     }
     
     @Test
@@ -647,12 +648,12 @@ public class IPFSStoreTest {
 
         LOG.info(result.toString());
          
-        assertEquals(result.getTotalElements(), 1);
-       assertEquals(result.getContent().get(0).getIndexName(), INDEX_NAME);
-       assertEquals(result.getContent().get(0).getDocumentId(), id);
-       assertEquals(result.getContent().get(0).getHash(), hash);
-       assertEquals(result.getContent().get(0).getContentType(), contentType);
-       assertEquals(result.getContent().get(0).getIndexFieldValue("author"), author);
+        assertEquals(1, result.getTotalElements());
+       assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+       assertEquals(id, result.getContent().get(0).getDocumentId());
+       assertEquals(hash, result.getContent().get(0).getHash());
+       assertEquals(contentType, result.getContent().get(0).getContentType());
+       assertEquals(author, result.getContent().get(0).getIndexFieldValue("author"));
     }
     
 
@@ -796,12 +797,12 @@ public class IPFSStoreTest {
 
         LOG.info(result.toString());
          
-        assertEquals(result.getTotalElements(), 1);
-       assertEquals(result.getContent().get(0).getIndexName(), INDEX_NAME);
-       assertEquals(result.getContent().get(0).getDocumentId(), id);
-       assertEquals(result.getContent().get(0).getHash(), hash);
-       assertEquals(result.getContent().get(0).getContentType(), contentType);
-       assertEquals(result.getContent().get(0).getIndexFieldValue("author"), author);
+        assertEquals(1, result.getTotalElements());
+       assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+       assertEquals(id, result.getContent().get(0).getDocumentId());
+       assertEquals(hash, result.getContent().get(0).getHash());
+       assertEquals(contentType, result.getContent().get(0).getContentType());
+       assertEquals(author, result.getContent().get(0).getIndexFieldValue("author"));
     }
     
     
@@ -872,12 +873,12 @@ public class IPFSStoreTest {
 
         LOG.info(result.toString());
          
-        assertEquals(result.getTotalElements(), 1);
-       assertEquals(result.getContent().get(0).getIndexName(), INDEX_NAME);
-       assertEquals(result.getContent().get(0).getDocumentId(), id);
-       assertEquals(result.getContent().get(0).getHash(), hash);
-       assertEquals(result.getContent().get(0).getContentType(), contentType);
-       assertEquals(result.getContent().get(0).getIndexFieldValue("author"), author);
+        assertEquals(1, result.getTotalElements());
+       assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+       assertEquals(id, result.getContent().get(0).getDocumentId());
+       assertEquals(hash, result.getContent().get(0).getHash());
+       assertEquals(contentType, result.getContent().get(0).getContentType());
+       assertEquals(author, result.getContent().get(0).getIndexFieldValue("author"));
     }
     
     
