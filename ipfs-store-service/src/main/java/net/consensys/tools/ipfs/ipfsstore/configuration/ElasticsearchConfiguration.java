@@ -80,10 +80,10 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
             Integer port = Integer.valueOf(inetSocket[1]);
             transportClient = preBuiltTransportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(address), port));
 
-            LOGGER.info("Connected to ElasticSearch [clusterNodes: "+clusterNodes+"] : " + transportClient.listedNodes());
+            LOGGER.info("Connected to ElasticSearch [clusterNodes: " + clusterNodes + "] : " + transportClient.listedNodes());
 
         } catch (UnknownHostException e) {
-            LOGGER.error("Error while connecting to ElasticSearch [clusterNodes: "+clusterNodes+"]", e);
+            LOGGER.error("Error while connecting to ElasticSearch [clusterNodes: " + clusterNodes + "]", e);
         }
     }
 
