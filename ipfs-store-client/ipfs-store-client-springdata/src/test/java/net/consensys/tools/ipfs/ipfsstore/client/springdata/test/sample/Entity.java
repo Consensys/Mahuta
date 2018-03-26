@@ -8,11 +8,11 @@ import lombok.ToString;
 public class Entity {
 
     private String id;
-    
+
     private String hash;
-    
+
     private String name;
-    
+
     private int age;
-    
+
 }

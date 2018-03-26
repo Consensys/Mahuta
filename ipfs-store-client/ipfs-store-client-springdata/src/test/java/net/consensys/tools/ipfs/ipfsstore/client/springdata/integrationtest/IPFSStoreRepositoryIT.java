@@ -33,7 +33,7 @@ public class IPFSStoreRepositoryIT {
     private String index;
     private Set<String> indexFields;
     private IPFSStoreRepository<Entity, String> underTest;
-    
+
     @BeforeClass
     public static void setupEnvironment() throws IOException {
         //StubIPFSStoreService.start();
@@ -42,8 +42,8 @@ public class IPFSStoreRepositoryIT {
     @Before
     public void setUp() throws InterruptedException {
         index = "entity";
-        
-        indexFields = new HashSet<String>();
+
+        indexFields = new HashSet<>();
         indexFields.add("id");
         indexFields.add("name");
         indexFields.add("age");
@@ -55,37 +55,37 @@ public class IPFSStoreRepositoryIT {
     public static void teardownEnvironment() {
         //StubIPFSStoreService.stop();
     }
-    
+
     @Test
     public void run() throws InterruptedException {
-        
-        
+
+
         String id = UUID.randomUUID().toString();
-        String name="greg";
+        String name = "greg";
         int age = 10;
-        
+
         Entity e = underTest.save(Factory.getEntity(id, name, age));
         assertEquals(id, e.getId());
-        
+
         Thread.sleep(2000);
-        
+
         Entity e1 = underTest.findOne(id);
         assertEquals(id, e1.getId());
         assertEquals(name, e1.getName());
         assertEquals(age, e1.getAge());
-        
-        
+
+
         Page<Entity> page = underTest.findAll(new PageRequest(1, 20));
         assertTrue(page.getTotalElements() > 0);
-        
+
 
         Page<Entity> page2 = underTest.findByfullTextSearch("greg", new PageRequest(1, 20));
         assertTrue(page2.getTotalElements() > 0);
-        
+
         e1.setAge(30);
-        e1 = underTest.save(e1);
-        
-        
+        underTest.save(e1);
+
+
     }
-    
+
 }

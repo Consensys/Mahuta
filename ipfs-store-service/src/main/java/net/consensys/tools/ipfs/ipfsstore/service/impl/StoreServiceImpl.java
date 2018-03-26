@@ -29,71 +29,69 @@ import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 
 /**
  * Implementation of StoreService
- * 
- * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 @Service
 public class StoreServiceImpl implements StoreService {
-    
+
     private static final Logger LOGGER = Logger.getLogger(StoreServiceImpl.class);
 
-    private Validator validator;
-    
-    private IndexDao indexDao;
-    private StorageDao storageDao;
-    
+    private final Validator validator;
+
+    private final IndexDao indexDao;
+    private final StorageDao storageDao;
+
     @Autowired
     public StoreServiceImpl(IndexDao indexDao, StorageDao storageDao) {
         this.indexDao = indexDao;
         this.storageDao = storageDao;
-        
+
         // Validator
         Configuration<?> config = Validation.byDefaultProvider().configure();
         ValidatorFactory factory = config.buildValidatorFactory();
         this.validator = factory.getValidator();
     }
-    
 
 
     @Override
     public String storeFile(byte[] file) throws ServiceException {
-        
-        try {
-            return this.storageDao.createContent(file);  
-            
-        } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
-    }    
 
-    @Override
-    public IndexerResponse indexFile(IndexerRequest request) throws ServiceException {
-        
-        validate(request);
-        
-        LOGGER.trace(request);
-        
         try {
-            indexDao.createIndex(request.getIndexName()); // Create the index if it doesn't exist
-            
-            String documentId = indexDao.index(
-                    request.getIndexName(), 
-                    request.getDocumentId(), 
-                    request.getHash(), 
-                    request.getContentType(), 
-                    request.getIndexFields());
-            
-            return new IndexerResponse(request.getIndexName(), documentId, request.getHash());
-            
+            return this.storageDao.createContent(file);
+
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
-    
-    
+
+    @Override
+    public IndexerResponse indexFile(IndexerRequest request) throws ServiceException {
+
+        validate(request);
+
+        LOGGER.trace(request);
+
+        try {
+            indexDao.createIndex(request.getIndexName()); // Create the index if it doesn't exist
+
+            String documentId = indexDao.index(
+                    request.getIndexName(),
+                    request.getDocumentId(),
+                    request.getHash(),
+                    request.getContentType(),
+                    request.getIndexFields());
+
+            return new IndexerResponse(request.getIndexName(), documentId, request.getHash());
+
+        } catch (DaoException ex) {
+            LOGGER.error("Exception occur:", ex);
+            throw new ServiceException(ex.getMessage());
+        }
+    }
+
+
     @Override
     public IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ServiceException {
 
@@ -101,22 +99,22 @@ public class StoreServiceImpl implements StoreService {
             // Store the file
             String hash = this.storeFile(file);
             request.setHash(hash);
-            
+
             // Index it
             return this.indexFile(request);
-            
+
         } catch (ServiceException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
-        } 
+        }
     }
 
     @Override
     public byte[] getFileByHash(String hash) throws ServiceException {
-        
+
         try {
-            return this.storageDao.getContent(hash);  
-            
+            return this.storageDao.getContent(hash);
+
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
@@ -125,40 +123,36 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public Metadata getFileMetadataById(String index, String id) throws ServiceException, NotFoundException {
-        
+
         try {
-            return this.indexDao.searchById(index, id); 
-            
+            return this.indexDao.searchById(index, id);
+
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
-        } catch (NotFoundException ex) {
-            throw ex;
         }
     }
 
     @Override
     public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException {
-        
-        Query query = new Query();
-        query.equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
+
+        Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
         Page<Metadata> search = this.searchFiles(index, query, new PageRequest(1, 1));
-        
-        if(search.getTotalElements() == 0) {
-            throw new NotFoundException("File [hash="+hash+"] not found in the index ["+index+"]");
+
+        if (search.getTotalElements() == 0) {
+            throw new NotFoundException("File [hash=" + hash + "] not found in the index [" + index + "]");
         }
-        
+
         return search.getContent().get(0);
     }
 
 
-
     @Override
     public void createIndex(String index) throws ServiceException {
-        
+
         try {
             this.indexDao.createIndex(index);
-        
+
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
@@ -167,30 +161,29 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public Page<Metadata> searchFiles(String index, Query query, Pageable pageable) throws ServiceException {
-        
-        try {            
-            Page<Metadata> page = new PageImpl<>(
-                    indexDao.search(pageable, index, query), 
-                    pageable, 
+
+        try {
+            return new PageImpl<>(
+                    indexDao.search(pageable, index, query),
+                    pageable,
                     indexDao.count(index, query));
-           
-            return page;
-            
+
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
-        } 
+        }
     }
-    
+
     /**
      * Validate an object
+     *
      * @param object
      * @throws ServiceException
      */
     private <O> void validate(O object) throws ServiceException {
         Set<ConstraintViolation<O>> violations = validator.validate(object);
-        if (violations.size() > 0) {
+        if (!violations.isEmpty()) {
             throw new ServiceException(violations.toString());
-        } 
+        }
     }
 }

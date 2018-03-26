@@ -40,7 +40,7 @@ public abstract class BaseException extends Exception {
      * throwable object in constructor of Exception class.
      *
      * @param message is the String text or special message given by user.
-     * @param cause is the object of throwable cause
+     * @param cause   is the object of throwable cause
      */
     public BaseException(String message, Throwable cause) {
         super(message, cause);

@@ -2,9 +2,8 @@ package net.consensys.tools.ipfs.ipfsstore.client.java.exception;
 
 /**
  * IPFSStoreException
- * 
- * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 public class IPFSStoreException extends Exception {
 
@@ -22,8 +21,7 @@ public class IPFSStoreException extends Exception {
      * This constructor will take message String as a parameter and called Exception
      * class message parameter constructor.
      *
-     * @param message
-     *            is the String text or special message given by user.
+     * @param message is the String text or special message given by user.
      */
     public IPFSStoreException(String message) {
         super(message);
@@ -34,10 +32,8 @@ public class IPFSStoreException extends Exception {
      * Throwable i.e cause and called Exception class message parameter and
      * throwable object in constructor of Exception class.
      *
-     * @param message
-     *            is the String text or special message given by user.
-     * @param cause
-     *            is the object of throwable cause
+     * @param message is the String text or special message given by user.
+     * @param cause   is the object of throwable cause
      */
     public IPFSStoreException(String message, Throwable cause) {
         super(message, cause);
@@ -47,8 +43,7 @@ public class IPFSStoreException extends Exception {
      * This constructor object of Throwable i.e cause as parameter and called
      * Exception class throwable object in constructor of Exception class.
      *
-     * @param cause
-     *            is the object of throwable cause
+     * @param cause is the object of throwable cause
      */
     public IPFSStoreException(Throwable cause) {
         super(cause);

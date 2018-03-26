@@ -32,7 +32,7 @@ public class ServiceException extends BaseException {
      * throwable object in constructor of BaseException class.
      *
      * @param message is the String text or special message given by user.
-     * @param cause is the object of throwable cause
+     * @param cause   is the object of throwable cause
      */
     public ServiceException(String message, Throwable cause) {
         super(message, cause);
