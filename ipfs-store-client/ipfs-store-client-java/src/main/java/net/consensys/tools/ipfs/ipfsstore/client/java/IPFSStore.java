@@ -310,7 +310,7 @@ public class IPFSStore {
     public Metadata getMetadataById(String indexName, String id) throws IPFSStoreException {
         Query query = Query.newQuery().equals(ID_ATTRIBUTE, id);
 
-        Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(1, 1));
+        Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(0, 1));
         if (searchResult.getTotalElements() == 0) {
             LOGGER.warn("Content [indexName={}, id={}] not found", indexName, id);
             return null;

@@ -295,7 +295,7 @@ Search content accross an index using a dedicated query language
 
 | Name | Type | Mandatory | Default | Description |
 | -------- | -------- | -------- | -------- | -------- |
-| pageNo | Int | no | 1 | Page Number |
+| pageNo | Int | no | 0 | Page Number |
 | pageSize | Int | no | 20 | Page Size / Limit |
 | sort | String | no |  | Sorting attribute |
 | dir | ASC/DESC | no | ASC | Sorting direction |

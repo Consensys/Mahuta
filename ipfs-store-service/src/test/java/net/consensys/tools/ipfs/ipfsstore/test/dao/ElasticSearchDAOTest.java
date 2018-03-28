@@ -502,7 +502,7 @@ public class ElasticSearchDAOTest {
 
     @Test
     public void searchSuccessNullQueryTest() throws DaoException, JSONException {
-        int pageNo = 1;
+        int pageNo = 0;
         int pageSize = 20;
 
 
@@ -563,7 +563,7 @@ public class ElasticSearchDAOTest {
         ArgumentCaptor<Integer> argumentCaptorFrom = ArgumentCaptor.forClass(Integer.class);
         Mockito.verify(searchRequestBuilder, Mockito.times(1)).setFrom(argumentCaptorFrom.capture());
         Integer fromCaptured = argumentCaptorFrom.<Integer>getValue();
-        assertEquals(Integer.valueOf(pageNo - 1), fromCaptured);
+        assertEquals(Integer.valueOf(pageNo), fromCaptured);
 
 
         ArgumentCaptor<Integer> argumentCaptorSize = ArgumentCaptor.forClass(Integer.class);

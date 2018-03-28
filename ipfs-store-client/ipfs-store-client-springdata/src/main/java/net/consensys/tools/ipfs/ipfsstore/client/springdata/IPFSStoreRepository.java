@@ -17,7 +17,7 @@ public interface IPFSStoreRepository<E, ID extends Serializable> extends PagingA
     /**
      * Default Page No
      */
-    int DEFAULT_PAGE_NO = 1;
+    int DEFAULT_PAGE_NO = 0;
 
     /**
      * Default Page Size

@@ -169,20 +169,19 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         try {
 
-            int p = (pageable.getPageNumber() < 1) ? 1 : pageable.getPageNumber();
-            int l = (pageable.getPageSize() < 1) ? 1 : pageable.getPageSize();
-
             SearchRequestBuilder requestBuilder = client.prepareSearch(indexName)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setQuery(convertQuery(query))
-                    .setFrom((p - 1) * l)
-                    .setSize(l);
+                    .setFrom(pageable.getOffset())
+                    .setSize(pageable.getPageSize());
 
             if (pageable.getSort() != null) {
                 for (Order order : pageable.getSort()) {
                     requestBuilder.addSort(new FieldSortBuilder(order.getProperty()).order(order.isAscending() ? SortOrder.ASC : SortOrder.DESC).unmappedType("date"));
                 }
             }
+            
+            LOGGER.trace(requestBuilder);
 
             SearchResponse searchResponse = requestBuilder.execute().actionGet();
 
@@ -210,11 +209,12 @@ public class ElasticSearchIndexDao implements IndexDao {
         if (Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
-            SearchResponse countResponse = client.prepareSearch(indexName)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .setQuery(convertQuery(query))
-                    .setSize(0)
-                    .get();
+          
+          SearchResponse countResponse = client.prepareSearch(indexName)
+                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .setQuery(convertQuery(query))
+                .setSize(0)
+                .get();
 
             LOGGER.trace("Count in ElasticSearch " + printSearchQuery(indexName, query) + " : " + countResponse);
 

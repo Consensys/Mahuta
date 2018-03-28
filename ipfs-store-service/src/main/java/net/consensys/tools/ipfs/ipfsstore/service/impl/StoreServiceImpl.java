@@ -137,7 +137,7 @@ public class StoreServiceImpl implements StoreService {
     public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException {
 
         Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
-        Page<Metadata> search = this.searchFiles(index, query, new PageRequest(1, 1));
+        Page<Metadata> search = this.searchFiles(index, query, new PageRequest(0, 1));
 
         if (search.getTotalElements() == 0) {
             throw new NotFoundException("File [hash=" + hash + "] not found in the index [" + index + "]");
@@ -163,11 +163,11 @@ public class StoreServiceImpl implements StoreService {
     public Page<Metadata> searchFiles(String index, Query query, Pageable pageable) throws ServiceException {
 
         try {
-            return new PageImpl<>(
-                    indexDao.search(pageable, index, query),
-                    pageable,
-                    indexDao.count(index, query));
-
+           return new PageImpl<>(
+               indexDao.search(pageable, index, query),
+               pageable,
+               indexDao.count(index, query));
+           
         } catch (DaoException ex) {
             LOGGER.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());

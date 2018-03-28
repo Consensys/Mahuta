@@ -162,7 +162,7 @@ public class IPFSStoreClientShell {
             @ShellOption(value = ARGS_HOST, defaultValue = DEFAULT_HOST) String host,
             @ShellOption(value = ARGS_PORT, defaultValue = DEFAULT_PORT) int port,
             @ShellOption(value = ARGS_INDEX) String index,
-            @ShellOption(value = ARGS_PAGE, defaultValue = "1") int page,
+            @ShellOption(value = ARGS_PAGE, defaultValue = "0") int page,
             @ShellOption(value = ARGS_SIZE, defaultValue = DEFAULT_SIZE) int size,
             @ShellOption(value = ARGS_SORT, defaultValue = NULL) String sort,
             @ShellOption(value = ARGS_DIR, defaultValue = "ASC") Sort.Direction dir,

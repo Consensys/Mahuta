@@ -75,11 +75,11 @@ public class IPFSStoreRepositoryIT {
         assertEquals(age, e1.getAge());
 
 
-        Page<Entity> page = underTest.findAll(new PageRequest(1, 20));
+        Page<Entity> page = underTest.findAll(new PageRequest(0, 20));
         assertTrue(page.getTotalElements() > 0);
 
 
-        Page<Entity> page2 = underTest.findByfullTextSearch("greg", new PageRequest(1, 20));
+        Page<Entity> page2 = underTest.findByfullTextSearch("greg", new PageRequest(0, 20));
         assertTrue(page2.getTotalElements() > 0);
 
         e1.setAge(30);
