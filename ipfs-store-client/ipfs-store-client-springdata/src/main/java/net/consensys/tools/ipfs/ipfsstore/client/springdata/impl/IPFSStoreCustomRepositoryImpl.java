@@ -160,8 +160,6 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             List<E> result = searchAndFetch.getContent().stream().map(this::deserialize).collect(Collectors.toList());
 
-            LOGGER.debug("Find all {} : {}", printQuery(query, pageable), result);
-
             return new PageImpl<>(result, pageable, searchAndFetch.getTotalElements());
 
         } catch (IPFSStoreException e) {

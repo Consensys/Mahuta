@@ -46,7 +46,7 @@ public class StoreController {
     private final Logger LOGGER = LoggerFactory.getLogger(StoreController.class);
 
     private static final String DEFAULT_PAGE_SIZE = "20";
-    private static final String DEFAULT_PAGE_NO = "1";
+    private static final String DEFAULT_PAGE_NO = "0";
 
     private final ObjectMapper mapper;
 

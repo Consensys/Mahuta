@@ -16,6 +16,8 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -486,5 +488,51 @@ public class StoreServiceTest {
         assertEquals(index, indexCaptured);
 
     }
+    
+    
+    
+    
+    
+    
+
+
+
+    @Test
+    public void searchFilesSuccessTest() throws Exception {
+
+        int total = 1;
+        int pageNo = 1;
+        int pageSize = 20;
+      
+        String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
+        String contentType = "application/json";
+        String index = "documents";
+        String id = "hello_doc";
+        String attribute = "author";
+        String value = "Gregoire Jeanmart";
+        
+        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Query query = Query.newQuery().equals(attribute, value);
+
+        // Mock
+        List<Metadata> list = new ArrayList<>();
+        list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
+        Mockito.when(indexDao.search(any(Pageable.class), eq(index), any(Query.class))).thenReturn(list);
+        Mockito.when(indexDao.count(eq(index), any(Query.class))).thenReturn(Long.valueOf(total));
+
+        // #################################################
+        Page<Metadata> pageReturned = underTest.searchFiles(index, query, pagination);
+        // #################################################
+
+        assertEquals(pageReturned.getTotalElements(), total);
+        assertEquals(pageReturned.getSize(), pageSize);
+        assertEquals(pageReturned.getNumberOfElements(), 1);
+        assertEquals(pageReturned.getTotalPages(), 1);
+
+        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(index), any(Query.class));
+        Mockito.verify(indexDao, Mockito.times(1)).count(eq(index), any(Query.class));
+
+    }
+    
 
 }

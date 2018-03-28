@@ -212,7 +212,7 @@ public class IPFSStoreRepositoryTest {
     @Test
     public void findAllWithPagination() throws Exception {
         int total = 10;
-        Pageable pagination = new PageRequest(1, 5);
+        Pageable pagination = new PageRequest(0, 5);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<byte[]> contentList = page.getContent().stream().map(e -> {
@@ -271,7 +271,7 @@ public class IPFSStoreRepositoryTest {
 
     @Test
     public void findAllException() throws Exception {
-        Pageable pagination = new PageRequest(1, 5);
+        Pageable pagination = new PageRequest(0, 5);
 
         Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenThrow(new IPFSStoreException(new Exception("error")));
 
@@ -389,7 +389,7 @@ public class IPFSStoreRepositoryTest {
     @Test
     public void findByfullTextSearch() throws Exception {
         int total = 10;
-        Pageable pagination = new PageRequest(1, 5);
+        Pageable pagination = new PageRequest(0, 5);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<byte[]> contentList = page.getContent().stream().map(e -> {
@@ -417,7 +417,7 @@ public class IPFSStoreRepositoryTest {
 
     @Test
     public void findByfullTextSearchException() throws Exception {
-        Pageable pagination = new PageRequest(1, 5);
+        Pageable pagination = new PageRequest(0, 5);
 
         Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenThrow(new IPFSStoreException("error", new Exception()));
 

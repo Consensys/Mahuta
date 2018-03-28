@@ -437,10 +437,10 @@ public class IPFSStoreTest {
                         "    \"sort\": null,\n" +
                         "    \"totalPages\": 1,\n" +
                         "    \"size\": 2,\n" +
-                        "    \"number\": 1\n" +
+                        "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=1&size=1"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=0&size=1"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
 
@@ -471,10 +471,10 @@ public class IPFSStoreTest {
                         "    \"sort\": null,\n" +
                         "    \"totalPages\": 1,\n" +
                         "    \"size\": 2,\n" +
-                        "    \"number\": 1\n" +
+                        "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=1&size=1"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=0&size=1"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
 
@@ -491,7 +491,7 @@ public class IPFSStoreTest {
         String id = "ABC";
 
         // MOCK
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=1&size=1"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=0&size=1"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withServerError());
 
@@ -633,15 +633,15 @@ public class IPFSStoreTest {
                         "    \"sort\": null,\n" +
                         "    \"totalPages\": 1,\n" +
                         "    \"size\": 2,\n" +
-                        "    \"number\": 1\n" +
+                        "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=1&size=2"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=0&size=2"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(1, 2));
+        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(0, 2));
         // ###########################
 
 
@@ -782,15 +782,15 @@ public class IPFSStoreTest {
                         "    \"sort\": null,\n" +
                         "    \"totalPages\": 1,\n" +
                         "    \"size\": 2,\n" +
-                        "    \"number\": 1\n" +
+                        "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=1&size=2&sort=id&dir=DESC"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=0&size=2&sort=id&dir=DESC"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(1, 2, Sort.Direction.DESC, "id"));
+        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(0, 2, Sort.Direction.DESC, "id"));
         // ###########################
 
 
