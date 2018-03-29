@@ -1,4 +1,4 @@
-IPFS-Store (service)
+IPFS-Store
 ======
 
 **IPFS-Store** aim is to provide an easy to use IPFS storage service with search capability for your project.
