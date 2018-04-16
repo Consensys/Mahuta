@@ -3,6 +3,8 @@ package net.consensys.tools.ipfs.ipfsstore.dto.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.elasticsearch.index.query.QueryBuilders;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -96,5 +98,13 @@ public class Query {
     public Query greaterThanOrEquals(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.gte, value));
         return this;
+    }
+    
+    public boolean isEmpty() {
+        if (this == null || this.getFilterClauses().isEmpty()) {
+          return true;
+        } else {
+          return false;
+        }
     }
 }

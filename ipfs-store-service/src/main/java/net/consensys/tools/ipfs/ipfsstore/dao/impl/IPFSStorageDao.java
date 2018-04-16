@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import io.ipfs.api.IPFS;
 import io.ipfs.api.MerkleNode;
@@ -12,7 +13,6 @@ import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
 import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
-import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 /**
  * IPFS implementation of StorageDao
@@ -65,7 +65,7 @@ public class IPFSStorageDao implements StorageDao {
         LOGGER.debug("Get file in IPFS " + printHash(hash));
 
         // Validation
-        if (Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
@@ -87,7 +87,7 @@ public class IPFSStorageDao implements StorageDao {
         LOGGER.debug("pin file in IPFS " + printHash(hash));
 
         // Validation
-        if (Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
@@ -107,7 +107,7 @@ public class IPFSStorageDao implements StorageDao {
         LOGGER.debug("unpin file in IPFS " + printHash(hash));
 
         // Validation
-        if (Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);

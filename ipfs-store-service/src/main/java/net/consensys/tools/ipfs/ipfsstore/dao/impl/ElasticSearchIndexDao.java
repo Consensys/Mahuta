@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -38,7 +39,6 @@ import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
-import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 import static java.util.Arrays.asList;
 
@@ -86,8 +86,8 @@ public class ElasticSearchIndexDao implements IndexDao {
         LOGGER.debug("Index document in ElasticSearch " + printSearchIndex(indexName, documentId, indexFields));
 
         // Validation
-        if (Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
-        if (Strings.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             DocWriteResponse response;
@@ -131,8 +131,8 @@ public class ElasticSearchIndexDao implements IndexDao {
         LOGGER.debug("Search in ElasticSearch by ID " + printSearchDocument(indexName, id));
 
         // Validation
-        if (Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName" + ERROR_NOT_NULL_OR_EMPTY);
-        if (Strings.isEmpty(id)) throw new IllegalArgumentException("id" + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName" + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(id)) throw new IllegalArgumentException("id" + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             GetResponse response = client.prepareGet(indexName.toLowerCase(), indexName.toLowerCase(), id).get();
@@ -165,7 +165,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         // Validation
         if (pageable == null) throw new IllegalArgumentException("pageable " + ERROR_NOT_NULL_OR_EMPTY);
-        if (Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
 
@@ -206,7 +206,7 @@ public class ElasticSearchIndexDao implements IndexDao {
         LOGGER.debug("Count in ElasticSearch " + printSearchQuery(indexName, query));
 
         // Validation
-        if (Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
           
@@ -231,7 +231,7 @@ public class ElasticSearchIndexDao implements IndexDao {
         LOGGER.debug("Create index in ElasticSearch " + printSearchIndexName(indexName));
 
         // Validation
-        if (Strings.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             boolean exists = client.admin().indices()
@@ -261,7 +261,7 @@ public class ElasticSearchIndexDao implements IndexDao {
      * @throws ElasticsearchException
      */
     private Boolean doesExist(String index, String id) {
-        if (id == null || id.isEmpty()) {
+        if (StringUtils.isEmpty(id)) {
             return false;
         }
 
@@ -362,7 +362,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         BoolQueryBuilder elasticSearchQuery = QueryBuilders.boolQuery();
 
-        if (query == null || query.getFilterClauses().isEmpty()) {
+        if (query.isEmpty()) {
             return QueryBuilders.matchAllQuery();
         }
 

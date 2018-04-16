@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,6 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
-import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 @RestController
 @RequestMapping("${api.base}")
@@ -226,7 +226,7 @@ public class StoreController {
 
         try {
             Query query = null;
-            if (!Strings.isEmpty(queryStr)) {
+            if (!StringUtils.isEmpty(queryStr)) {
                 query = this.mapper.readValue(queryStr, Query.class);
             }
 
