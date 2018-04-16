@@ -23,7 +23,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,7 +56,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     private static final String MULTIPART_FILE = "file";
     private static final String MULTIPART_REQUEST = "request";
 
-    private final RestTemplate restTemplate;
+    private RestTemplate restTemplate;
+    
     private final ObjectMapper mapper;
 
     private final String endpoint;
@@ -66,6 +66,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         this.endpoint = endpoint;
 
         this.restTemplate = new RestTemplate();
+        this.restTemplate.getMessageConverters().add(
+                new ByteArrayHttpMessageConverter());
 
         this.mapper = new ObjectMapper();
         this.mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
@@ -106,7 +108,6 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             // creating an HttpEntity for the binary part
             HttpHeaders contentHeader = new HttpHeaders();
-            //contentHeader.setContentType(MediaType.valueOf(request.getContentType() == null ? DEFAULT_MIMETYPE : request.getContentType())); 
             HttpEntity<ByteArrayResource> contentHttpEntity = new HttpEntity<>(content, contentHeader);
 
 
@@ -214,9 +215,6 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         try {
             LOGGER.debug("fetch [indexName={}, hash={}]", indexName, hash);
 
-            restTemplate.getMessageConverters().add(
-                    new ByteArrayHttpMessageConverter());
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -246,11 +244,10 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                     .fromUriString(this.endpoint + BASE_API_PATH + SEARCH_API_PATH)
                     .path("/" + indexName);
 
-            if (query != null) {
-                uriComponentsBuilder
-                        .queryParam("query", mapper.writeValueAsString(query));
+            if (query == null) {
+                query = Query.newQuery();
             }
-
+            
             if (pageable != null) {
                 uriComponentsBuilder
                         .queryParam("page", pageable.getPageNumber())
@@ -271,11 +268,11 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpEntity<Query> entity = new HttpEntity<>(query, headers);
 
             ResponseEntity<RestResponsePage<Metadata>> response =
                     restTemplate.exchange(url,
-                            HttpMethod.GET, entity, new ParameterizedTypeReference<RestResponsePage<Metadata>>() {
+                            HttpMethod.POST, entity, new ParameterizedTypeReference<RestResponsePage<Metadata>>() {
                             });
 
             LOGGER.trace("result" + response.getBody());
@@ -284,7 +281,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             return response.getBody();
 
-        } catch (RestClientException | JsonProcessingException ex) {
+        } catch (RestClientException ex) {
             LOGGER.error("Error while searching [indexName={}, query={}]", indexName, query, ex);
             throw new IPFSStoreException("Error while searching  [indexName=" + indexName + ", query=\"+query+\"]", ex);
         }

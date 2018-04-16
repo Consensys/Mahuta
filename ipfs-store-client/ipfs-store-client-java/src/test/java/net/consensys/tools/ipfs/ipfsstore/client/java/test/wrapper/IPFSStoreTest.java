@@ -440,8 +440,8 @@ public class IPFSStoreTest {
                         "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=0&size=1"))
-                .andExpect(method(HttpMethod.GET))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?page=0&size=1"))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
 
         // ###########################
@@ -474,8 +474,8 @@ public class IPFSStoreTest {
                         "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=0&size=1"))
-                .andExpect(method(HttpMethod.GET))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?page=0&size=1"))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
 
         // ###########################
@@ -491,8 +491,8 @@ public class IPFSStoreTest {
         String id = "ABC";
 
         // MOCK
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?query=%7B%22query%22:%5B%7B%22name%22:%22_id%22,%22names%22:%5B%22_id%22%5D,%22operation%22:%22equals%22,%22value%22:%22ABC%22%7D%5D%7D&page=0&size=1"))
-                .andExpect(method(HttpMethod.GET))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?page=0&size=1"))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withServerError());
 
         // ###########################
@@ -563,7 +563,7 @@ public class IPFSStoreTest {
                         "}";
 
         mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME))
-                .andExpect(method(HttpMethod.GET))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
@@ -637,7 +637,7 @@ public class IPFSStoreTest {
                         "}";
 
         mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=0&size=2"))
-                .andExpect(method(HttpMethod.GET))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
@@ -712,7 +712,7 @@ public class IPFSStoreTest {
                         "}";
 
         mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=1&size=2"))
-                .andExpect(method(HttpMethod.GET))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
@@ -786,7 +786,7 @@ public class IPFSStoreTest {
                         "}";
 
         mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=0&size=2&sort=id&dir=DESC"))
-                .andExpect(method(HttpMethod.GET))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
@@ -861,7 +861,7 @@ public class IPFSStoreTest {
                         "}";
 
         mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=1&size=2&sort=id&dir=DESC"))
-                .andExpect(method(HttpMethod.GET))
+                .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
