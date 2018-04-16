@@ -43,3 +43,8 @@ build/
 
 #Docker
 *.*docker*
+*.*ipfs*
+
+#checkstyle
+.checkstyle
+
