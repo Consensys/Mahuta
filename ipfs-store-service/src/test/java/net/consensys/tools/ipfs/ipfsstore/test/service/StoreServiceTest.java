@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -13,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,8 +25,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import io.ipfs.api.IPFS;
+import net.consensys.tools.ipfs.ipfsstore.configuration.PinningConfiguration;
 import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
+import net.consensys.tools.ipfs.ipfsstore.dao.pinning.IPFSClusterPinningStrategy;
+import net.consensys.tools.ipfs.ipfsstore.dao.pinning.NativePinningStrategy;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
@@ -34,8 +42,6 @@ import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 import net.consensys.tools.ipfs.ipfsstore.service.impl.StoreServiceImpl;
 import net.consensys.tools.ipfs.ipfsstore.test.dao.ElasticSearchDAOTest;
 import net.consensys.tools.ipfs.ipfsstore.test.utils.TestUtils;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
@@ -46,13 +52,17 @@ public class StoreServiceTest {
     private StorageDao storageDao;
     @MockBean
     private IndexDao indexDao;
+    @MockBean
+    private PinningConfiguration pinningConfiguration;
+    @MockBean
+    private IPFS ipfs;
 
     private StoreService underTest;
 
 
     @Before
     public void setup() {
-        underTest = new StoreServiceImpl(indexDao, storageDao);
+        underTest = new StoreServiceImpl(indexDao, storageDao, pinningConfiguration);
     }
 
     @Test
@@ -280,6 +290,9 @@ public class StoreServiceTest {
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
         Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
 
+        NativePinningStrategy nativePinningStrategy = mock(NativePinningStrategy.class);
+        IPFSClusterPinningStrategy ipfsClusterPinningStrategy = mock(IPFSClusterPinningStrategy.class);
+        Mockito.when(pinningConfiguration.getPinningStrategies()).thenReturn(Arrays.asList(nativePinningStrategy, ipfsClusterPinningStrategy));
 
         // #################################################
         underTest.storeAndIndexFile(pdf, request);

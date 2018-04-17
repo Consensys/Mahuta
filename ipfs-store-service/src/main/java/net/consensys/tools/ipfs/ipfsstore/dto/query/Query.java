@@ -97,4 +97,12 @@ public class Query {
         this.filterClauses.add(new Filter(name, QueryOperation.gte, value));
         return this;
     }
+    
+    public boolean isEmpty() {
+        if (this == null || this.getFilterClauses().isEmpty()) {
+          return true;
+        } else {
+          return false;
+        }
+    }
 }

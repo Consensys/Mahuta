@@ -40,6 +40,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +66,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
-import net.consensys.tools.ipfs.ipfsstore.dao.impl.ElasticSearchIndexDao;
+import net.consensys.tools.ipfs.ipfsstore.dao.index.ElasticSearchIndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
@@ -84,6 +85,8 @@ public class ElasticSearchDAOTest {
 
     @MockBean
     private TransportClient client;
+    @MockBean
+    private PreBuiltTransportClient preBuiltTransportClient;
 
     private final String indexName = "myIndex";
 
@@ -91,11 +94,12 @@ public class ElasticSearchDAOTest {
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        preBuiltTransportClient = PowerMockito.mock(PreBuiltTransportClient.class);
         client = PowerMockito.mock(TransportClient.class);
 
         PowerMockito.whenNew(TransportClient.class).withAnyArguments().thenReturn(client);
 
-        underTest = new ElasticSearchIndexDao(client);
+        underTest = new ElasticSearchIndexDao(preBuiltTransportClient, client, true);
     }
 
     public static List<IndexField> getIndexFields(String key, String value) {

@@ -9,13 +9,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
@@ -37,13 +37,11 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
-import net.consensys.tools.ipfs.ipfsstore.utils.Strings;
 
 @RestController
-@RequestMapping("${api.base}")
+@RequestMapping("${ipfs-store.api-spec.base}")
+@Slf4j
 public class StoreController {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(StoreController.class);
 
     private static final String DEFAULT_PAGE_SIZE = "20";
     private static final String DEFAULT_PAGE_NO = "0";
@@ -64,7 +62,7 @@ public class StoreController {
      * @param index Index name
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.config_index.uri}", method = RequestMethod.POST)
+    @RequestMapping(value = "${ipfs-store.api-spec.config_index.uri}", method = RequestMethod.POST)
     public void createIndex(
             @PathVariable(value = "index") String index)
             throws ServiceException {
@@ -80,7 +78,7 @@ public class StoreController {
      * @return IPFS hash
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.store.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.store.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     StoreResponse storeFile(
             @RequestParam(value = "file") @Valid @NotNull @NotBlank MultipartFile file)
@@ -90,7 +88,7 @@ public class StoreController {
             return new StoreResponse(this.storeService.storeFile(file.getBytes()));
 
         } catch (IOException e) {
-            LOGGER.error("Error in the rest controller", e);
+            log.error("Error in the rest controller", e);
             throw new ServiceException(e);
         }
     }
@@ -102,7 +100,7 @@ public class StoreController {
      * @return Response containing the tuple (index, ID, hash)
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.index.uri}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     IndexerResponse indexFile(
             @RequestBody @Valid @NotNull IndexerRequest request)
@@ -119,7 +117,7 @@ public class StoreController {
      * @return Response containing the tuple (index, ID, hash)
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.store_index.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.store_index.uri}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     IndexerResponse storeAndIndexFile(
             @RequestPart(name = "request") @Valid @NotNull String requestStr,
@@ -132,7 +130,7 @@ public class StoreController {
             return this.storeService.storeAndIndexFile(file.getBytes(), request);
 
         } catch (IOException e) {
-            LOGGER.error("Error in the rest controller", e);
+            log.error("Error in the rest controller", e);
             throw new ServiceException(e);
         }
     }
@@ -145,7 +143,7 @@ public class StoreController {
      * @return File content
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.fetch.uri}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.fetch.uri}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     StreamingResponseBody getFile(
             @PathVariable(value = "index") String index,
@@ -187,7 +185,7 @@ public class StoreController {
      * @return List of result
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.search.uri}", method = RequestMethod.POST, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.search.uri}", method = RequestMethod.POST, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByPost(
             @PathVariable(value = "index") String index,
@@ -213,7 +211,7 @@ public class StoreController {
      * @return List of result
      * @throws ServiceException
      */
-    @RequestMapping(value = "${api.search.uri}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.search.uri}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByGet(
             @PathVariable(value = "index") String index,
@@ -226,14 +224,14 @@ public class StoreController {
 
         try {
             Query query = null;
-            if (!Strings.isEmpty(queryStr)) {
+            if (!StringUtils.isEmpty(queryStr)) {
                 query = this.mapper.readValue(queryStr, Query.class);
             }
 
             return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
 
         } catch (IOException e) {
-            LOGGER.error("Error in the rest controller", e);
+            log.error("Error in the rest controller", e);
             throw new ServiceException(e);
         }
     }

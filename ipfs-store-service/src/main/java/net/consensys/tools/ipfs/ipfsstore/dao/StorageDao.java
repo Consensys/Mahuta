@@ -27,19 +27,5 @@ public interface StorageDao {
      */
     byte[] getContent(String hash) throws DaoException;
 
-    /**
-     * Pin a file to insure it is not garbage collected
-     *
-     * @param hash Unique identifier of the file
-     * @throws DaoException
-     */
-    void pin(String hash) throws DaoException;
 
-    /**
-     * Unpin a file and tell the filesystem it can be garbage collected
-     *
-     * @param hash Unique identifier of the file
-     * @throws DaoException
-     */
-    void unpin(String hash) throws DaoException;
 }

@@ -24,7 +24,7 @@ import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable.ByteArrayWrapper;
 import io.ipfs.multihash.Multihash;
 import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
-import net.consensys.tools.ipfs.ipfsstore.dao.impl.IPFSStorageDao;
+import net.consensys.tools.ipfs.ipfsstore.dao.storage.IPFSStorageDao;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 
 import org.powermock.api.mockito.PowerMockito;

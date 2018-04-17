@@ -1,6 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.service.impl;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import javax.validation.Configuration;
 import javax.validation.ConstraintViolation;
@@ -8,7 +9,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+import net.consensys.tools.ipfs.ipfsstore.configuration.PinningConfiguration;
 import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
@@ -33,19 +35,20 @@ import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 @Service
+@Slf4j
 public class StoreServiceImpl implements StoreService {
-
-    private static final Logger LOGGER = Logger.getLogger(StoreServiceImpl.class);
 
     private final Validator validator;
 
     private final IndexDao indexDao;
     private final StorageDao storageDao;
+    private final PinningConfiguration pinningConfiguration;
 
     @Autowired
-    public StoreServiceImpl(IndexDao indexDao, StorageDao storageDao) {
+    public StoreServiceImpl(IndexDao indexDao, StorageDao storageDao, PinningConfiguration pinningConfiguration) {
         this.indexDao = indexDao;
         this.storageDao = storageDao;
+        this.pinningConfiguration = pinningConfiguration;
 
         // Validator
         Configuration<?> config = Validation.byDefaultProvider().configure();
@@ -58,10 +61,27 @@ public class StoreServiceImpl implements StoreService {
     public String storeFile(byte[] file) throws ServiceException {
 
         try {
-            return this.storageDao.createContent(file);
-
+            // Store file
+            String hash = this.storageDao.createContent(file);
+            
+            // pin file
+            pinningConfiguration.getPinningStrategies().forEach((pinStrategy) -> {
+              CompletableFuture.supplyAsync(() -> {
+                try {
+                  log.debug("Executing async pin_service [name={}] for hash {}", pinStrategy.getName(), hash);
+                  pinStrategy.pin(hash);
+                  return true;
+                } catch (DaoException e) {
+                  log.error("Error while executing async pin_service [name={}] for hash {}", pinStrategy.getName(), hash, e);
+                  return false;
+                }
+              });
+            });
+            
+            return hash;
+            
         } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
@@ -71,7 +91,7 @@ public class StoreServiceImpl implements StoreService {
 
         validate(request);
 
-        LOGGER.trace(request);
+        log.trace(request.toString());
 
         try {
             indexDao.createIndex(request.getIndexName()); // Create the index if it doesn't exist
@@ -86,7 +106,7 @@ public class StoreServiceImpl implements StoreService {
             return new IndexerResponse(request.getIndexName(), documentId, request.getHash());
 
         } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
@@ -104,7 +124,7 @@ public class StoreServiceImpl implements StoreService {
             return this.indexFile(request);
 
         } catch (ServiceException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
@@ -116,7 +136,7 @@ public class StoreServiceImpl implements StoreService {
             return this.storageDao.getContent(hash);
 
         } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
@@ -128,7 +148,7 @@ public class StoreServiceImpl implements StoreService {
             return this.indexDao.searchById(index, id);
 
         } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
@@ -154,7 +174,7 @@ public class StoreServiceImpl implements StoreService {
             this.indexDao.createIndex(index);
 
         } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
@@ -169,7 +189,7 @@ public class StoreServiceImpl implements StoreService {
                indexDao.count(index, query));
            
         } catch (DaoException ex) {
-            LOGGER.error("Exception occur:", ex);
+            log.error("Exception occur:", ex);
             throw new ServiceException(ex.getMessage());
         }
     }
