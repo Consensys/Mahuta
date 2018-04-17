@@ -12,7 +12,8 @@ services:
       - elasticsearch
     environment:
       LOG_LEVEL: TRACE
-      ELASTIC_CLUSTERNODES: elasticsearch:9300
+      ELASTIC_HOST: elasticsearch
+      ELASTIC_PORT: 9300
       IPFS_HOST: ipfs
     networks:
       - default

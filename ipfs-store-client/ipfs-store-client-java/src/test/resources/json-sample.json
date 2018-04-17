@@ -1,66 +1,60 @@
 {
-  "id": "f204263ac3cf4a3da1dceeaa15a1baf4",
-  "date_created": 1517658766111,
-  "date_updated": 1517658766111,
-  "user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514",
-  "votes": [
-    
-  ],
-  "contributions": [
-    
-  ],
-  "comments": [
-    
-  ],
-  "current": {
-    "version": 0,
-    "date_created": 1517658766305,
-    "user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514",
-    "content_description": null,
-    "content_hash": "QmW19PneQCupnwkqFEcdbcqVG3cqPRbvtkWTmv2pEwyExY"
-  },
-  "history": {
-    
-  },
-  "audit_trail": [
-    {
-      "hash": "948c02e8-ad41-4689-8234-edf3916636e4",
-      "name": "UPSERT_ARTICLE",
-      "key": "f7e02c66-1bdf-4517-8628-0ed09f499a24",
-      "auth": {
-        "user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514"
-      },
-      "entityType": "ARTICLE",
-      "requestId": "e277aa2fe05d46c2a14df00f3e67eba6",
-      "text": "{\"blocks\":[{\"key\":\"foo\",\"text\":\"MetaMask is a WebExtension, and that means we're really just a web page in the corner. There have been a few times that some bug, maybe in the browser, causes the font size to change, sometimes pushing buttons off the screen.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"4nu04\",\"text\":\"While MetaMask can't change the font size for you, we read the source code for Chrome, and found a method for manually changing the popup's font size, following these steps.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"erugv\",\"text\":\"Visit chrome-extension://ebjbdknjcgcbchkagneicjfpneaghdhb/popup.html (this opens the popup in a browser window).\",\"type\":\"ordered-list-item\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":6,\"length\":62,\"style\":\"CODE\"}],\"entityRanges\":[],\"data\":{}},{\"key\":\"5b8lu\",\"text\":\"Use the browser zoom commands to zoom out a few clicks. This is in the View menu. The zoom size on this tab should also affect the popup.\",\"type\":\"ordered-list-item\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":71,\"length\":4,\"style\":\"CODE\"}],\"entityRanges\":[],\"data\":{}},{\"key\":\"dubeu\",\"text\":\"Why this works\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"ca56d\",\"text\":\"\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"b41m1\",\"text\":\"Chrome stores the font-size preference on a per-domain basis. You can see this by opening two tabs to the same page, and changing font size on one, and that it changes the other.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"d7hdb\",\"text\":\"\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"cgf53\",\"text\":\"By taking advantage of this property, we're able to open the MetaMask view in a tab, where we have access to font size controls, even though WebExtensions don't usually have a way to change their font size.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}}],\"entityMap\":{}}",
-      "subject": "Changing MetaMask's Popup Font Size (Chrome)"
-    },
-    {
-      "hash": "0x3999a115a53d32863c40e90d62169d4d911d7588bf52ff3f981671675d5e126b-ArticleSubmitted",
-      "name": "ARTICLE_STATE_CHANGE",
-      "key": "f204263ac3cf4a3da1dceeaa15a1baf4",
-      "auth": {
-        "user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514"
-      },
-      "entityId": "f204263ac3cf4a3da1dceeaa15a1baf4",
-      "entityType": "ARTICLE",
-      "status": "SUBMITTED"
-    },
-    {
-      "hash": "0xec21d48a6816956dd1f500f112891966227d03ce386d835fa6da96ec6280346e-ArticleSubmitted",
-      "name": "ARTICLE_STATE_CHANGE",
-      "key": "f204263ac3cf4a3da1dceeaa15a1baf4",
-      "auth": {
-        "user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514"
-      },
-      "entityId": "f204263ac3cf4a3da1dceeaa15a1baf4",
-      "entityType": "ARTICLE",
-      "status": "SUBMITTED"
-    }
-  ],
-  "status": "SUBMITTED",
-  "request_id": "e277aa2fe05d46c2a14df00f3e67eba6",
-  "subject": "Changing MetaMask's Popup Font Size (Chrome)",
-  "category": "metamask",
-  "sub_category": null
+	"id": "f204263ac3cf4a3da1dceeaa15a1baf4",
+	"date_created": 1517658766111,
+	"date_updated": 1517658766111,
+	"user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514",
+	"votes": [],
+	"contributions": [],
+	"comments": [],
+	"current": {
+		"version": 0,
+		"date_created": 1517658766305,
+		"user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514",
+		"content_description": null,
+		"content_hash": "QmW19PneQCupnwkqFEcdbcqVG3cqPRbvtkWTmv2pEwyExY"
+	},
+	"history": {
+		
+	},
+	"audit_trail": [
+		{
+			"hash": "948c02e8-ad41-4689-8234-edf3916636e4",
+			"name": "UPSERT_ARTICLE",
+			"key": "f7e02c66-1bdf-4517-8628-0ed09f499a24",
+			"auth": {
+				"user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514"
+			},
+			"entityType": "ARTICLE",
+			"requestId": "e277aa2fe05d46c2a14df00f3e67eba6",
+			"text": "{\"blocks\":[{\"key\":\"foo\",\"text\":\"MetaMask is a WebExtension, and that means we're really just a web page in the corner. There have been a few times that some bug, maybe in the browser, causes the font size to change, sometimes pushing buttons off the screen.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"4nu04\",\"text\":\"While MetaMask can't change the font size for you, we read the source code for Chrome, and found a method for manually changing the popup's font size, following these steps.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"erugv\",\"text\":\"Visit chrome-extension://ebjbdknjcgcbchkagneicjfpneaghdhb/popup.html (this opens the popup in a browser window).\",\"type\":\"ordered-list-item\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":6,\"length\":62,\"style\":\"CODE\"}],\"entityRanges\":[],\"data\":{}},{\"key\":\"5b8lu\",\"text\":\"Use the browser zoom commands to zoom out a few clicks. This is in the View menu. The zoom size on this tab should also affect the popup.\",\"type\":\"ordered-list-item\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":71,\"length\":4,\"style\":\"CODE\"}],\"entityRanges\":[],\"data\":{}},{\"key\":\"dubeu\",\"text\":\"Why this works\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"ca56d\",\"text\":\"\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"b41m1\",\"text\":\"Chrome stores the font-size preference on a per-domain basis. You can see this by opening two tabs to the same page, and changing font size on one, and that it changes the other.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"d7hdb\",\"text\":\"\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}},{\"key\":\"cgf53\",\"text\":\"By taking advantage of this property, we're able to open the MetaMask view in a tab, where we have access to font size controls, even though WebExtensions don't usually have a way to change their font size.\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[],\"entityRanges\":[],\"data\":{}}],\"entityMap\":{}}",
+			"subject": "Changing MetaMask's Popup Font Size (Chrome)"
+		},
+		{
+			"hash": "0x3999a115a53d32863c40e90d62169d4d911d7588bf52ff3f981671675d5e126b-ArticleSubmitted",
+			"name": "ARTICLE_STATE_CHANGE",
+			"key": "f204263ac3cf4a3da1dceeaa15a1baf4",
+			"auth": {
+				"user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514"
+			},
+			"entityId": "f204263ac3cf4a3da1dceeaa15a1baf4",
+			"entityType": "ARTICLE",
+			"status": "SUBMITTED"
+		},
+		{
+			"hash": "0xec21d48a6816956dd1f500f112891966227d03ce386d835fa6da96ec6280346e-ArticleSubmitted",
+			"name": "ARTICLE_STATE_CHANGE",
+			"key": "f204263ac3cf4a3da1dceeaa15a1baf4",
+			"auth": {
+				"user_id": "0x3b5086c7f2a8527abb539b89ecbb2bd51c2a8514"
+			},
+			"entityId": "f204263ac3cf4a3da1dceeaa15a1baf4",
+			"entityType": "ARTICLE",
+			"status": "SUBMITTED"
+		}
+	],
+	"status": "SUBMITTED",
+	"request_id": "e277aa2fe05d46c2a14df00f3e67eba6",
+	"subject": "Changing MetaMask's Popup Font Size (Chrome)",
+	"category": "metamask",
+	"sub_category": null
 }
