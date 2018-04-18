@@ -17,7 +17,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.dao.PinningStrategy;
 import net.consensys.tools.ipfs.ipfsstore.dao.pinning.IPFSClusterPinningStrategy;
-import net.consensys.tools.ipfs.ipfsstore.dao.pinning.InfuraPinningStrategy;
 import net.consensys.tools.ipfs.ipfsstore.dao.pinning.NativePinningStrategy;
 
 /**
@@ -50,9 +49,6 @@ public class PinningConfiguration {
     executors.put(IPFSClusterPinningStrategy.NAME, (config) -> {
       return new IPFSClusterPinningStrategy(config); 
     });
-    executors.put(InfuraPinningStrategy.NAME, (config) -> {
-      throw new UnsupportedOperationException("Infura pinning service not iservicesmplemented");
-    });
 
     // Register each pinning service
     if(strategies == null || strategies.size() == 0) {
@@ -61,7 +57,7 @@ public class PinningConfiguration {
     }
     log.debug(strategies.toString());
     
-    strategies.forEach(serviceConfig -> this.registerPinningStrategies(serviceConfig.getId(), serviceConfig));
+    strategies.forEach(serviceConfig -> this.registerPinningStrategy(serviceConfig.getType(), serviceConfig));
     
   }
   
@@ -70,13 +66,13 @@ public class PinningConfiguration {
    * @param name    Name of the pinning strategy
    * @param config  Configuration associated to the strategy
    */
-  public void registerPinningStrategies(String name, AbstractConfiguration config) {
+  public void registerPinningStrategy(String name, AbstractConfiguration config) {
     
     if(!config.enable) {
       return;
     }
     
-    log.debug("registerPinningStrategies(name: {}, config: {})", name, config);
+    log.info("Register Pinning Strategy (name: {}, config: {})", name, config);
 
     if(!executors.containsKey(name)) {
       throw new IllegalArgumentException("Unknow pinning stragtegy name ["+name+"]");
