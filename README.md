@@ -503,7 +503,7 @@ The storage layer is built in a generic way where different storage technologies
 | -------- | -------- | -------- | -------- | 
 | ipfs-store.storage.type | String | IPFS | Select IPFS as a storage layer |
 | ipfs-store.storage.host | String | localhost | Host to connect to the node |
-| ipfs-store.storage.port | Integer | 
+| ipfs-store.storage.port | Integer | Port to connect to the node |
 
 
 
@@ -547,7 +547,7 @@ Pinning stategies can be combined together and are executed asynchronously from 
 
 | Property | Type | Sample value | Description |
 | -------- | -------- | -------- | -------- | 
-| ipfs-store.pinning.strategies | Strategy[] | List og strategies|
+| ipfs-store.pinning.strategies | Strategy[] | List of strategies|
 | ipfs-store.pinning.strategies[0].id | String | Unique identifier of the stratefy |
 | ipfs-store.pinning.strategies[0].type | String | Type of the strategy (`native`, `ipfs_cluster`) |
 | ipfs-store.pinning.strategies[0].enable | Boolean | Enable/Disable the strategy |
