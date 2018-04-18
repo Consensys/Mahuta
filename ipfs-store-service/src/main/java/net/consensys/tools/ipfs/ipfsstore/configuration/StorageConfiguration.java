@@ -48,7 +48,8 @@ public class StorageConfiguration extends AbstractConfiguration {
 
       IPFS ipfs = new IPFS(host, port);
 
-      log.info("Connected to IPFS [host: {}, ipfsPort: {}]: {}", host, port, ipfs.config.show());
+      log.info("Connected to IPFS [host: {}, ipfsPort: {}]", host, port);
+      log.debug(ipfs.config.show().toString());
 
       return new IPFSStorageDao(ipfs);
 

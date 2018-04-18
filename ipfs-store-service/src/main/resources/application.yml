@@ -22,17 +22,16 @@ ipfs-store:
   pinning:
     strategies:
       - 
-        id: native
+        id: ipfs_node
+        type: native
         host: ${IPFS_HOST:localhost}
         port: ${IPFS_PORT:5001}
       - 
         id: ipfs_cluster
+        type: ipfs_cluster
         enable: ${IPFS_CLUSTER_ENABLE:false}
         host: ${IPFS_CLUSTER_HOST:localhost}
         port: ${IPFS_CLUSTER_PORT:9094}
-      - 
-        id: infura
-        enable: false
 
   api-spec:
      base: /ipfs-store

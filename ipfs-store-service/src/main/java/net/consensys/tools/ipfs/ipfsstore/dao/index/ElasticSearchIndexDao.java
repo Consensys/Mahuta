@@ -59,7 +59,6 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     private final ObjectMapper mapper;
 
-    @SuppressWarnings("unused")
     private final PreBuiltTransportClient preBuiltTransportClient;
     private final TransportClient client;
     private final boolean indexNullValues;

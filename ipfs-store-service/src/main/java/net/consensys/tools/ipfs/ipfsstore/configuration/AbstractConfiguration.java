@@ -11,6 +11,7 @@ public class AbstractConfiguration {
 
   protected boolean enable = true;
   protected String id;
+  protected String type;
   protected String host;
   protected Integer port;
   protected Map<String, String> additional;
