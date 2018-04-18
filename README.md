@@ -35,7 +35,8 @@ a. If you have a running instance of IPFS and ElasticSearch
 ```
 $ export IPFS_HOST=localhost
 $ export IPFS_PORT=5001
-$ export ELASTIC_CLUSTERNODES=localhost:9300
+$ export ELASTIC_HOST=localhost
+$ export ELASTIC_PORT=9300
 $ export ELASTIC_CLUSTERNAME=elasticsearch
 
 $ java -jar target/ipfs-store.jar
@@ -48,7 +49,8 @@ $ docker build  . -t kauri/ipfs-store:latest
 
 $ export IPFS_HOST=localhost
 $ export IPFS_PORT=5001
-$ export ELASTIC_CLUSTERNODES=localhost:9300
+$ export ELASTIC_HOST=localhost
+$ export ELASTIC_PORT=9300
 $ export ELASTIC_CLUSTERNAME=elasticsearch
 
 $ docker run -p 8040:8040 kauri/ipfs-store
