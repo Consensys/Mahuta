@@ -10,14 +10,17 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.util.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import net.consensys.tools.ipfs.ipfsstore.configuration.health.HealthCheckScheduler;
 import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dao.index.ElasticSearchIndexDao;
 import net.consensys.tools.ipfs.ipfsstore.exception.ConnectionException;
@@ -30,8 +33,16 @@ import net.consensys.tools.ipfs.ipfsstore.exception.ConnectionException;
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "ipfs-store.index")
+@DependsOn("HealthCheckScheduler")
 @Slf4j
 public class IndexerConfiguration extends AbstractConfiguration {
+  
+  private HealthCheckScheduler healthCheckScheduler;
+
+  @Autowired
+  public IndexerConfiguration(HealthCheckScheduler healthCheckScheduler) {
+    this.healthCheckScheduler = healthCheckScheduler;
+  }
   
   /**
    * Load the ElasticSearch Indexer Dao bean up
@@ -56,15 +67,21 @@ public class IndexerConfiguration extends AbstractConfiguration {
     try {
       log.info("Connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port, additional.get(KEY_CLUSTER));
 
+      // Load the client and start the connection
       PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
           Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build());
 
       TransportClient transportClient = preBuiltTransportClient.addTransportAddress(
           new InetSocketTransportAddress(InetAddress.getByName(host), port));
       
+      IndexDao bean = new ElasticSearchIndexDao(preBuiltTransportClient, transportClient, Boolean.parseBoolean(additional.get(KEY_INDEX_NULL)));
+      
+      // Register to the heath check service
+      healthCheckScheduler.registerHealthCheck("elasticsearch", bean);
+      
       log.info("Connected to ElasticSearch [host: {}, port: {}, cluster: {}] : {}", host, port, additional.get(KEY_CLUSTER), transportClient.listedNodes());
 
-      return new ElasticSearchIndexDao(preBuiltTransportClient, transportClient, Boolean.parseBoolean(additional.get(KEY_INDEX_NULL)));
+      return bean;
       
     } catch (UnknownHostException ex) {
       log.error("Error while connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port, additional.get(KEY_CLUSTER), ex);

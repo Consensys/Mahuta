@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
+import net.consensys.tools.ipfs.ipfsstore.configuration.health.HealthCheck;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
@@ -16,7 +17,7 @@ import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
  *
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
-public interface IndexDao {
+public interface IndexDao extends HealthCheck {
 
     /**
      * Special keys

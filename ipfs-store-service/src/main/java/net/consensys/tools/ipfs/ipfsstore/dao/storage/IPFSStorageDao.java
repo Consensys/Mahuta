@@ -28,6 +28,20 @@ public class IPFSStorageDao implements StorageDao {
     public IPFSStorageDao(IPFS ipfs) {
         this.ipfs = ipfs;
     }
+    
+    @Override
+    public Result check() {
+      log.debug("check IPFS health ...");
+      
+      try {
+        ipfs.config.show();
+        log.debug("IPFS is OK");
+        return Result.healthy();
+      } catch(Exception e) {
+        log.error("IPFS is KO", e);
+        return Result.unhealthy(e);
+      }
+    }
 
     @Override
     public String createContent(byte[] content) throws DaoException {
