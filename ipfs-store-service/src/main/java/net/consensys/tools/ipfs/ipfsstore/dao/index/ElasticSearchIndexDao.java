@@ -18,6 +18,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -59,6 +60,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     private final ObjectMapper mapper;
 
+    @SuppressWarnings("unused") // Needed to keep the connection alive
     private final PreBuiltTransportClient preBuiltTransportClient;
     private final TransportClient client;
     private final boolean indexNullValues;
@@ -95,6 +97,25 @@ public class ElasticSearchIndexDao implements IndexDao {
 
       } catch (final Exception e) {
         log.error("Error closing ElasticSearch client: ", e);
+      }
+    }
+    
+    @Override
+    public Result check() {
+      log.debug("check elastic search health ...");
+      
+      try {
+        final ClusterHealthStatus status = client.admin().cluster().prepareHealth().get().getStatus();
+        log.debug("status={}", status.toString()); 
+        
+        if (status == ClusterHealthStatus.RED) {
+            return Result.unhealthy("Last status: %s", status.name());
+        } else {
+            return Result.healthy("Last status: %s", status.name());
+        }
+      } catch(Exception e) {
+        log.error("Error whilst checking ElasticSearch health", e);
+        return Result.unhealthy(e);
       }
     }
 

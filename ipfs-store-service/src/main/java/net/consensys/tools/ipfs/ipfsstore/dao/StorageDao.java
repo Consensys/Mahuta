@@ -1,5 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.dao;
 
+import net.consensys.tools.ipfs.ipfsstore.configuration.health.HealthCheck;
 import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 
 /**
@@ -7,7 +8,7 @@ import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
  *
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
-public interface StorageDao {
+public interface StorageDao extends HealthCheck {
 
     /**
      * Store content into the filesystem

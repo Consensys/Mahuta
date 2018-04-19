@@ -47,3 +47,6 @@ ipfs-store:
         uri: /fetch/{index}/{hash}
      config_index:
         uri: /config/index/{index}
+        
+  healthcheck:
+    pollInterval: 10000
