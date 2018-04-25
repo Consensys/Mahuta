@@ -3,6 +3,7 @@ package net.consensys.tools.ipfs.ipfsstore.dto.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -98,6 +99,7 @@ public class Query {
         return this;
     }
     
+    @JsonIgnore
     public boolean isEmpty() {
         if (this == null || this.getFilterClauses().isEmpty()) {
           return true;

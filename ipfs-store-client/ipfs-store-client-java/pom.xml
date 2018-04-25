@@ -45,6 +45,11 @@
 			<artifactId>spring-web</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.hobsoft.spring</groupId>
+		    <artifactId>spring-rest-template-logger</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
 
 		<!-- Common -->
 		<dependency>
