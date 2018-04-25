@@ -4,8 +4,10 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.UUID;
 
+import org.hobsoft.spring.resttemplatelogger.LoggingCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -65,7 +67,9 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public RestIPFSStoreWrapperImpl(String endpoint) {
         this.endpoint = endpoint;
 
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = new RestTemplateBuilder()
+        	    .customizers(new LoggingCustomizer())
+        	    .build();
         this.restTemplate.getMessageConverters().add(
                 new ByteArrayHttpMessageConverter());
 
@@ -74,6 +78,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+
+    
     @Override
     public void createIndex(String indexName) throws IPFSStoreException {
         try {
@@ -264,6 +270,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             URI url = uriComponentsBuilder.build().encode().toUri();
 
             LOGGER.trace("url=" + url);
+            LOGGER.trace("query=" + query);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -283,7 +290,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
         } catch (RestClientException ex) {
             LOGGER.error("Error while searching [indexName={}, query={}]", indexName, query, ex);
-            throw new IPFSStoreException("Error while searching  [indexName=" + indexName + ", query=\"+query+\"]", ex);
+            throw new IPFSStoreException("Error while searching  [indexName=" + indexName + ", query="+query+"]", ex);
         }
     }
 
