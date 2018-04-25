@@ -4,10 +4,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.UUID;
 
-import org.hobsoft.spring.resttemplatelogger.LoggingCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -67,9 +65,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public RestIPFSStoreWrapperImpl(String endpoint) {
         this.endpoint = endpoint;
 
-        this.restTemplate = new RestTemplateBuilder()
-        	    .customizers(new LoggingCustomizer())
-        	    .build();
+        this.restTemplate = new RestTemplate();
         this.restTemplate.getMessageConverters().add(
                 new ByteArrayHttpMessageConverter());
 
