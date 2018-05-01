@@ -13,14 +13,15 @@ import javax.annotation.PreDestroy;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -105,14 +106,26 @@ public class ElasticSearchIndexDao implements IndexDao {
       log.debug("check elastic search health ...");
       
       try {
-        final ClusterHealthStatus status = client.admin().cluster().prepareHealth().get().getStatus();
-        log.debug("status={}", status.toString()); 
+// NEED ELASTIC LICENSES TO REQUEST CLUSTER_HEATLH
+//        final ClusterHealthStatus status = client.admin().cluster().prepareHealth().get().getStatus();
+//        log.debug("status={}", status.toString()); 
+//        
+//        if (status == ClusterHealthStatus.RED) {
+//            return Result.unhealthy("Last status: %s", status.name());
+//        } else {
+//            return Result.healthy("Last status: %s", status.name());
+//        }
         
-        if (status == ClusterHealthStatus.RED) {
-            return Result.unhealthy("Last status: %s", status.name());
-        } else {
-            return Result.healthy("Last status: %s", status.name());
-        }
+        client.admin()
+        .indices()
+        .getIndex(new GetIndexRequest())
+        .actionGet()
+        .getIndices();   
+        
+        log.debug("check elastic search health : OK");
+        
+        return Result.healthy("ElasticSearch is OK");
+        
       } catch(Exception e) {
         log.error("Error whilst checking ElasticSearch health", e);
         return Result.unhealthy(e);
@@ -412,7 +425,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
                 switch (f.getOperation()) {
                     case full_text:
-                        elasticSearchQuery.must(QueryBuilders.multiMatchQuery(value, f.getNames()).lenient(true));
+                        elasticSearchQuery.must(QueryBuilders.multiMatchQuery(value, f.getNames()).type(Type.PHRASE_PREFIX));
                         break;
                     case equals:
                         elasticSearchQuery.must(QueryBuilders.termQuery(f.getName(), value));

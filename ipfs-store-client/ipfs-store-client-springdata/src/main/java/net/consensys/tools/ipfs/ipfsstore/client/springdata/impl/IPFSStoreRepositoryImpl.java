@@ -21,13 +21,13 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreRepositoryImpl.class);
 
     @Autowired
-    public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz) {
-        super(client, indexName, indexFields, externalIndexFields, entityClazz);
+    public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> fullTextFields, Class<E> entityClazz) {
+        super(client, indexName, indexFields, fullTextFields, entityClazz);
     }
 
     @Autowired
-    public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz, String attributeId, String attributeHash) {
-        super(client, indexName, indexFields, externalIndexFields, entityClazz, attributeId, attributeHash);
+    public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> fullTextFields, Class<E> entityClazz, String attributeId, String attributeHash) {
+        super(client, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash);
     }
 
     @Override

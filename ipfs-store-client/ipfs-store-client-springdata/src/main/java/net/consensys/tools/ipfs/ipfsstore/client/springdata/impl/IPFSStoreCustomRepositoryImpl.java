@@ -8,8 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,8 +46,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     protected final String indexName;
 
     protected final Set<String> indexFields;
-
-    protected final Set<String> allFields;
+    protected final Set<String> fullTextFields;
 
     protected final Class<E> entityClazz;
 
@@ -57,35 +56,19 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
     private final String attributeHash;
 
-    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz) {
-        this.client = client;
-        this.indexName = indexName;
-        this.indexFields = indexFields;
-        this.entityClazz = entityClazz;
-
-        this.mapper = new ObjectMapper();
-
-        // Merge Direct fields and External fields
-        allFields = new HashSet<>();
-        if (indexFields != null) allFields.addAll(indexFields);
-        if (externalIndexFields != null) allFields.addAll(externalIndexFields);
-
-        this.attributeHash = DEFAULT_ATTRIBUTE_HASH;
-        this.attributeId = DEFAULT_ATTRIBUTE_ID;
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> fullTextFields, Class<E> entityClazz) {
+        this(client, indexName, indexFields, fullTextFields, entityClazz, DEFAULT_ATTRIBUTE_ID, DEFAULT_ATTRIBUTE_HASH);
     }
 
-    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> externalIndexFields, Class<E> entityClazz, String attributeId, String attributeHash) {
+    public IPFSStoreCustomRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> fullTextFields, Class<E> entityClazz, String attributeId, String attributeHash) {
         this.client = client;
         this.indexName = indexName;
-        this.indexFields = indexFields;
         this.entityClazz = entityClazz;
 
         this.mapper = new ObjectMapper();
 
-        // Merge Direct fields and External fields
-        allFields = new HashSet<>();
-        if (indexFields != null) allFields.addAll(indexFields);
-        if (externalIndexFields != null) allFields.addAll(externalIndexFields);
+        this.indexFields = (indexFields == null) ? Collections.emptySet() : indexFields;
+        this.fullTextFields = (fullTextFields == null) ? Collections.emptySet() : fullTextFields;
 
         this.attributeHash = attributeHash;
         this.attributeId = attributeId;
@@ -96,9 +79,14 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     public Page<E> findByfullTextSearch(String fullTextCriteria, Pageable pagination) {
 
         LOGGER.debug("Find all {}", printFullTextSearch(fullTextCriteria, pagination));
+        
+        if(fullTextFields.isEmpty()) {
+            LOGGER.warn("Can't perform a full text search. no fields configured [fullTextFields]");
+            return null;
+        }
 
         Query query = Query.newQuery();
-        query.fullText(allFields.toArray(new String[allFields.size()]), fullTextCriteria);
+        query.fullText(fullTextFields.toArray(new String[fullTextFields.size()]), fullTextCriteria);
 
         Page<E> result = this.search(query, pagination);
 
