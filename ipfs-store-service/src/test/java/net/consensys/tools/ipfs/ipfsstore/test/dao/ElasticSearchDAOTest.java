@@ -648,8 +648,8 @@ public class ElasticSearchDAOTest {
                 "    \"must\" : [{\n" +
                 "      \"multi_match\" : {\n" +
                 "        \"query\" : \"" + customAttributeVal + "\",\n" +
-                "        \"fields\" : [ \"" + customAttributeKey + "^1.0\"  ],\n" + // ^1.0 ??? WTF
-                "        \"lenient\" : true\n" +
+                "        \"type\" :       \"phrase_prefix\",\n" +
+                "        \"fields\" : [ \"" + customAttributeKey + "^1.0\"  ]\n" + // ^1.0 ??? WTF
                 "      }\n" +
                 "    }]\n" +
                 "  }\n" +
