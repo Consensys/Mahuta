@@ -25,6 +25,18 @@
 	</modules>
 
 	<repositories>
+        <repository> <!-- Workaround to ignore sonatype repository by travisCI -->
+          	<id>sonatype</id>
+          	<url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository><!-- Workaround to ignore sonatype repository by travisCI -->
+          	<id>sonatype-apache</id>
+          	<url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+          	<id>central_repository</id>
+          	<url>http://repo1.maven.org/maven2</url>
+        </repository>
 		<repository>
 			<id>spring-releases</id>
 			<url>https://repo.spring.io/libs-release</url>
