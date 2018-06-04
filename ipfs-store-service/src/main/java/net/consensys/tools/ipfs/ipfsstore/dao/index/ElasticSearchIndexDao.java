@@ -134,7 +134,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     @Override
     public String index(String indexName, String documentId, String hash, String contentType, List<IndexField> indexFields) throws DaoException {
-        log.debug("Index document in ElasticSearch " + printSearchIndex(indexName, documentId, indexFields));
+        log.debug("Index document in ElasticSearch [indexName: {}, documentId:{}, indexFields: {}]", indexName, documentId, indexFields);
 
         // Validation
         if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
@@ -164,14 +164,14 @@ public class ElasticSearchIndexDao implements IndexDao {
                         .get();
             }
 
-            log.debug("Document indexed ElasticSearch " + printSearchIndex(indexName, documentId, indexFields) + ". Result ID=" + response.getId());
+            log.debug("Document indexed ElasticSearch [indexName: {}, documentId:{}, indexFields: {}]. Result ID= {} ", indexName, documentId, indexFields, response.getId());
 
             this.refreshIndex(indexName);
 
             return response.getId();
 
         } catch (Exception ex) {
-            log.error("Error while indexing document into ElasticSearch " + printSearchIndex(indexName, documentId, indexFields), ex);
+            log.error("Error while indexing document into ElasticSearch [indexName: {}, documentId:{}, indexFields: {}]", indexName, documentId, indexFields, ex);
             throw new DaoException("Error while indexing document into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -179,7 +179,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     @Override
     public Metadata searchById(String indexName, String id) throws DaoException, NotFoundException {
-        log.debug("Search in ElasticSearch by ID " + printSearchDocument(indexName, id));
+        log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]", indexName, id);
 
         // Validation
         if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName" + ERROR_NOT_NULL_OR_EMPTY);
@@ -188,23 +188,23 @@ public class ElasticSearchIndexDao implements IndexDao {
         try {
             GetResponse response = client.prepareGet(indexName.toLowerCase(), indexName.toLowerCase(), id).get();
 
-            log.trace("Search one document in ElasticSearch " + printSearchDocument(indexName, id) + " : response=" + response);
+            log.trace("Search one document in ElasticSearch [index: {}, ID: {}] : response= {}", indexName, id, response);
 
             if (!response.isExists()) {
-                throw new NotFoundException("Document " + printSearchDocument(indexName, id) + " not found");
+                throw new NotFoundException("Document [index: "+indexName+", ID: "+id+"] not found");
             }
 
             Metadata metadata = convert(response.getIndex(), response.getId(), response.getSourceAsMap());
 
-            log.debug("Search one document in ElasticSearch " + printSearchDocument(indexName, id) + " : " + metadata);
+            log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]: {}", indexName, id, metadata);
 
             return metadata;
 
         } catch (NotFoundException ex) {
-            log.warn("Error while searching into ElasticSearch " + printSearchDocument(indexName, id), ex);
+            log.warn("Error while searching into ElasticSearch [index: {}, ID: {}]", indexName, id, ex);
             throw ex;
         } catch (Exception ex) {
-            log.error("Error while searching into ElasticSearch " + printSearchDocument(indexName, id), ex);
+            log.error("Error while searching into ElasticSearch [index: {}, ID: {}]", indexName, id, ex);
             throw new DaoException("Error while searching into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -212,7 +212,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     @Override
     public List<Metadata> search(Pageable pageable, String indexName, Query query) throws DaoException {
-        log.debug("Search documents in ElasticSearch " + printSearchQuery(indexName, query));
+        log.debug("Search documents in ElasticSearch [index: {}, query: {}]", indexName, query);
 
         // Validation
         if (pageable == null) throw new IllegalArgumentException("pageable " + ERROR_NOT_NULL_OR_EMPTY);
@@ -236,25 +236,25 @@ public class ElasticSearchIndexDao implements IndexDao {
 
             SearchResponse searchResponse = requestBuilder.execute().actionGet();
 
-            log.trace("Search documents in ElasticSearch " + printSearchQuery(indexName, query) + " : " + searchResponse);
+            log.trace("Search documents in ElasticSearch [index: {}, query: {}]: {}", indexName, query, searchResponse);
 
             List<Metadata> result = Arrays.stream(searchResponse.getHits().getHits())
                     .map(hit -> convert(hit.getIndex(), hit.getId(), hit.getSourceAsMap()))
                     .collect(Collectors.toList());
 
-            log.debug("Search documents in ElasticSearch " + printSearchQuery(indexName, query) + " : " + result);
+            log.debug("Search documents in ElasticSearch [index: {}, query: {}]: {}", indexName, query, result);
 
             return result;
 
         } catch (Exception ex) {
-            log.error("Error while searching documents into ElasticSearch " + printSearchQuery(indexName, query), ex);
+            log.error("Error while searching documents into ElasticSearch [index: {}, query: {}]", indexName, query, ex);
             throw new DaoException("Error while searching documents into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
     public long count(String indexName, Query query) throws DaoException {
-        log.debug("Count in ElasticSearch " + printSearchQuery(indexName, query));
+        log.debug("Count in ElasticSearch [index: {}, query: {}]", indexName, query);
 
         // Validation
         if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
@@ -267,19 +267,19 @@ public class ElasticSearchIndexDao implements IndexDao {
                 .setSize(0)
                 .get();
 
-            log.trace("Count in ElasticSearch " + printSearchQuery(indexName, query) + " : " + countResponse);
+            log.trace("Count in ElasticSearch [index: {}, query: {}]: {}", indexName, query, countResponse);
 
             return countResponse.getHits().getTotalHits();
 
         } catch (Exception ex) {
-            log.error("Error while counting into ElasticSearch " + printSearchQuery(indexName, query), ex);
+            log.error("Error while counting into ElasticSearch [index: {}, query: {}]", indexName, query, ex);
             throw new DaoException("Error while counting into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
     public void createIndex(String indexName) throws DaoException {
-        log.debug("Create index in ElasticSearch " + printSearchIndexName(indexName));
+        log.debug("Create index in ElasticSearch [index: {}]", indexName);
 
         // Validation
         if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
@@ -291,14 +291,14 @@ public class ElasticSearchIndexDao implements IndexDao {
 
             if (!exists) {
                 client.admin().indices().prepareCreate(indexName).get();
-                log.debug("Index created in ElasticSearch " + printSearchIndexName(indexName));
+                log.debug("Index [index: {}] created in ElasticSearch", indexName);
 
             } else {
-                log.debug("Index already exists in ElasticSearch " + printSearchIndexName(indexName));
+                log.debug("Index [index: {}] already exists in ElasticSearch", indexName);
             }
 
         } catch (Exception ex) {
-            log.error("Error while creating the index into ElasticSearch " + printSearchIndexName(indexName), ex);
+            log.error("Error while creating the index [index: {}] into ElasticSearch", indexName, ex);
             throw new DaoException("Error while creating the index into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -490,22 +490,6 @@ public class ElasticSearchIndexDao implements IndexDao {
      */
     private void refreshIndex(String index) {
         this.client.admin().indices().prepareRefresh(index).get();
-    }
-
-    private String printSearchIndexName(String indexName) {
-        return "[indexName=" + indexName + "]";
-    }
-
-    private String printSearchIndex(String indexName, String documentId, List<IndexField> indexFields) {
-        return "[indexName=" + indexName + ", documentId=" + documentId + ", indexFields=" + indexFields + "]";
-    }
-
-    private String printSearchDocument(String indexName, String id) {
-        return "[indexName=" + indexName + ", id=" + id + "]";
-    }
-
-    private String printSearchQuery(String indexName, Query query) {
-        return "[indexName=" + indexName + ", query=" + query + "]";
     }
 
 }

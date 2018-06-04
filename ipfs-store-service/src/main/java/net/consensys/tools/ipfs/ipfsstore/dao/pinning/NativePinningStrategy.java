@@ -1,7 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.pinning;
 
 import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
-import static net.consensys.tools.ipfs.ipfsstore.Constant.printHash;
 
 import java.io.IOException;
 
@@ -49,7 +48,7 @@ public class NativePinningStrategy implements PinningStrategy {
 
       } catch (IOException ex) {
           log.error("Exception while pinning file in IPFS [hash={}]", hash, ex);
-          throw new DaoException("Exception while pinning file in IPFS " + printHash(hash) + ": " + ex.getMessage());
+          throw new DaoException("Exception while pinning file in IPFS " + hash + ": " + ex.getMessage());
       }
   }
 
@@ -69,7 +68,7 @@ public class NativePinningStrategy implements PinningStrategy {
 
       } catch (IOException ex) {
           log.error("Exception while pinning file in IPFS [hash={}]", hash, ex);
-          throw new DaoException("Exception while pinning file in IPFS " + printHash(hash) + ex.getMessage());
+          throw new DaoException("Exception while pinning file in IPFS " + hash + ex.getMessage());
       }
 
   }

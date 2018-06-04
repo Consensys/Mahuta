@@ -38,7 +38,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     @Override
     public <S extends E> S save(S entity, Map<String, Object> externalIndexFields) {
         try {
-            LOGGER.debug("Saving entity " + printEntity(entity, externalIndexFields));
+            LOGGER.debug("Saving entity [entity: {}, external_index_fields: {}]", entity, externalIndexFields);
 
 
             // Identifier
@@ -60,7 +60,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
             // Add the hash to the entity
             this.setHash(entity, hash);
 
-            LOGGER.debug("Entity {0} saved. hash={}" + printEntity(entity, externalIndexFields), hash);
+            LOGGER.debug("Entity [entity: {}, external_index_fields: {}] saved. hash={}", entity, externalIndexFields, hash);
 
             return entity;
 
@@ -70,7 +70,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
                 IllegalAccessException |
                 IllegalArgumentException |
                 InvocationTargetException e) {
-            LOGGER.error("Error while saving the entity " + printEntity(entity, externalIndexFields), e);
+            LOGGER.error("Error while saving the entity [entity: {}, external_index_fields: {}]", entity, externalIndexFields, e);
             return null;
         }
     }
@@ -126,10 +126,6 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
             LOGGER.error("Error while retrieving the entity [id={}]", id, e);
             return false;
         }
-    }
-
-    private <S extends E> String printEntity(S entity, Map<String, Object> externalIndexFields) {
-        return "[entity=" + entity + ", externalIndexFields=" + externalIndexFields + "]";
     }
 
     /*

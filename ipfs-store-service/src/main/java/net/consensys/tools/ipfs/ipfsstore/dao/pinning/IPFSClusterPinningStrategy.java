@@ -1,7 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.pinning;
 
 import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
-import static net.consensys.tools.ipfs.ipfsstore.Constant.printHash;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -39,14 +38,14 @@ public class IPFSClusterPinningStrategy implements PinningStrategy {
     if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
     try {
-      log.debug("call POST http://"+host+":"+port+"/pins/"+hash);
-      this.restTemplate.postForLocation("http://"+host+":"+port+"/pins/"+hash, null);
+        log.debug("call POST http://{}:{}/pins/{}",host, port, hash);
+        this.restTemplate.postForLocation("http://"+host+":"+port+"/pins/"+hash, null);
 
-        log.debug("File pinned in IPFS-cluster [hash=" + hash + "]");
+        log.debug("File pinned in IPFS-cluster [hash={}]", hash);
 
     } catch (Exception ex) {
         log.error("Exception while pinning file in IPFS-cluster [hash={}]", hash, ex);
-        throw new DaoException("Exception while pining file in IPFS-cluster " + printHash(hash) + ": " + ex.getMessage());
+        throw new DaoException("Exception while pining file in IPFS-cluster " + hash + ": " + ex.getMessage());
     }
   }
 
@@ -58,13 +57,13 @@ public class IPFSClusterPinningStrategy implements PinningStrategy {
     if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
     try {
-        // TODO Auto-generated method stub
+        // TODO 
 
         log.debug("File unpinned in IPFS-cluster [hash={}]", hash);
 
     } catch (Exception ex) {
         log.error("Exception while pinning file in IPFS-cluster [hash={}]", hash, ex);
-        throw new DaoException("Exception while pining file in IPFS-cluster " + printHash(hash) + ex.getMessage());
+        throw new DaoException("Exception while pining file in IPFS-cluster " + hash + ex.getMessage());
     }
   }
 

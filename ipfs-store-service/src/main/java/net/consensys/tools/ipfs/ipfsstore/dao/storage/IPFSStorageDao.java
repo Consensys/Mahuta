@@ -1,7 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.storage;
 
 import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
-import static net.consensys.tools.ipfs.ipfsstore.Constant.printHash;
 
 import java.io.IOException;
 
@@ -57,7 +56,7 @@ public class IPFSStorageDao implements StorageDao {
 
             String hash = response.hash.toString();
 
-            log.debug("Store created in IPFS " + printHash(hash));
+            log.debug("FIle created in IPFS: hash={} ", hash);
 
             return hash;
 
@@ -70,7 +69,7 @@ public class IPFSStorageDao implements StorageDao {
     @Override
     public byte[] getContent(String hash) throws DaoException {
 
-        log.debug("Get file in IPFS " + printHash(hash));
+        log.debug("Get file in IPFS [hash: {}] ", hash);
 
         // Validation
         if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
@@ -79,13 +78,13 @@ public class IPFSStorageDao implements StorageDao {
             Multihash filePointer = Multihash.fromBase58(hash);
             byte[] content = this.ipfs.cat(filePointer);
 
-            log.debug("Get file in IPFS [hash=" + hash + "]");
+            log.debug("Get file in IPFS [hash: {}]", hash);
 
             return content;
 
         } catch (IOException ex) {
-            log.error("Exception while getting file in IPFS " + printHash(hash), ex);
-            throw new DaoException("Exception while getting file in IPFS " + printHash(hash) + ex.getMessage());
+            log.error("Exception while getting file in IPFS [hash: {}]", hash, ex);
+            throw new DaoException("Exception while getting file in IPFS " + hash + ex.getMessage());
         }
     }
 
