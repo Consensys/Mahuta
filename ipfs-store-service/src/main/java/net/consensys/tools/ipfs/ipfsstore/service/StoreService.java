@@ -10,7 +10,8 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
+import net.consensys.tools.ipfs.ipfsstore.exception.ValidationException;
 
 /**
  * Storage Service gathers all the logic for the IPFS-Storage
@@ -26,7 +27,7 @@ public interface StoreService {
      * @return File Unique Identifier
      * @throws ServiceException
      */
-    String storeFile(byte[] file) throws ServiceException;
+    String storeFile(byte[] file);
 
     /**
      * Index a file
@@ -35,7 +36,7 @@ public interface StoreService {
      * @return Response containing the tuple (index, index ID, file ID)
      * @throws ServiceException
      */
-    IndexerResponse indexFile(IndexerRequest request) throws ServiceException;
+    IndexerResponse indexFile(IndexerRequest request) throws ValidationException;
 
     /**
      * Store a file and index it
@@ -45,7 +46,7 @@ public interface StoreService {
      * @return Request containing metadata to index (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ServiceException;
+    IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ValidationException;
 
     /**
      * Get Content by File Unique Identifier
@@ -54,7 +55,7 @@ public interface StoreService {
      * @return File content (binary)
      * @throws ServiceException
      */
-    byte[] getFileByHash(String hash) throws ServiceException;
+    byte[] getFileByHash(String hash) throws TimeoutException;
 
     /**
      * Get Content Metadata by Index Unique Identifier
@@ -64,7 +65,7 @@ public interface StoreService {
      * @return Content Metadata (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    Metadata getFileMetadataById(Optional<String> index, String id) throws ServiceException, NotFoundException;
+    Metadata getFileMetadataById(Optional<String> index, String id) throws NotFoundException;
 
     /**
      * Get Content Metadata by File Unique Identifier
@@ -74,7 +75,7 @@ public interface StoreService {
      * @return Content Metadata (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    Metadata getFileMetadataByHash(Optional<String> index, String hash) throws ServiceException, NotFoundException;
+    Metadata getFileMetadataByHash(Optional<String> index, String hash) throws NotFoundException;
 
     /**
      * Search in the index a list of content against a multi-criteria search query
@@ -85,7 +86,7 @@ public interface StoreService {
      * @return Page of Metadata result (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    Page<Metadata> searchFiles(Optional<String> index, Query query, Pageable pagination) throws ServiceException;
+    Page<Metadata> searchFiles(Optional<String> index, Query query, Pageable pagination);
 
     /**
      * Create an index
@@ -93,5 +94,5 @@ public interface StoreService {
      * @param index Index name
      * @throws ServiceException
      */
-    void createIndex(String index) throws ServiceException;
+    void createIndex(String index);
 }

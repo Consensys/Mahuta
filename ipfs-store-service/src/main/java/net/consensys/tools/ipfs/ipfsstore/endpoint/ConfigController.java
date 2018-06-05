@@ -6,12 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 
 @RestController
-@Slf4j
 public class ConfigController {
 
     private final StoreService storeService;
@@ -29,8 +26,7 @@ public class ConfigController {
      */
     @RequestMapping(value = "${ipfs-store.api-spec.config.index}", method = RequestMethod.POST)
     public void createIndex(
-            @PathVariable(value = "index") String index)
-            throws ServiceException {
+            @PathVariable(value = "index") String index) {
 
         this.storeService.createIndex(index);
     }

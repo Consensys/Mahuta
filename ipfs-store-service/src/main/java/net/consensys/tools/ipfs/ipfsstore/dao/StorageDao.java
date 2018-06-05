@@ -1,7 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.dao;
 
 import net.consensys.tools.ipfs.ipfsstore.configuration.health.HealthCheck;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
 
 /**
  * StorageDao represents an a set of methods to store a file in a filesystem
@@ -17,7 +17,7 @@ public interface StorageDao extends HealthCheck {
      * @return Unique identifier of the file in the filesystem
      * @throws DaoException
      */
-    String createContent(byte[] content) throws DaoException;
+    String createContent(byte[] content);
 
     /**
      * Retrieve a file from the filesystem
@@ -26,7 +26,7 @@ public interface StorageDao extends HealthCheck {
      * @return Content of the file
      * @throws DaoException
      */
-    byte[] getContent(String hash) throws DaoException;
+    byte[] getContent(String hash) throws TimeoutException;
 
 
 }

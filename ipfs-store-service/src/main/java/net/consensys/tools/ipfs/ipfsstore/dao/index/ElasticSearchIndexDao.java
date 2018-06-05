@@ -45,8 +45,8 @@ import net.consensys.tools.ipfs.ipfsstore.dao.IndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 /**
  * ElasticSearch implementation of IndexDao
@@ -134,7 +134,7 @@ public class ElasticSearchIndexDao implements IndexDao {
     }
 
     @Override
-    public String index(String index, String documentId, String hash, String contentType, List<IndexField> indexFields) throws DaoException {
+    public String index(String index, String documentId, String hash, String contentType, List<IndexField> indexFields) {
         log.debug("Index document in ElasticSearch [index: {}, documentId:{}, indexFields: {}]", index, documentId, indexFields);
 
         // Validation
@@ -173,13 +173,13 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         } catch (Exception ex) {
             log.error("Error while indexing document into ElasticSearch [index: {}, documentId:{}, indexFields: {}]", index, documentId, indexFields, ex);
-            throw new DaoException("Error while indexing document into ElasticSearch: " + ex.getMessage());
+            throw new TechnicalException("Error while indexing document into ElasticSearch: " + ex.getMessage());
         }
     }
 
 
     @Override
-    public Metadata searchById(Optional<String> index, String id) throws DaoException, NotFoundException {
+    public Metadata searchById(Optional<String> index, String id) throws NotFoundException {
         log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]", index, id);
 
         // Validation
@@ -207,13 +207,13 @@ public class ElasticSearchIndexDao implements IndexDao {
             throw ex;
         } catch (Exception ex) {
             log.error("Error while searching into ElasticSearch [index: {}, ID: {}]", index, id, ex);
-            throw new DaoException("Error while searching into ElasticSearch: " + ex.getMessage());
+            throw new TechnicalException("Error while searching into ElasticSearch: " + ex.getMessage());
         }
     }
 
 
     @Override
-    public List<Metadata> search(Pageable pageable, Optional<String> index, Query query) throws DaoException {
+    public List<Metadata> search(Pageable pageable, Optional<String> index, Query query) {
         log.debug("Search documents in ElasticSearch [index: {}, query: {}]", index, query);
 
         // Validation
@@ -250,12 +250,12 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         } catch (Exception ex) {
             log.error("Error while searching documents into ElasticSearch [index: {}, query: {}]", index, query, ex);
-            throw new DaoException("Error while searching documents into ElasticSearch: " + ex.getMessage());
+            throw new TechnicalException("Error while searching documents into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
-    public long count(Optional<String> index, Query query) throws DaoException {
+    public long count(Optional<String> index, Query query) {
         log.debug("Count in ElasticSearch [index: {}, query: {}]", index, query);
 
         try {
@@ -273,12 +273,12 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         } catch (Exception ex) {
             log.error("Error while counting into ElasticSearch [index: {}, query: {}]", index, query, ex);
-            throw new DaoException("Error while counting into ElasticSearch: " + ex.getMessage());
+            throw new TechnicalException("Error while counting into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
-    public void createIndex(String index) throws DaoException {
+    public void createIndex(String index) {
         log.debug("Create index in ElasticSearch [index: {}]", index);
 
         // Validation
@@ -299,7 +299,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         } catch (Exception ex) {
             log.error("Error while creating the index [index: {}] into ElasticSearch", index, ex);
-            throw new DaoException("Error while creating the index into ElasticSearch: " + ex.getMessage());
+            throw new TechnicalException("Error while creating the index into ElasticSearch: " + ex.getMessage());
         }
     }
 

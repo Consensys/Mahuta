@@ -1,7 +1,5 @@
 package net.consensys.tools.ipfs.ipfsstore.dao;
 
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
-
 /**
  * PinningStrategy represents a strategy for keeping the content stored in the node
  *
@@ -21,7 +19,7 @@ public interface PinningStrategy {
    * @param hash  Unique identifier of the file
    * @throws DaoException
    */
-  void pin(String hash) throws DaoException;
+  void pin(String hash);
 
   /**
    * Unpin the content
@@ -29,6 +27,6 @@ public interface PinningStrategy {
    * @param hash  Unique identifier of the file
    * @throws DaoException
    */
-  void unpin(String hash) throws DaoException;
+  void unpin(String hash);
   
 }

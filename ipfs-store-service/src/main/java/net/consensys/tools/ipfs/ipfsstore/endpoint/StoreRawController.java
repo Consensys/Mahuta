@@ -23,7 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.StoreResponse;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
+import net.consensys.tools.ipfs.ipfsstore.exception.ValidationException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 
 @RestController
@@ -46,20 +47,16 @@ public class StoreRawController {
      *
      * @param file File sent as a Multipart
      * @return IPFS hash
-     * @throws ServiceException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.raw.store}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    StoreResponse storeFile(
-            @RequestParam(value = "file") @Valid @NotNull @NotBlank MultipartFile file)
-            throws ServiceException {
+    public @ResponseBody StoreResponse storeFile(@RequestParam(value = "file") @Valid @NotNull MultipartFile file) {
 
         try {
             return new StoreResponse(this.storeService.storeFile(file.getBytes()));
 
         } catch (IOException e) {
             log.error("Error in the rest controller", e);
-            throw new ServiceException(e);
+            throw new TechnicalException(e);
         }
     }
 
@@ -68,13 +65,11 @@ public class StoreRawController {
      *
      * @param request Request containing IDs, Hash and metadata
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ServiceException
+     * @throws ValidationException 
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.raw.index}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    IndexerResponse indexFile(
-            @RequestBody @Valid @NotNull IndexerRequest request)
-            throws ServiceException {
+    IndexerResponse indexFile(@RequestBody @Valid IndexerRequest request) throws ValidationException {
 
         return this.storeService.indexFile(request);
     }
@@ -85,14 +80,12 @@ public class StoreRawController {
      * @param requestStr Request containing IDs, Hash and metadata
      * @param file       File sent as a Multipart
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ServiceException
+     * @throws ValidationException 
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.raw.store_index}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    IndexerResponse storeAndIndexFile(
+    public @ResponseBody IndexerResponse storeAndIndexFile(
             @RequestPart(name = "request") @Valid @NotNull String requestStr,
-            @RequestPart(name = "file") @Valid @NotNull @NotBlank MultipartFile file)
-            throws ServiceException {
+            @RequestPart(name = "file") @Valid @NotNull @NotBlank MultipartFile file) throws ValidationException {
 
         try {
             IndexerRequest request = mapper.readValue(requestStr, IndexerRequest.class);
@@ -101,7 +94,7 @@ public class StoreRawController {
 
         } catch (IOException e) {
             log.error("Error in the rest controller", e);
-            throw new ServiceException(e);
+            throw new TechnicalException(e);
         }
     }
 

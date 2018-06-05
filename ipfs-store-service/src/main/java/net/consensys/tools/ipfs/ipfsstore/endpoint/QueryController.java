@@ -31,7 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 import net.consensys.tools.ipfs.ipfsstore.utils.LambdaUtils;
 
@@ -59,14 +60,13 @@ public class QueryController {
      * @param index Index name
      * @param hash  File Unique Identifier
      * @return File content
-     * @throws ServiceException
+     * @throws TimeoutException 
      */
-    @RequestMapping(value = "${ipfs-store.api-spec.query.fetch}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.query.fetch}", method = RequestMethod.GET)
     public @ResponseBody  StreamingResponseBody getFile(
             @PathVariable(value = "hash") @NotNull String hash,
             @RequestParam(value = "index", required = false) Optional<String> index,
-            HttpServletResponse response)
-                    throws ServiceException {
+            HttpServletResponse response) throws TimeoutException {
 
         // Get the content in IPFS
         InputStream inputStream = new ByteArrayInputStream(storeService.getFileByHash(hash));
@@ -100,9 +100,8 @@ public class QueryController {
      * @param sortDirection Sorting direction [optional - default ASC]
      * @param query         Query
      * @return List of result
-     * @throws ServiceException
      */
-    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.POST, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByPost(
             @RequestParam(value = "index", required = false)                                  Optional<String> index,
@@ -110,8 +109,7 @@ public class QueryController {
             @RequestParam(value = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sort", required = false)                                   Optional<String> sortAttribute,
             @RequestParam(value = "dir", defaultValue = "ASC", required = false)              Sort.Direction sortDirection,
-            @RequestBody Query query)
-                    throws ServiceException {
+            @RequestBody                                                                      Query query) {
 
         return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
     }
@@ -126,9 +124,8 @@ public class QueryController {
      * @param sortDirection Sorting direction [optional - default ASC]
      * @param queryStr      Query
      * @return List of result
-     * @throws ServiceException
      */
-    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByGet(
             @RequestParam(value = "index", required = false)                                  Optional<String> index,
@@ -136,8 +133,7 @@ public class QueryController {
             @RequestParam(value = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sort", required = false)                                   Optional<String> sortAttribute,
             @RequestParam(value = "dir", defaultValue = "ASC", required = false)              Sort.Direction sortDirection,
-            @RequestParam(value = "query", required = false)                                  Optional<String> queryStr)
-                    throws ServiceException {
+            @RequestParam(value = "query", required = false)                                  Optional<String> queryStr)  {
 
         Query query = queryStr
                 .map(LambdaUtils.throwingFunctionWrapper(q -> this.mapper.readValue(q, Query.class)))
@@ -146,7 +142,7 @@ public class QueryController {
         return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
     }
 
-    private Page<Metadata> executeSearch(Optional<String> index, int pageNo, int pageSize, Optional<String> sortAttribute, Sort.Direction sortDirection, Query query) throws ServiceException {
+    private Page<Metadata> executeSearch(Optional<String> index, int pageNo, int pageSize, Optional<String> sortAttribute, Sort.Direction sortDirection, Query query) {
 
         PageRequest pagination = sortAttribute
                 .map((s) -> new PageRequest(pageNo, pageSize, new Sort(sortDirection, sortAttribute.get())))
@@ -155,7 +151,7 @@ public class QueryController {
         return this.storeService.searchFiles(index, query, pagination);
     }
 
-    private static String guessContentType(InputStream content) throws ServiceException {
+    private static String guessContentType(InputStream content) {
 
         try {
             String guessedContentType = URLConnection.guessContentTypeFromStream(content);
@@ -168,7 +164,7 @@ public class QueryController {
 
         } catch (IOException e) {
             log.error("Unable to guess content type", e);
-            throw new ServiceException("Unable to guess content type", e);
+            throw new TechnicalException("Unable to guess content type", e);
         }
     }
 

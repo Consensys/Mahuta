@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.configuration.AbstractConfiguration;
 import net.consensys.tools.ipfs.ipfsstore.dao.PinningStrategy;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 @Slf4j
 public class IPFSClusterPinningStrategy implements PinningStrategy {
@@ -31,7 +31,7 @@ public class IPFSClusterPinningStrategy implements PinningStrategy {
   }
   
   @Override
-  public void pin(String hash) throws DaoException {
+  public void pin(String hash) throws TechnicalException {
     log.debug("pin file in IPFS-cluster  [hash={}]", hash);
 
     // Validation
@@ -45,12 +45,12 @@ public class IPFSClusterPinningStrategy implements PinningStrategy {
 
     } catch (Exception ex) {
         log.error("Exception while pinning file in IPFS-cluster [hash={}]", hash, ex);
-        throw new DaoException("Exception while pining file in IPFS-cluster " + hash + ": " + ex.getMessage());
+        throw new TechnicalException("Exception while pining file in IPFS-cluster " + hash + ": " + ex.getMessage());
     }
   }
 
   @Override
-  public void unpin(String hash) throws DaoException {
+  public void unpin(String hash) throws TechnicalException {
     log.debug("unpin file in IPFS-cluster [hash={}]", hash);
 
     // Validation
@@ -63,7 +63,7 @@ public class IPFSClusterPinningStrategy implements PinningStrategy {
 
     } catch (Exception ex) {
         log.error("Exception while pinning file in IPFS-cluster [hash={}]", hash, ex);
-        throw new DaoException("Exception while pining file in IPFS-cluster " + hash + ex.getMessage());
+        throw new TechnicalException("Exception while pining file in IPFS-cluster " + hash + ex.getMessage());
     }
   }
 

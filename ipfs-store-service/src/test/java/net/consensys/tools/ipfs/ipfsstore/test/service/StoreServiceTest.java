@@ -36,9 +36,9 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 import net.consensys.tools.ipfs.ipfsstore.service.impl.StoreServiceImpl;
 import net.consensys.tools.ipfs.ipfsstore.test.dao.ElasticSearchDAOTest;
@@ -90,7 +90,7 @@ public class StoreServiceTest {
 
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void storeFileExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -98,7 +98,7 @@ public class StoreServiceTest {
         byte[] pdf = TestUtils.getFile(path);
 
         // Mock
-        Mockito.when(storageDao.createContent(any(byte[].class))).thenThrow(new DaoException(""));
+        Mockito.when(storageDao.createContent(any(byte[].class))).thenThrow(new TechnicalException(""));
 
         // #################################################
         underTest.storeFile(pdf);
@@ -140,7 +140,7 @@ public class StoreServiceTest {
 
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void indexFileExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -158,7 +158,7 @@ public class StoreServiceTest {
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
-        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new TechnicalException(""));
 
 
         // #################################################
@@ -168,7 +168,7 @@ public class StoreServiceTest {
 
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void indexFileInvalidInputTest() throws Exception {
 
         String hash = null;
@@ -186,7 +186,7 @@ public class StoreServiceTest {
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
-        Mockito.when(indexDao.index(eq(index), eq(id), eq(null), eq(contentType), anyList())).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.index(eq(index), eq(id), eq(null), eq(contentType), anyList())).thenThrow(new TechnicalException(""));
 
 
         // #################################################
@@ -239,7 +239,7 @@ public class StoreServiceTest {
 
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void storeAndIndexFileUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -260,7 +260,7 @@ public class StoreServiceTest {
 
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
-        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new TechnicalException(""));
 
 
         // #################################################
@@ -268,7 +268,7 @@ public class StoreServiceTest {
         // #################################################
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void storeAndIndexFileInvalidInputdExceptionTest() throws Exception {
 
         String hash = "";
@@ -289,7 +289,7 @@ public class StoreServiceTest {
 
         // Mock
         Mockito.when(storageDao.createContent(any(byte[].class))).thenReturn(hash);
-        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.index(eq(index), eq(id), eq(hash), eq(contentType), anyList())).thenThrow(new TechnicalException(""));
 
         NativePinningStrategy nativePinningStrategy = mock(NativePinningStrategy.class);
         IPFSClusterPinningStrategy ipfsClusterPinningStrategy = mock(IPFSClusterPinningStrategy.class);
@@ -324,13 +324,13 @@ public class StoreServiceTest {
     }
 
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void getFileUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
 
         // Mock
-        Mockito.when(storageDao.getContent(eq(hash))).thenThrow(new DaoException(""));
+        Mockito.when(storageDao.getContent(eq(hash))).thenThrow(new TechnicalException(""));
 
 
         // #################################################
@@ -390,7 +390,7 @@ public class StoreServiceTest {
     }
 
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void getFileMetadataUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -401,7 +401,7 @@ public class StoreServiceTest {
         String value = "Gregoire Jeanmart";
 
         // Mock
-        Mockito.when(indexDao.searchById(eq(Optional.of(index)), eq(id))).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.searchById(eq(Optional.of(index)), eq(id))).thenThrow(new TechnicalException(""));
 
         // #################################################
         underTest.getFileMetadataById(Optional.of(index), id);
@@ -463,7 +463,7 @@ public class StoreServiceTest {
 
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = TechnicalException.class)
     public void getFileMetadataByHashUnexpectedExceptionTest() throws Exception {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -476,7 +476,7 @@ public class StoreServiceTest {
         // Mock
         List<Metadata> list = new ArrayList<>();
         list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
-        Mockito.when(indexDao.search(any(Pageable.class), eq(Optional.of(index)), any(Query.class))).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.search(any(Pageable.class), eq(Optional.of(index)), any(Query.class))).thenThrow(new TechnicalException(""));
         Mockito.when(indexDao.count(eq(Optional.of(index)), any(Query.class))).thenReturn(Long.valueOf(1));
 
         // #################################################

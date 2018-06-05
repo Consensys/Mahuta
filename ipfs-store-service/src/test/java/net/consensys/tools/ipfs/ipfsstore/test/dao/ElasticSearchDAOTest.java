@@ -71,8 +71,9 @@ import net.consensys.tools.ipfs.ipfsstore.dao.index.ElasticSearchIndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
@@ -124,7 +125,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
 
     @Test
-    public void indexCreateSuccessTest() throws DaoException, IOException {
+    public void indexCreateSuccessTest() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -188,7 +189,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void indexCreateSuccessNoAttributeTest() throws DaoException, IOException {
+    public void indexCreateSuccessNoAttributeTest() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -249,7 +250,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void indexUpdateSuccessTest() throws DaoException, IOException {
+    public void indexUpdateSuccessTest() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -314,7 +315,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void indexCreateKOIllegalArgumentsTest1() throws IOException, DaoException {
+    public void indexCreateKOIllegalArgumentsTest1() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -328,7 +329,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void indexCreateKOIllegalArgumentsTest2() throws IOException, DaoException {
+    public void indexCreateKOIllegalArgumentsTest2() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -342,8 +343,8 @@ public class ElasticSearchDAOTest {
     }
 
 
-    @Test(expected = DaoException.class)
-    public void indexCreateUnexpectedExceptionTest() throws DaoException {
+    @Test(expected = TechnicalException.class)
+    public void indexCreateUnexpectedExceptionTest() {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -367,7 +368,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
 
     @Test
-    public void searchByIdSuccessTest() throws DaoException, NotFoundException {
+    public void searchByIdSuccessTest() throws NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -416,7 +417,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void searchByIdKOIllegalArgumentsTest() throws IOException, DaoException, NotFoundException {
+    public void searchByIdKOIllegalArgumentsTest() throws IOException, NotFoundException {
         String documentId = null;
 
         // #################################################
@@ -426,7 +427,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchByIdNoIndexTest() throws IOException, DaoException, NotFoundException {
+    public void searchByIdNoIndexTest() throws IOException, NotFoundException {
       String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
       String contentType = "application/pdf";
       String documentId = "123";
@@ -462,7 +463,7 @@ public class ElasticSearchDAOTest {
 
 
     @Test(expected = NotFoundException.class)
-    public void searchByIdNotFoundExceptionTest() throws DaoException, NotFoundException {
+    public void searchByIdNotFoundExceptionTest() throws NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -494,8 +495,8 @@ public class ElasticSearchDAOTest {
     }
 
 
-    @Test(expected = DaoException.class)
-    public void searchByIdUnexpectedExceptionTest() throws DaoException, NotFoundException {
+    @Test(expected = TechnicalException.class)
+    public void searchByIdUnexpectedExceptionTest() throws TechnicalException, NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -533,7 +534,7 @@ public class ElasticSearchDAOTest {
 
 
     @Test
-    public void searchSuccessNullQueryTest() throws DaoException, JSONException {
+    public void searchSuccessNullQueryTest() throws JSONException {
         int pageNo = 0;
         int pageSize = 20;
 
@@ -615,7 +616,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessFullTextQueryTest() throws DaoException, JSONException {
+    public void searchSuccessFullTextQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -686,7 +687,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessEqualsQueryTest() throws DaoException, JSONException {
+    public void searchSuccessEqualsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -755,7 +756,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessNotEqualsQueryTest() throws DaoException, JSONException {
+    public void searchSuccessNotEqualsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -825,7 +826,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessContainsQueryTest() throws DaoException, JSONException {
+    public void searchSuccessContainsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -895,7 +896,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessInQueryTest() throws DaoException, JSONException {
+    public void searchSuccessInQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -966,7 +967,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessltQueryTest() throws DaoException, JSONException {
+    public void searchSuccessltQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1037,7 +1038,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccesslteQueryTest() throws DaoException, JSONException {
+    public void searchSuccesslteQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1108,7 +1109,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessgtQueryTest() throws DaoException, JSONException {
+    public void searchSuccessgtQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1179,7 +1180,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessgteQueryTest() throws DaoException, JSONException {
+    public void searchSuccessgteQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1251,7 +1252,7 @@ public class ElasticSearchDAOTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void searchSuccessNullQueryIllegalArgumentExceptionTest1() throws DaoException, JSONException {
+    public void searchSuccessNullQueryIllegalArgumentExceptionTest1() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
 
@@ -1304,7 +1305,7 @@ public class ElasticSearchDAOTest {
 
 
     @Test
-    public void searchSuccessNoIndexExceptionTest2() throws DaoException, JSONException {
+    public void searchSuccessNoIndexExceptionTest2() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
 
@@ -1361,8 +1362,8 @@ public class ElasticSearchDAOTest {
     }
 
 
-    @Test(expected = DaoException.class)
-    public void searchSuccessNullQueryUnexpectedxceptionTest1() throws DaoException, JSONException {
+    @Test(expected = TechnicalException.class)
+    public void searchSuccessNullQueryUnexpectedxceptionTest1() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
 
@@ -1418,7 +1419,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
 
     @Test
-    public void countSuccessTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void countSuccessTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1461,7 +1462,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void countNoIndexTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void countNoIndexTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1508,8 +1509,8 @@ public class ElasticSearchDAOTest {
 
     }
 
-    @Test(expected = DaoException.class)
-    public void countUnexpectedExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    @Test(expected = TechnicalException.class)
+    public void countUnexpectedExceptionTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1543,7 +1544,7 @@ public class ElasticSearchDAOTest {
 
     // Need to use PowerMockito to mock a final method
     @Test
-    public void createIndexSuccessTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void createIndexSuccessTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1580,7 +1581,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void createIndexAlreadyExistTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void createIndexAlreadyExistTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1605,7 +1606,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createIndexIllegalArgumentExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void createIndexIllegalArgumentExceptionTest() throws JSONException, InterruptedException, ExecutionException {
 
         // #################################################
         underTest.createIndex(null);
@@ -1614,8 +1615,8 @@ public class ElasticSearchDAOTest {
 
     }
 
-    @Test(expected = DaoException.class)
-    public void createIndexUnexpectedExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    @Test(expected = TechnicalException.class)
+    public void createIndexUnexpectedExceptionTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 

@@ -9,7 +9,6 @@ import net.consensys.tools.ipfs.ipfsstore.configuration.health.HealthCheck;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 
 
@@ -37,7 +36,7 @@ public interface IndexDao extends HealthCheck {
      * @return Document Identifier
      * @throws DaoException
      */
-    String index(String index, String documentId, String hash, String contentType, List<IndexField> indexFields) throws DaoException;
+    String index(String index, String documentId, String hash, String contentType, List<IndexField> indexFields);
 
     /**
      * Search content by its unique identifier
@@ -47,7 +46,7 @@ public interface IndexDao extends HealthCheck {
      * @return File Metadata
      * @throws DaoException
      */
-    Metadata searchById(Optional<String> index, String id) throws DaoException, NotFoundException;
+    Metadata searchById(Optional<String> index, String id) throws NotFoundException;
 
     /**
      * Search content in the index (index) based on a query
@@ -58,7 +57,7 @@ public interface IndexDao extends HealthCheck {
      * @return A list of File Metadata
      * @throws DaoException
      */
-    List<Metadata> search(Pageable pageable, Optional<String> index, Query query) throws DaoException;
+    List<Metadata> search(Pageable pageable, Optional<String> index, Query query);
 
     /**
      * Count content in the index (index) based on a query
@@ -68,7 +67,7 @@ public interface IndexDao extends HealthCheck {
      * @return Total count of the search
      * @throws DaoException
      */
-    long count(Optional<String> index, Query query) throws DaoException;
+    long count(Optional<String> index, Query query);
 
     /**
      * Create an index
@@ -76,6 +75,6 @@ public interface IndexDao extends HealthCheck {
      * @param index Name of the index
      * @throws DaoException
      */
-    void createIndex(String index) throws DaoException;
+    void createIndex(String index);
 
 }

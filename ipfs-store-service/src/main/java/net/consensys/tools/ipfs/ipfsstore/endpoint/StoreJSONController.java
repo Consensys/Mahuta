@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,8 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.StoreResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.json.JSONIndexRequest;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
+import net.consensys.tools.ipfs.ipfsstore.exception.ValidationException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 
 @RestController
@@ -43,17 +45,16 @@ public class StoreJSONController {
      *
      * @param request   Request containing payload
      * @return IPFS hash
-     * @throws ServiceException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.json.store}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody StoreResponse storeFile(@RequestBody @NotNull JSONIndexRequest request) throws ServiceException {
+    public @ResponseBody StoreResponse storeFile(@RequestBody @NotNull JsonNode payload) {
 
         try {
-            return new StoreResponse(this.storeService.storeFile(this.mapper.writeValueAsBytes(request.getPayload())));
+            return new StoreResponse(this.storeService.storeFile(this.mapper.writeValueAsBytes(payload)));
 
         } catch (IOException e) {
             log.error("Error in the rest controller", e);
-            throw new ServiceException(e);
+            throw new TechnicalException(e);
         }
     }
 
@@ -62,10 +63,10 @@ public class StoreJSONController {
      *
      * @param request Request containing IDs, Hash and metadata
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ServiceException
+     * @throws ValidationException 
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.json.index}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody IndexerResponse indexFile(@RequestBody @Valid @NotNull IndexerRequest request) throws ServiceException {
+    public @ResponseBody IndexerResponse indexFile(@RequestBody @Valid @NotNull IndexerRequest request) throws ValidationException {
 
         return this.storeService.indexFile(request);
     }
@@ -75,17 +76,17 @@ public class StoreJSONController {
      *
      * @param request   Request containing payload and indexation properties (index, content-type, fields, et.)
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ServiceException
+     * @throws ValidationException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.json.store_index}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody IndexerResponse storeAndIndexFile(@RequestBody @NotNull JSONIndexRequest request) throws ServiceException {
+    public @ResponseBody IndexerResponse storeAndIndexFile(@RequestBody @Valid @NotNull JSONIndexRequest request) throws ValidationException  {
 
         try {
             return this.storeService.storeAndIndexFile(this.mapper.writeValueAsBytes(request.getPayload()), request);
 
         } catch (IOException e) {
             log.error("Error in the rest controller", e);
-            throw new ServiceException(e);
+            throw new TechnicalException(e);
         }
     }
 
