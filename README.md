@@ -79,11 +79,11 @@ Represents the configuration operations.
 | -------- | -------- | -------- | -------- |
 | create_index | Create an index in ElasticSearch |POST | /ipfs-store/config/index/{index} |
 
-##### Persistence
+#### Persistence
 
 Represents the writting operations.
 
-###### Raw
+##### Raw
 
 Enable to store any kind of content. The API uses HTTP multipart to sent the data or file over the request.
 
@@ -93,7 +93,7 @@ Enable to store any kind of content. The API uses HTTP multipart to sent the dat
 | index | Indexraw content |POST | /ipfs-store/raw/index |
 | store_index | Store & Index raw content | POST | /ipfs-store/raw/store_index |
 
-###### JSON
+##### JSON
 
 Enable to store JSON document. 
 
@@ -103,7 +103,7 @@ Enable to store JSON document.
 | index | Index json content |POST | /ipfs-store/json/index |
 | store_index | Store & Index json content | POST | /ipfs-store/json/store_index |
 
-##### Query
+#### Query
 Represents the read operations.
 
 | Operation | Description | Method | URI |
