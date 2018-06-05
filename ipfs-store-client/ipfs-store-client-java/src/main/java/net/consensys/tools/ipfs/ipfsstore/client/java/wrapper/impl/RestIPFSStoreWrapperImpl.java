@@ -46,11 +46,11 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestIPFSStoreWrapperImpl.class);
 
     private static final String BASE_API_PATH = "/ipfs-store";
-    private static final String STORE_API_PATH = "/store";
-    private static final String INDEX_API_PATH = "/index";
-    private static final String FETCH_API_PATH = "/fetch";
-    private static final String SEARCH_API_PATH = "/search";
-    private static final String STORE_INDEX_API_PATH = "/store_index";
+    private static final String STORE_API_PATH = "/raw/store";
+    private static final String INDEX_API_PATH = "/raw/index";
+    private static final String FETCH_API_PATH = "/query/fetch";
+    private static final String SEARCH_API_PATH = "/query/search";
+    private static final String STORE_INDEX_API_PATH = "/raw/store_index";
     private static final String CREATE_INDEX_API_PATH = "/config/index";
     private static final String DEFAULT_MIMETYPE = "application/octet-stream";
     private static final String MULTIPART_FILE = "file";
@@ -77,20 +77,20 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
     
     @Override
-    public void createIndex(String indexName) throws IPFSStoreException {
+    public void createIndex(String index) throws IPFSStoreException {
         try {
-            LOGGER.debug("createIndex [indexName={}]", indexName);
+            LOGGER.debug("createIndex [indexName={}]", index);
 
             restTemplate.postForLocation(
-                    this.endpoint + BASE_API_PATH + CREATE_INDEX_API_PATH + "/" + indexName,
+                    this.endpoint + BASE_API_PATH + CREATE_INDEX_API_PATH + "/" + index,
                     HttpEntity.EMPTY);
 
-            LOGGER.debug("Index [indexName={}] created !", indexName);
+            LOGGER.debug("Index [indexName={}] created !", index);
 
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while creating the index [index={}]", indexName, ex);
-            throw new IPFSStoreException("Error while creating the index [index=" + indexName + "]", ex);
+            LOGGER.error("Error while creating the index [index={}]", index, ex);
+            throw new IPFSStoreException("Error while creating the index [index=" + index + "]", ex);
         }
     }
 
@@ -212,22 +212,22 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         }
     }
 
-    public byte[] fetch(String indexName, String hash) throws IPFSStoreException {
+    public byte[] fetch(String index, String hash) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("fetch [indexName={}, hash={}]", indexName, hash);
+            LOGGER.debug("fetch [indexName={}, hash={}]", index, hash);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<byte[]> response = restTemplate.exchange(
-                    this.endpoint + BASE_API_PATH + FETCH_API_PATH + "/" + indexName + "/" + hash,
+                    this.endpoint + BASE_API_PATH + FETCH_API_PATH + "/" + hash + "?index=" + index,
                     HttpMethod.GET,
                     entity,
                     byte[].class);
 
-            LOGGER.debug("fetch [indexName={}, hash={}] : {}", indexName, hash, response);
+            LOGGER.debug("fetch [indexName={}, hash={}] : {}", index, hash, response);
 
             return response.getBody();
 
@@ -237,14 +237,13 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         }
     }
 
-    public Page<Metadata> search(String indexName, Query query, Pageable pageable) throws IPFSStoreException {
+    public Page<Metadata> search(String index, Query query, Pageable pageable) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("Search [indexName={}, query={}]", indexName, query);
+            LOGGER.debug("Search [indexName={}, query={}]", index, query);
 
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromUriString(this.endpoint + BASE_API_PATH + SEARCH_API_PATH)
-                    .path("/" + indexName);
+                    .fromUriString(this.endpoint + BASE_API_PATH + SEARCH_API_PATH + "?index=" + index);
 
             if (query == null) {
                 query = Query.newQuery();
@@ -280,13 +279,13 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             LOGGER.trace("result" + response.getBody());
 
-            LOGGER.debug("Search [indexName={}, query={}] : {} result(s)", indexName, query, response.getBody().getTotalElements());
+            LOGGER.debug("Search [indexName={}, query={}] : {} result(s)", index, query, response.getBody().getTotalElements());
 
             return response.getBody();
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while searching [indexName={}, query={}]", indexName, query, ex);
-            throw new IPFSStoreException("Error while searching  [indexName=" + indexName + ", query="+query+"]", ex);
+            LOGGER.error("Error while searching [indexName={}, query={}]", index, query, ex);
+            throw new IPFSStoreException("Error while searching  [indexName=" + index + ", query="+query+"]", ex);
         }
     }
 
