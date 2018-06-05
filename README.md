@@ -505,7 +505,7 @@ Store a JSON document in IPFS and index it into the search engine
     
 ```
 curl -X POST \
-  http://localhost:8040/ipfs-store/jsonstore_index \
+  http://localhost:8040/ipfs-store/json/store_index \
   -H 'content-type: application/json' \
   -d '{
       "payload": {
