@@ -71,22 +71,85 @@ $ docker-compose -f docker-compose.yml up
 
 ### Overview
 
+#### Configuration
+
+Represents the configuration operations.
+
 | Operation | Description | Method | URI |
 | -------- | -------- | -------- | -------- |
-| store | Store content into IPFS |POST | /ipfs-store/store |
-| index | Index content |POST | /ipfs-store/index |
-| store_index | Store & Index content | POST | /ipfs-store/store_index |
-| fetch | Get content | GET | /ipfs-store/fetch/{index}/{hash} |
-| search | Search content | POST | /ipfs-store/search/{index} |
-| search | Search content | GET | /ipfs-store/search/{index} |
+| create_index | Create an index in ElasticSearch |POST | /ipfs-store/config/index/{index} |
+
+##### Persistence
+
+Represents the writting operations.
+
+###### Raw
+
+Enable to store any kind of content. The API uses HTTP multipart to sent the data or file over the request.
+
+| Operation | Description | Method | URI |
+| -------- | -------- | -------- | -------- |
+| store | Store raw content into IPFS |POST | /ipfs-store/raw/store |
+| index | Indexraw content |POST | /ipfs-store/raw/index |
+| store_index | Store & Index raw content | POST | /ipfs-store/raw/store_index |
+
+###### JSON
+
+Enable to store JSON document. 
+
+| Operation | Description | Method | URI |
+| -------- | -------- | -------- | -------- |
+| store | Store json content into IPFS |POST | /ipfs-store/json/store |
+| index | Index json content |POST | /ipfs-store/json/index |
+| store_index | Store & Index json content | POST | /ipfs-store/json/store_index |
+
+##### Query
+Represents the read operations.
+
+| Operation | Description | Method | URI |
+| -------- | -------- | -------- | -------- |
+| fetch | Get content | GET | /ipfs-store/query/fetch/{hash} |
+| search | Search content | POST | /ipfs-store/query/search |
+| search | Search content | GET | /ipfs-store/query/search |
+
+
 
 ### Details
 
-#### Store content
+#### [Configuration] Create an index
+
+Create an index in ElasticSearch
+
+
+-   **URL:** `/ipfs-store/config/index/{index}`    
+-   **Method:** `POST`
+-   **Header:** 
+-   
+| Key | Value | 
+| -------- | -------- |
+| content-type | application/json |
+
+-   **URL Params:** `N/A`
+-   **Data Params:** `N/A`
+
+-   **Sample Request:**
+```
+$ curl -X POST \
+    'http://localhost:8040/ipfs-store/config/index/MyIndex' \
+    -H 'content-type: application/json' 
+```
+
+-   **Success Response:**
+    -   **Code:** 200  
+        **Content:** `N/A`
+
+---------------------------
+
+#### [Persistent / Raw] Store content
 
 Store a content (any type) in IPFS 
 
--   **URL:** `/ipfs-store/store`    
+-   **URL:** `/ipfs-store/raw/store`    
 -   **Method:** `POST`
 -   **Header:** `N/A`
 -   **URL Params:** `N/A`
@@ -96,7 +159,7 @@ Store a content (any type) in IPFS
 -   **Sample Request:**
 ```
 $ curl -X POST \
-    'http://localhost:8040/ipfs-store/store' \
+    'http://localhost:8040/ipfs-store/raw/store' \
     -F 'file=@/home/gjeanmart/hello.pdf'
 ```
 
@@ -111,11 +174,11 @@ $ curl -X POST \
 
 ---------------------------
 
-#### Index content
+#### [Persistent / Raw] Index content
 
 Index IPFS content into the search engine
 
--   **URL** `/ipfs-store/index`
+-   **URL** `/ipfs-store/raw/index`
 -   **Method:** `POST`
 -   **Header:**  
 
@@ -169,7 +232,7 @@ Index IPFS content into the search engine
     
 ```
 curl -X POST \
-    'http://localhost:8040/ipfs-store/index' \
+    'http://localhost:8040/ipfs-store/raw/index' \
     -H 'content-type: application/json' \  
     -d '{"index":"documents","id":"hello_doc","content_type":"application/pdf","hash":"QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o","index_fields":[{"name":"title","value":"Hello Doc"},{"name":"author","value":"Gregoire Jeanmart"},{"name":"votes","value":10},{"name":"date_created","value":1518700549}]}'
 ``` 
@@ -188,11 +251,11 @@ curl -X POST \
 
 ---------------------------
 
-#### Store & Index content
+#### [Persistent / Raw] Store & Index content
 
 Store content in IPFS and index it into the search engine
 
--   **URL** `/ipfs-store/store_index`
+-   **URL** `/ipfs-store/raw/store_index`
 -   **Method:** `POST`
 -   **Header:** `N/A`
 -   **URL Params** `N/A`
@@ -240,7 +303,7 @@ Store content in IPFS and index it into the search engine
     
 ```
 curl -X POST \
-  http://localhost:8040/ipfs-store/store_index \
+  http://localhost:8040/ipfs-store/raw/store_index \
   -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
   -F file=@/home/gjeanmart/hello.pdf \
   -F 'request={"index":"documents","id":"hello_doc","content_type":"application/pdf","index_fields":[{"name":"title","value":"Hello Doc"},{"name":"author","value":"Gregoire Jeanmart"},{"name":"votes","value":10},{"name":"date_created","value":1518700549}]}'
@@ -260,11 +323,233 @@ curl -X POST \
 
 ---------------------------
 
-#### Get content
+#### [Persistent / JSON] Store content
+
+Store a JSON document in IPFS 
+
+-   **URL:** `/ipfs-store/json/store`    
+-   **Method:** `POST`
+-   **Header:** 
+
+| Key | Value | 
+| -------- | -------- |
+| content-type | application/json |
+
+-   **URL Params:** `N/A`
+-   **Data Params:**     
+
+     -   `payload: {json}`
+
+| Name | Type | Mandatory | Default | Description |
+| -------- | -------- | -------- | -------- | -------- |
+| payload | JSON | yes |  | JSON Document to store|
+
+-   **Sample Request:**
+```
+$ curl -X POST \
+    'http://localhost:8040/ipfs-store/json/store' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "field1": "val1",
+      "field2": 10,
+      "field3": {
+          "test": true
+      }
+    }
+```
+
+-   **Success Response:**
+    -   **Code:** 200  
+        **Content:** 
+```
+{
+    "hash": "QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD"
+}
+```
+
+---------------------------
+
+#### [Persistent / JSON] Index content
+
+Index IPFS JSON document into the search engine
+
+-   **URL** `/ipfs-store/json/index`
+-   **Method:** `POST`
+-   **Header:**  
+
+| Key | Value | 
+| -------- | -------- |
+| content-type | application/json |
+
+
+-   **URL Params** `N/A`
+-   **Data Params**
+
+    - `request:`
+    
+| Name | Type | Mandatory | Default | Description |
+| -------- | -------- | -------- | -------- | -------- |
+| index | String | yes |  | Index name |
+| id | String | no |  | Identifier of the document in the index. id null, autogenerated |
+| content_type | String | no |  | Content type (MIMETYPE) |
+| hash | String | yes |  | IPFS Hash of the content |
+| index_fields | Key/Value[] | no |  | Key/value map presenting IPFS content metadata|
+
+
+```
+{
+  "index": "json_documents", 
+  "id": "json_doc",
+  "content_type": "application/json",
+  "hash": "QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD",
+  "index_fields": [
+    {
+      "name": "field1",
+      "value": "val1"
+    }, 
+    {
+      "name": "external_field",
+      "value": 10
+    }, 
+    {
+      "name": "date_created",
+      "value": 1518700549
+    }
+  ]
+}
+```
+   
+-   **Sample Request:**
+    
+```
+curl -X POST \
+    'http://localhost:8040/ipfs-store/json/index' \
+    -H 'content-type: application/json' \  
+    -d '{"index":"json_documents","id":"json_doc","content_type":"application/json","hash":"QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD","index_fields":[{"name":"field1","value":"val1"},{"name":"external_field","value":10},{"name":"date_created","value":1518700549}]}'
+``` 
+   
+-   **Success Response:**
+    
+    -   **Code:** 200  
+        **Content:** 
+```
+{
+    "index": "json_documents",
+    "id": "json_doc",
+    "hash": "QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD"
+}
+```
+
+---------------------------
+
+#### [Persistent / JSON] Store & Index content
+
+Store a JSON document in IPFS and index it into the search engine
+
+-   **URL** `/ipfs-store/json//store_index`
+-   **Method:** `POST`
+-   **Header:** 
+
+| Key | Value | 
+| -------- | -------- |
+| content-type | application/json |
+
+-   **URL Params** `N/A`
+-   **Data Params**
+
+    
+    -   `payload: {json}`
+
+| Name | Type | Mandatory | Default | Description |
+| -------- | -------- | -------- | -------- | -------- |
+| payload | JSON | yes |  | JSON Document to store|
+
+
+    -   `request: `
+
+
+| Name | Type | Mandatory | Default | Description |
+| -------- | -------- | -------- | -------- | -------- |
+| index | String | yes |  | Index name |
+| id | String | no |  | Identifier of the document in the index. id null, autogenerated |
+| content_type | String | no |  | Content type (MIMETYPE) |
+| index_fields | Key/Value[] | no |  | Key/value map presenting IPFS content metadata|
+
+
+```
+{
+  "payload": {
+    "field1": "val1",
+    "field2": 10,
+    "field3": {
+      "test": true
+    }
+  },
+  "index": "json_documents",
+  "id": "doc",
+  "content_type": "application/json",
+  "index_fields": [
+      {
+        "name": "type",
+        "value": "json"
+      },
+      {
+        "name": "title",
+        "value": "json_sample"
+      }
+  ]
+}
+```
+   
+-   **Sample Request:**
+    
+```
+curl -X POST \
+  http://localhost:8040/ipfs-store/jsonstore_index \
+  -H 'content-type: application/json' \
+  -d '{
+      "payload": {
+        "field1": "val1",
+        "field2": 10,
+        "field3": {
+          "test": true
+        }
+      },
+      "index": "json_documents",
+      "id": "doc",
+      "content_type": "application/json",
+      "index_fields": [
+          {
+            "name": "type",
+            "value": "json"
+          },
+          {
+            "name": "title",
+            "value": "json_sample"
+          }
+      ]
+  }'
+``` 
+   
+-   **Success Response:**
+    
+    -   **Code:** 200  
+        **Content:** 
+```
+{
+    "index": "json_documents",
+    "id": "doc",
+    "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
+}
+```
+
+---------------------------
+
+#### [Query] Get content
 
 Get content on IPFS by hash
 
--   **URL** `http://localhost:8040/ipfs-store/fetch/{index}/{hash}`
+-   **URL** `http://localhost:8040/ipfs-store/query/fetch/{hash}`
 -   **Method:** `GET`
 -   **Header:**  `N/A`
 -   **URL Params** `N/A`
@@ -273,7 +558,7 @@ Get content on IPFS by hash
     
 ```
 $ curl \
-    'http://localhost:8040/ipfs-store/fetch/documents/QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o' \
+    'http://localhost:8040/ipfs-store/fetch/QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o' \
     -o hello_doc.pdf 
 ``` 
     
@@ -284,11 +569,11 @@ $ curl \
 
 ---------------------------
 
-#### Search contents
+#### [Query] Search contents
 
 Search content accross an index using a dedicated query language
 
--   **URL** `http://localhost:8040/ipfs-store/search/{index}`
+-   **URL** `http://localhost:8040/ipfs-store/query/search`
 -   **Method:** `GET` or `POST` 
 -   **Header:**  
 
@@ -300,6 +585,7 @@ Search content accross an index using a dedicated query language
 
 | Name | Type | Mandatory | Default | Description |
 | -------- | -------- | -------- | -------- | -------- |
+| index | String | no |  | Index to search (if null: all indices) |
 | pageNo | Int | no | 0 | Page Number |
 | pageSize | Int | no | 20 | Page Size / Limit |
 | sort | String | no |  | Sorting attribute |
@@ -359,7 +645,7 @@ The `search` operation allows to run a multi-criteria search against an index. T
     
 ```
 curl -X POST \
-    'http://localhost:8040/ipfs-store/search/documents' \
+    'http://localhost:8040/ipfs-store/search?index=documents' \
     -H 'content-type: application/json' \  
     -d '{"query":[{"name":"title","operation":"contains","value":"Hello"},{"name":"author","operation":"equals","value":"Gregoire Jeanmart"},{"name":"votes","operation":"lt","value":"5"}]}'
 ``` 
@@ -367,7 +653,7 @@ curl -X POST \
     
 ```
 curl -X GET \
-  'http://localhost:8040/ipfs-store/search/documents?page=1&size=2&query=%7B%22query%22%3A%5B%7B%22name%22%3A%22votes%22%2C%22operation%22%3A%22lt%22%2C%22value%22%3A%225%22%7D%5D%7D' \
+  'http://localhost:8040/ipfs-store/search?index=documents&page=1&size=2&query=%7B%22query%22%3A%5B%7B%22name%22%3A%22votes%22%2C%22operation%22%3A%22lt%22%2C%22value%22%3A%225%22%7D%5D%7D' \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
 ``` 
@@ -450,6 +736,9 @@ ipfs-store:
     type: IPFS
     host: ${IPFS_HOST:localhost}
     port: ${IPFS_PORT:5001}
+    additional:
+      timeout: 5000
+      thread_pool: 10
     
   index:
     type: ELASTICSEARCH
@@ -474,19 +763,20 @@ ipfs-store:
         port: ${IPFS_CLUSTER_PORT:9094}
 
   api-spec:
-     base: /ipfs-store
-     store:
-        uri: /store
-     index:
-        uri: /index
-     store_index:
-        uri: /store_index
-     search:
-        uri: /search/{index}
-     fetch:
-        uri: /fetch/{index}/{hash}
-     config_index:
-        uri: /config/index/{index}
+    query:
+      fetch: /query/fetch/{hash}
+      search: /query/search
+    config:
+      index: /config/index/{index}
+    persistence:
+      raw:
+        store: /raw/store
+        index: /raw/index
+        store_index: /raw/store_index
+      json:
+        store: /json/store
+        index: /json/index
+        store_index: /json/store_index
         
 ```
 
@@ -503,7 +793,8 @@ The storage layer is built in a generic way where different storage technologies
 | -------- | -------- | -------- | -------- | 
 | ipfs-store.storage.type | String | IPFS | Select IPFS as a storage layer |
 | ipfs-store.storage.host | String | localhost | Host to connect to the node |
-| ipfs-store.storage.port | Integer | Port to connect to the node |
+| ipfs-store.storage.port | Integer | 5000 | Port to connect to the node |
+| ipfs-store.storage.additional.timeout | Integer | 10000 | Timeout to find a file by hash |
 
 
 
@@ -538,8 +829,7 @@ A pinning strategy define the way you want to pin (permanently store) your conte
 Pinning stategies can be combined together and are executed asynchronously from the main thread.
 
 **Strategies**
-
-| Name (type) | Description |
+| Name (type) |Description |
 | -------- | -------- | 
 | native | Pin the node |
 | ipfs_cluster | Pin an ipfs cluster node that replicates the content |
@@ -547,7 +837,7 @@ Pinning stategies can be combined together and are executed asynchronously from 
 
 | Property | Type | Sample value | Description |
 | -------- | -------- | -------- | -------- | 
-| ipfs-store.pinning.strategies | Strategy[] | List of strategies|
+| ipfs-store.pinning.strategies | Strategy[] | List og strategies|
 | ipfs-store.pinning.strategies[0].id | String | Unique identifier of the stratefy |
 | ipfs-store.pinning.strategies[0].type | String | Type of the strategy (`native`, `ipfs_cluster`) |
 | ipfs-store.pinning.strategies[0].enable | Boolean | Enable/Disable the strategy |
