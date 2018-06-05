@@ -294,7 +294,7 @@ public class IPFSStoreRepositoryTest {
         metadata.setDocumentId(Factory.ID);
         metadata.setHash(hash);
         metadata.setContentType(CONTENT_TYPE);
-        metadata.setIndexName(index);
+        metadata.setIndex(index);
 
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenReturn(metadata);
 

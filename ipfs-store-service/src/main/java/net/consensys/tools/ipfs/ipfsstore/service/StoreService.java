@@ -1,5 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -62,7 +64,7 @@ public interface StoreService {
      * @return Content Metadata (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    Metadata getFileMetadataById(String index, String id) throws ServiceException, NotFoundException;
+    Metadata getFileMetadataById(Optional<String> index, String id) throws ServiceException, NotFoundException;
 
     /**
      * Get Content Metadata by File Unique Identifier
@@ -72,7 +74,7 @@ public interface StoreService {
      * @return Content Metadata (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException;
+    Metadata getFileMetadataByHash(Optional<String> index, String hash) throws ServiceException, NotFoundException;
 
     /**
      * Search in the index a list of content against a multi-criteria search query
@@ -83,7 +85,7 @@ public interface StoreService {
      * @return Page of Metadata result (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    Page<Metadata> searchFiles(String index, Query query, Pageable pagination) throws ServiceException;
+    Page<Metadata> searchFiles(Optional<String> index, Query query, Pageable pagination) throws ServiceException;
 
     /**
      * Create an index

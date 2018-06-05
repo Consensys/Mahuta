@@ -1,5 +1,6 @@
 server:
   port: 8040
+  contextPath: /ipfs-store
 
 logging:
   level:
@@ -34,19 +35,21 @@ ipfs-store:
         port: ${IPFS_CLUSTER_PORT:9094}
 
   api-spec:
-     base: /ipfs-store
-     store:
-        uri: /store
-     index:
-        uri: /index
-     store_index:
-        uri: /store_index
-     search:
-        uri: /search/{index}
-     fetch:
-        uri: /fetch/{index}/{hash}
-     config_index:
-        uri: /config/index/{index}
+    query:
+      fetch: /query/fetch/{hash}
+      search: /query/search
+    config:
+      index: /config/index/{index}
+    persistence:
+      raw:
+        store: /raw/store
+        index: /raw/index
+        store_index: /raw/store_index
+      json:
+        store: /json/store
+        index: /json/index
+        store_index: /json/store_index
+  
         
   healthcheck:
     pollInterval: 10000

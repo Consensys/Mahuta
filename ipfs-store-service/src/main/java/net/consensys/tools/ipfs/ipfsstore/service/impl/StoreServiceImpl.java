@@ -1,5 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.service.impl;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -94,16 +95,16 @@ public class StoreServiceImpl implements StoreService {
         log.trace(request.toString());
 
         try {
-            indexDao.createIndex(request.getIndexName()); // Create the index if it doesn't exist
+            indexDao.createIndex(request.getIndex()); // Create the index if it doesn't exist
 
             String documentId = indexDao.index(
-                    request.getIndexName(),
+                    request.getIndex(),
                     request.getDocumentId(),
                     request.getHash(),
                     request.getContentType(),
                     request.getIndexFields());
 
-            return new IndexerResponse(request.getIndexName(), documentId, request.getHash());
+            return new IndexerResponse(request.getIndex(), documentId, request.getHash());
 
         } catch (DaoException ex) {
             log.error("Exception occur:", ex);
@@ -142,7 +143,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Metadata getFileMetadataById(String index, String id) throws ServiceException, NotFoundException {
+    public Metadata getFileMetadataById(Optional<String> index, String id) throws ServiceException, NotFoundException {
 
         try {
             return this.indexDao.searchById(index, id);
@@ -154,7 +155,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException {
+    public Metadata getFileMetadataByHash(Optional<String> index, String hash) throws ServiceException, NotFoundException {
 
         Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
         Page<Metadata> search = this.searchFiles(index, query, new PageRequest(0, 1));
@@ -180,7 +181,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Page<Metadata> searchFiles(String index, Query query, Pageable pageable) throws ServiceException {
+    public Page<Metadata> searchFiles(Optional<String> index, Query query, Pageable pageable) throws ServiceException {
 
         try {
            return new PageImpl<>(

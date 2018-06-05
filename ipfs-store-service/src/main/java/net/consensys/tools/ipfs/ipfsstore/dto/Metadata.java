@@ -22,7 +22,7 @@ public class Metadata implements Serializable {
     private static final long serialVersionUID = -1081353592236209521L;
 
     @JsonProperty("index")
-    private String indexName;
+    private String index;
 
     @JsonProperty("id")
     private String documentId;
@@ -49,7 +49,7 @@ public class Metadata implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Metadata metadata = (Metadata) o;
-        return Objects.equals(indexName, metadata.indexName) &&
+        return Objects.equals(index, metadata.index) &&
                 Objects.equals(documentId, metadata.documentId) &&
                 Objects.equals(hash, metadata.hash) &&
                 Objects.equals(contentType, metadata.contentType) &&
@@ -58,6 +58,6 @@ public class Metadata implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), indexName, documentId, hash, contentType, indexFields);
+        return Objects.hash(super.hashCode(), index, documentId, hash, contentType, indexFields);
     }
 }

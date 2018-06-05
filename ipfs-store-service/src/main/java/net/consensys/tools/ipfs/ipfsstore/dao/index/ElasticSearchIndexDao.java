@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
@@ -116,11 +117,11 @@ public class ElasticSearchIndexDao implements IndexDao {
 //            return Result.healthy("Last status: %s", status.name());
 //        }
         
-        client.admin()
-        .indices()
-        .getIndex(new GetIndexRequest())
-        .actionGet()
-        .getIndices();   
+        client .admin()
+              .indices()
+              .getIndex(new GetIndexRequest())
+              .actionGet()
+              .getIndices();   
         
         log.debug("check elastic search health : OK");
         
@@ -133,11 +134,11 @@ public class ElasticSearchIndexDao implements IndexDao {
     }
 
     @Override
-    public String index(String indexName, String documentId, String hash, String contentType, List<IndexField> indexFields) throws DaoException {
-        log.debug("Index document in ElasticSearch [indexName: {}, documentId:{}, indexFields: {}]", indexName, documentId, indexFields);
+    public String index(String index, String documentId, String hash, String contentType, List<IndexField> indexFields) throws DaoException {
+        log.debug("Index document in ElasticSearch [index: {}, documentId:{}, indexFields: {}]", index, documentId, indexFields);
 
         // Validation
-        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(index)) throw new IllegalArgumentException("index " + ERROR_NOT_NULL_OR_EMPTY);
         if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
@@ -153,74 +154,75 @@ public class ElasticSearchIndexDao implements IndexDao {
 
             log.debug(source.toString());
 
-            if (!this.doesExist(indexName, documentId)) {
-                response = client.prepareIndex(indexName.toLowerCase(), indexName.toLowerCase(), documentId)
+            if (!this.doesExist(index, documentId)) {
+                response = client.prepareIndex(index.toLowerCase(), index.toLowerCase(), documentId)
                         .setSource(convertObjectToJsonString(source), XContentType.JSON)
                         .get();
 
             } else {
-                response = client.prepareUpdate(indexName.toLowerCase(), indexName.toLowerCase(), documentId)
+                response = client.prepareUpdate(index.toLowerCase(), index.toLowerCase(), documentId)
                         .setDoc(convertObjectToJsonString(source), XContentType.JSON)
                         .get();
             }
 
-            log.debug("Document indexed ElasticSearch [indexName: {}, documentId:{}, indexFields: {}]. Result ID= {} ", indexName, documentId, indexFields, response.getId());
+            log.debug("Document indexed ElasticSearch [index: {}, documentId:{}, indexFields: {}]. Result ID= {} ", index, documentId, indexFields, response.getId());
 
-            this.refreshIndex(indexName);
+            this.refreshIndex(index);
 
             return response.getId();
 
         } catch (Exception ex) {
-            log.error("Error while indexing document into ElasticSearch [indexName: {}, documentId:{}, indexFields: {}]", indexName, documentId, indexFields, ex);
+            log.error("Error while indexing document into ElasticSearch [index: {}, documentId:{}, indexFields: {}]", index, documentId, indexFields, ex);
             throw new DaoException("Error while indexing document into ElasticSearch: " + ex.getMessage());
         }
     }
 
 
     @Override
-    public Metadata searchById(String indexName, String id) throws DaoException, NotFoundException {
-        log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]", indexName, id);
+    public Metadata searchById(Optional<String> index, String id) throws DaoException, NotFoundException {
+        log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]", index, id);
 
         // Validation
-        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName" + ERROR_NOT_NULL_OR_EMPTY);
         if (StringUtils.isEmpty(id)) throw new IllegalArgumentException("id" + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
-            GetResponse response = client.prepareGet(indexName.toLowerCase(), indexName.toLowerCase(), id).get();
+            String indexFormatted = formatIndex(index);
+          
+            GetResponse response = client.prepareGet(indexFormatted, indexFormatted, id).get();
 
-            log.trace("Search one document in ElasticSearch [index: {}, ID: {}] : response= {}", indexName, id, response);
+            log.trace("Search one document in ElasticSearch [index: {}, ID: {}] : response= {}", indexFormatted, id, response);
 
             if (!response.isExists()) {
-                throw new NotFoundException("Document [index: "+indexName+", ID: "+id+"] not found");
+                throw new NotFoundException("Document [index: "+indexFormatted+", ID: "+id+"] not found");
             }
 
             Metadata metadata = convert(response.getIndex(), response.getId(), response.getSourceAsMap());
 
-            log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]: {}", indexName, id, metadata);
+            log.debug("Search in ElasticSearch by ID [index: {}, ID: {}]: {}", index, id, metadata);
 
             return metadata;
 
         } catch (NotFoundException ex) {
-            log.warn("Error while searching into ElasticSearch [index: {}, ID: {}]", indexName, id, ex);
+            log.warn("Error while searching into ElasticSearch [index: {}, ID: {}]", index, id, ex);
             throw ex;
         } catch (Exception ex) {
-            log.error("Error while searching into ElasticSearch [index: {}, ID: {}]", indexName, id, ex);
+            log.error("Error while searching into ElasticSearch [index: {}, ID: {}]", index, id, ex);
             throw new DaoException("Error while searching into ElasticSearch: " + ex.getMessage());
         }
     }
 
 
     @Override
-    public List<Metadata> search(Pageable pageable, String indexName, Query query) throws DaoException {
-        log.debug("Search documents in ElasticSearch [index: {}, query: {}]", indexName, query);
+    public List<Metadata> search(Pageable pageable, Optional<String> index, Query query) throws DaoException {
+        log.debug("Search documents in ElasticSearch [index: {}, query: {}]", index, query);
 
         // Validation
         if (pageable == null) throw new IllegalArgumentException("pageable " + ERROR_NOT_NULL_OR_EMPTY);
-        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
+            String indexFormatted = formatIndex(index);
 
-            SearchRequestBuilder requestBuilder = client.prepareSearch(indexName)
+            SearchRequestBuilder requestBuilder = client.prepareSearch(indexFormatted)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setQuery(convertQuery(query))
                     .setFrom(pageable.getOffset())
@@ -236,69 +238,67 @@ public class ElasticSearchIndexDao implements IndexDao {
 
             SearchResponse searchResponse = requestBuilder.execute().actionGet();
 
-            log.trace("Search documents in ElasticSearch [index: {}, query: {}]: {}", indexName, query, searchResponse);
+            log.trace("Search documents in ElasticSearch [index: {}, query: {}]: {}", index, query, searchResponse);
 
             List<Metadata> result = Arrays.stream(searchResponse.getHits().getHits())
                     .map(hit -> convert(hit.getIndex(), hit.getId(), hit.getSourceAsMap()))
                     .collect(Collectors.toList());
 
-            log.debug("Search documents in ElasticSearch [index: {}, query: {}]: {}", indexName, query, result);
+            log.debug("Search documents in ElasticSearch [index: {}, query: {}]: {}", index, query, result);
 
             return result;
 
         } catch (Exception ex) {
-            log.error("Error while searching documents into ElasticSearch [index: {}, query: {}]", indexName, query, ex);
+            log.error("Error while searching documents into ElasticSearch [index: {}, query: {}]", index, query, ex);
             throw new DaoException("Error while searching documents into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
-    public long count(String indexName, Query query) throws DaoException {
-        log.debug("Count in ElasticSearch [index: {}, query: {}]", indexName, query);
-
-        // Validation
-        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+    public long count(Optional<String> index, Query query) throws DaoException {
+        log.debug("Count in ElasticSearch [index: {}, query: {}]", index, query);
 
         try {
+          String indexFormatted = formatIndex(index);
           
-          SearchResponse countResponse = client.prepareSearch(indexName)
+          SearchResponse countResponse = client.prepareSearch(indexFormatted)
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setQuery(convertQuery(query))
                 .setSize(0)
                 .get();
 
-            log.trace("Count in ElasticSearch [index: {}, query: {}]: {}", indexName, query, countResponse);
+            log.trace("Count in ElasticSearch [index: {}, query: {}]: {}", index, query, countResponse);
 
             return countResponse.getHits().getTotalHits();
 
         } catch (Exception ex) {
-            log.error("Error while counting into ElasticSearch [index: {}, query: {}]", indexName, query, ex);
+            log.error("Error while counting into ElasticSearch [index: {}, query: {}]", index, query, ex);
             throw new DaoException("Error while counting into ElasticSearch: " + ex.getMessage());
         }
     }
 
     @Override
-    public void createIndex(String indexName) throws DaoException {
-        log.debug("Create index in ElasticSearch [index: {}]", indexName);
+    public void createIndex(String index) throws DaoException {
+        log.debug("Create index in ElasticSearch [index: {}]", index);
 
         // Validation
-        if (StringUtils.isEmpty(indexName)) throw new IllegalArgumentException("indexName " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(index)) throw new IllegalArgumentException("index " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             boolean exists = client.admin().indices()
-                    .prepareExists(indexName)
+                    .prepareExists(index)
                     .execute().actionGet().isExists();
 
             if (!exists) {
-                client.admin().indices().prepareCreate(indexName).get();
-                log.debug("Index [index: {}] created in ElasticSearch", indexName);
+                client.admin().indices().prepareCreate(index).get();
+                log.debug("Index [index: {}] created in ElasticSearch", index);
 
             } else {
-                log.debug("Index [index: {}] already exists in ElasticSearch", indexName);
+                log.debug("Index [index: {}] already exists in ElasticSearch", index);
             }
 
         } catch (Exception ex) {
-            log.error("Error while creating the index [index: {}] into ElasticSearch", indexName, ex);
+            log.error("Error while creating the index [index: {}] into ElasticSearch", index, ex);
             throw new DaoException("Error while creating the index into ElasticSearch: " + ex.getMessage());
         }
     }
@@ -479,8 +479,8 @@ public class ElasticSearchIndexDao implements IndexDao {
             return mapper.writeValueAsString(object);
         } catch (JsonProcessingException ex) {
             log.error("Exception occur:{}", ex);
+            return null;
         }
-        return null;
     }
 
     /**
@@ -492,4 +492,15 @@ public class ElasticSearchIndexDao implements IndexDao {
         this.client.admin().indices().prepareRefresh(index).get();
     }
 
+    /**
+     * Format the ElasticSearch index name (lowercase)
+     * if null, the wildcard "_all" is used
+     * 
+     * @param index Optional index name
+     * @return  indice
+     */
+    private static String formatIndex(Optional<String> index) {
+      return index.map(String::toLowerCase).orElse("_all");
+    }
+    
 }

@@ -56,7 +56,7 @@ public class IPFSStorageDao implements StorageDao {
 
             String hash = response.hash.toString();
 
-            log.debug("FIle created in IPFS: hash={} ", hash);
+            log.debug("File created in IPFS: hash={} ", hash);
 
             return hash;
 

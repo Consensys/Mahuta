@@ -1,4 +1,4 @@
-package net.consensys.tools.ipfs.ipfsstore.test.service;
+  package net.consensys.tools.ipfs.ipfsstore.test.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -119,7 +120,7 @@ public class StoreServiceTest {
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
-        request.setIndexName(index);
+        request.setIndex(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
@@ -133,7 +134,7 @@ public class StoreServiceTest {
 
         assertEquals(id, response.getDocumentId());
         assertEquals(hash, response.getHash());
-        assertEquals(index, response.getIndexName());
+        assertEquals(index, response.getIndex());
 
         Mockito.verify(indexDao, Mockito.times(1)).index(eq(index), eq(id), eq(hash), eq(contentType), anyList());
 
@@ -153,7 +154,7 @@ public class StoreServiceTest {
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
-        request.setIndexName(index);
+        request.setIndex(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
@@ -181,7 +182,7 @@ public class StoreServiceTest {
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(null);
-        request.setIndexName(index);
+        request.setIndex(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
@@ -211,7 +212,7 @@ public class StoreServiceTest {
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
-        request.setIndexName(index);
+        request.setIndex(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
@@ -226,7 +227,7 @@ public class StoreServiceTest {
 
         assertEquals(id, response.getDocumentId());
         assertEquals(hash, response.getHash());
-        assertEquals(index, response.getIndexName());
+        assertEquals(index, response.getIndex());
 
         ArgumentCaptor<byte[]> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(byte[].class);
         Mockito.verify(storageDao, Mockito.times(1)).createContent(argumentCaptorQueryBuilder.capture());
@@ -254,7 +255,7 @@ public class StoreServiceTest {
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
-        request.setIndexName(index);
+        request.setIndex(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
@@ -283,7 +284,7 @@ public class StoreServiceTest {
         request.setContentType(contentType);
         request.setDocumentId(id);
         request.setHash(hash);
-        request.setIndexName(index);
+        request.setIndex(index);
         request.setIndexFields(ElasticSearchDAOTest.getIndexFields(attribute, value));
 
         // Mock
@@ -351,19 +352,19 @@ public class StoreServiceTest {
         String value = "Gregoire Jeanmart";
 
         // Mock
-        Mockito.when(indexDao.searchById(eq(index), eq(id))).thenReturn(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
+        Mockito.when(indexDao.searchById(eq(Optional.of(index)), eq(id))).thenReturn(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
 
         // #################################################
-        Metadata metadataReturned = underTest.getFileMetadataById(index, id);
+        Metadata metadataReturned = underTest.getFileMetadataById(Optional.of(index), id);
         // #################################################
 
         assertEquals(metadataReturned.getContentType(), contentType);
         assertEquals(metadataReturned.getHash(), hash);
-        assertEquals(metadataReturned.getIndexName(), index);
+        assertEquals(metadataReturned.getIndex(), index);
         assertEquals(metadataReturned.getDocumentId(), id);
         assertEquals(metadataReturned.getIndexFieldValue(attribute), value);
 
-        Mockito.verify(indexDao, Mockito.times(1)).searchById(eq(index), eq(id));
+        Mockito.verify(indexDao, Mockito.times(1)).searchById(eq(Optional.of(index)), eq(id));
 
     }
 
@@ -379,10 +380,10 @@ public class StoreServiceTest {
         String value = "Gregoire Jeanmart";
 
         // Mock
-        Mockito.when(indexDao.searchById(eq(index), eq(id))).thenThrow(new NotFoundException(""));
+        Mockito.when(indexDao.searchById(eq(Optional.of(index)), eq(id))).thenThrow(new NotFoundException(""));
 
         // #################################################
-        underTest.getFileMetadataById(index, id);
+        underTest.getFileMetadataById(Optional.of(index), id);
         // #################################################
 
 
@@ -400,10 +401,10 @@ public class StoreServiceTest {
         String value = "Gregoire Jeanmart";
 
         // Mock
-        Mockito.when(indexDao.searchById(eq(index), eq(id))).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.searchById(eq(Optional.of(index)), eq(id))).thenThrow(new DaoException(""));
 
         // #################################################
-        underTest.getFileMetadataById(index, id);
+        underTest.getFileMetadataById(Optional.of(index), id);
         // #################################################
 
 
@@ -423,21 +424,21 @@ public class StoreServiceTest {
         // Mock
         List<Metadata> list = new ArrayList<>();
         list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
-        Mockito.when(indexDao.search(any(Pageable.class), eq(index), any(Query.class))).thenReturn(list);
-        Mockito.when(indexDao.count(eq(index), any(Query.class))).thenReturn(Long.valueOf(1));
+        Mockito.when(indexDao.search(any(Pageable.class), eq(Optional.of(index)), any(Query.class))).thenReturn(list);
+        Mockito.when(indexDao.count(eq(Optional.of(index)), any(Query.class))).thenReturn(Long.valueOf(1));
 
         // #################################################
-        Metadata metadataReturned = underTest.getFileMetadataByHash(index, hash);
+        Metadata metadataReturned = underTest.getFileMetadataByHash(Optional.of(index), hash);
         // #################################################
 
         assertEquals(metadataReturned.getContentType(), contentType);
         assertEquals(metadataReturned.getHash(), hash);
-        assertEquals(metadataReturned.getIndexName(), index);
+        assertEquals(metadataReturned.getIndex(), index);
         assertEquals(metadataReturned.getDocumentId(), id);
         assertEquals(metadataReturned.getIndexFieldValue(attribute), value);
 
-        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(index), any(Query.class));
-        Mockito.verify(indexDao, Mockito.times(1)).count(eq(index), any(Query.class));
+        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(Optional.of(index)), any(Query.class));
+        Mockito.verify(indexDao, Mockito.times(1)).count(eq(Optional.of(index)), any(Query.class));
 
     }
 
@@ -453,11 +454,11 @@ public class StoreServiceTest {
 
         // Mock
         List<Metadata> list = new ArrayList<>();
-        Mockito.when(indexDao.search(any(Pageable.class), eq(index), any(Query.class))).thenReturn(list);
-        Mockito.when(indexDao.count(eq(index), any(Query.class))).thenReturn(Long.valueOf(0));
+        Mockito.when(indexDao.search(any(Pageable.class), eq(Optional.of(index)), any(Query.class))).thenReturn(list);
+        Mockito.when(indexDao.count(eq(Optional.of(index)), any(Query.class))).thenReturn(Long.valueOf(0));
 
         // #################################################
-        underTest.getFileMetadataByHash(index, hash);
+        underTest.getFileMetadataByHash(Optional.of(index), hash);
         // ################################################# 
 
     }
@@ -475,11 +476,11 @@ public class StoreServiceTest {
         // Mock
         List<Metadata> list = new ArrayList<>();
         list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
-        Mockito.when(indexDao.search(any(Pageable.class), eq(index), any(Query.class))).thenThrow(new DaoException(""));
-        Mockito.when(indexDao.count(eq(index), any(Query.class))).thenReturn(Long.valueOf(1));
+        Mockito.when(indexDao.search(any(Pageable.class), eq(Optional.of(index)), any(Query.class))).thenThrow(new DaoException(""));
+        Mockito.when(indexDao.count(eq(Optional.of(index)), any(Query.class))).thenReturn(Long.valueOf(1));
 
         // #################################################
-        underTest.getFileMetadataByHash(index, hash);
+        underTest.getFileMetadataByHash(Optional.of(index), hash);
         // #################################################
 
     }
@@ -530,11 +531,11 @@ public class StoreServiceTest {
         // Mock
         List<Metadata> list = new ArrayList<>();
         list.add(new Metadata(index, id, hash, contentType, ElasticSearchDAOTest.getIndexFields(attribute, value)));
-        Mockito.when(indexDao.search(any(Pageable.class), eq(index), any(Query.class))).thenReturn(list);
-        Mockito.when(indexDao.count(eq(index), any(Query.class))).thenReturn(Long.valueOf(total));
+        Mockito.when(indexDao.search(any(Pageable.class), eq(Optional.of(index)), any(Query.class))).thenReturn(list);
+        Mockito.when(indexDao.count(eq(Optional.of(index)), any(Query.class))).thenReturn(Long.valueOf(total));
 
         // #################################################
-        Page<Metadata> pageReturned = underTest.searchFiles(index, query, pagination);
+        Page<Metadata> pageReturned = underTest.searchFiles(Optional.of(index), query, pagination);
         // #################################################
 
         assertEquals(pageReturned.getTotalElements(), total);
@@ -542,8 +543,8 @@ public class StoreServiceTest {
         assertEquals(pageReturned.getNumberOfElements(), 1);
         assertEquals(pageReturned.getTotalPages(), 1);
 
-        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(index), any(Query.class));
-        Mockito.verify(indexDao, Mockito.times(1)).count(eq(index), any(Query.class));
+        Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(Optional.of(index)), any(Query.class));
+        Mockito.verify(indexDao, Mockito.times(1)).count(eq(Optional.of(index)), any(Query.class));
 
     }
     
