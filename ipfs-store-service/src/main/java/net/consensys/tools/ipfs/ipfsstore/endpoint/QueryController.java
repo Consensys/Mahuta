@@ -101,7 +101,7 @@ public class QueryController {
      * @param query         Query
      * @return List of result
      */
-    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByPost(
             @RequestParam(value = "index", required = false)                                  Optional<String> index,
@@ -125,7 +125,7 @@ public class QueryController {
      * @param queryStr      Query
      * @return List of result
      */
-    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByGet(
             @RequestParam(value = "index", required = false)                                  Optional<String> index,
