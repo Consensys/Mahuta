@@ -231,7 +231,7 @@ A pinning strategy define the way you want to pin (permanently store) your conte
 Pinning stategies can be combined together and are executed asynchronously from the main thread.
 
 **Strategies**
-| Name (type) |Description |
+| Name (type) | Description |
 | -------- | -------- | 
 | native | Pin the node |
 | ipfs_cluster | Pin an ipfs cluster node that replicates the content |
