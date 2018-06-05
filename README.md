@@ -726,6 +726,7 @@ The following section shows how to tweak IPFS-store. Any of these properties can
 ```
 server:
   port: 8040
+  contextPath: /ipfs-store
 
 logging:
   level:
