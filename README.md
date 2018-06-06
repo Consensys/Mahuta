@@ -254,10 +254,10 @@ Pinning stategies can be combined together and are executed asynchronously from 
 
 ## Clients
 
-[WIKI: Clients](https://github.com/ConsenSys/IPFS-Store/wiki/4.-Clients)
+[WIKI: Clients](https://github.com/ConsenSys/IPFS-Store/wiki/5.-Clients)
 
 
 
 ## Examples
 
-[WIKI: Examples](https://github.com/ConsenSys/IPFS-Store/wiki/5.-Examples)
+[WIKI: Examples](https://github.com/ConsenSys/IPFS-Store/wiki/6.-Examples)
