@@ -131,7 +131,7 @@ server:
 
 logging:
   level:
-    net.consensys: ${LOG_LEVEL:TRACE}
+    net.consensys: ${LOG_LEVEL:INFO}
 
 ipfs-store:
   storage:
@@ -226,7 +226,7 @@ The Index layer is built in a generic way where different search engine technolo
 
 ### Pinning strategy
 
-A pinning strategy define the way you want to pin (permanently store) your content. Whilst a `native` pinning strategy consists in pinning the content directly in a node. Another one, `ipfs_cluster` consist in pinning an IPFS-cluster to replicate the content across the cluster of nodes. Other implementations could be imagined.
+A pinning strategy defines the way you want to pin (permanently store) your content. Whilst a `native` pinning strategy consists in pinning the content directly in a node. `ipfs_cluster` consists in pinning an IPFS-cluster to replicate the content across the cluster of nodes. Other implementations could be imagined.
 
 Pinning stategies can be combined together and are executed asynchronously from the main thread.
 
