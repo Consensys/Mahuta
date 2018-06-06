@@ -25,8 +25,7 @@ public class ConfigController {
      * @throws ServiceException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.config.index}", method = RequestMethod.POST)
-    public void createIndex(
-            @PathVariable(value = "index") String index) {
+    public void createIndex(@PathVariable(value = "index") String index) {
 
         this.storeService.createIndex(index);
     }

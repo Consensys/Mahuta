@@ -99,16 +99,16 @@ public class QueryController {
      * @param sortAttribute Sorting attribute [optional]
      * @param sortDirection Sorting direction [optional - default ASC]
      * @param query         Query
-     * @return List of result
+     * @return              List of result
      */
     @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByPost(
             @RequestParam(value = "index", required = false)                                  Optional<String> index,
-            @RequestParam(value = "page", defaultValue = DEFAULT_PAGE_NO, required = false)   int pageNo,
-            @RequestParam(value = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO)   int pageNo,
+            @RequestParam(value = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
             @RequestParam(value = "sort", required = false)                                   Optional<String> sortAttribute,
-            @RequestParam(value = "dir", defaultValue = "ASC", required = false)              Sort.Direction sortDirection,
+            @RequestParam(value = "dir", required = false, defaultValue = "ASC")              Sort.Direction sortDirection,
             @RequestBody                                                                      Query query) {
 
         return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
@@ -123,16 +123,16 @@ public class QueryController {
      * @param sortAttribute Sorting attribute [optional]
      * @param sortDirection Sorting direction [optional - default ASC]
      * @param queryStr      Query
-     * @return List of result
+     * @return              List of result
      */
     @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     Page<Metadata> searchContentsByGet(
             @RequestParam(value = "index", required = false)                                  Optional<String> index,
-            @RequestParam(value = "page", defaultValue = DEFAULT_PAGE_NO, required = false)   int pageNo,
-            @RequestParam(value = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO)   int pageNo,
+            @RequestParam(value = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
             @RequestParam(value = "sort", required = false)                                   Optional<String> sortAttribute,
-            @RequestParam(value = "dir", defaultValue = "ASC", required = false)              Sort.Direction sortDirection,
+            @RequestParam(value = "dir", required = false, defaultValue = "ASC")              Sort.Direction sortDirection,
             @RequestParam(value = "query", required = false)                                  Optional<String> queryStr)  {
 
         Query query = queryStr
@@ -142,6 +142,16 @@ public class QueryController {
         return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
     }
 
+    /**
+     * execute search (common to searchContentsByGet and searchContentsByPost)
+     * @param index         Index name
+     * @param pageNo        Page no [optional - default 1]
+     * @param pageSize      Page size [optional - default 20]
+     * @param sortAttribute Sorting attribute [optional]
+     * @param sortDirection Sorting direction [optional - default ASC]
+     * @param queryStr      Query
+     * @return              List of result
+     */
     private Page<Metadata> executeSearch(Optional<String> index, int pageNo, int pageSize, Optional<String> sortAttribute, Sort.Direction sortDirection, Query query) {
 
         PageRequest pagination = sortAttribute
@@ -151,6 +161,12 @@ public class QueryController {
         return this.storeService.searchFiles(index, query, pagination);
     }
 
+    /**
+     * Try to guess the content-type from the stream
+     * 
+     * @param content inputstream
+     * @return Guessed content-type or application/octet-stream
+     */
     private static String guessContentType(InputStream content) {
 
         try {

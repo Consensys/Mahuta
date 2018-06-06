@@ -2,6 +2,9 @@ package net.consensys.tools.ipfs.ipfsstore.utils;
 
 import java.util.function.Function;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LambdaUtils {
   
   @FunctionalInterface
@@ -16,6 +19,7 @@ public class LambdaUtils {
           try {
               return throwingConsumer.apply(i);
           } catch (Exception ex) {
+              log.error(ex.getMessage(), ex);
               throw new RuntimeException(ex);
           }
       };
