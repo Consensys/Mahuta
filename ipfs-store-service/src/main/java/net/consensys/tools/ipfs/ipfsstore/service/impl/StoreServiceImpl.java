@@ -1,5 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.service.impl;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -24,9 +25,9 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
-import net.consensys.tools.ipfs.ipfsstore.exception.ServiceException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
+import net.consensys.tools.ipfs.ipfsstore.exception.ValidationException;
 import net.consensys.tools.ipfs.ipfsstore.service.StoreService;
 
 /**
@@ -58,103 +59,68 @@ public class StoreServiceImpl implements StoreService {
 
 
     @Override
-    public String storeFile(byte[] file) throws ServiceException {
-
-        try {
-            // Store file
-            String hash = this.storageDao.createContent(file);
-            
-            // pin file
-            pinningConfiguration.getPinningStrategies().forEach((pinStrategy) -> {
-              CompletableFuture.supplyAsync(() -> {
-                try {
-                  log.debug("Executing async pin_service [name={}] for hash {}", pinStrategy.getName(), hash);
-                  pinStrategy.pin(hash);
-                  return true;
-                } catch (DaoException e) {
-                  log.error("Error while executing async pin_service [name={}] for hash {}", pinStrategy.getName(), hash, e);
-                  return false;
-                }
-              });
-            });
-            
-            return hash;
-            
-        } catch (DaoException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+    public String storeFile(byte[] file) {
+        
+        // Store file
+        String hash = this.storageDao.createContent(file);
+        
+        // pin file
+        pinningConfiguration.getPinningStrategies().forEach((pinStrategy) -> {
+          CompletableFuture.supplyAsync(() -> {
+              log.debug("Executing async pin_service [name={}] for hash {}", pinStrategy.getName(), hash);
+              pinStrategy.pin(hash);
+              return true;
+          });
+        });
+        
+        return hash;
     }
 
     @Override
-    public IndexerResponse indexFile(IndexerRequest request) throws ServiceException {
+    public IndexerResponse indexFile(IndexerRequest request) throws ValidationException {
 
         validate(request);
 
         log.trace(request.toString());
+        
+        indexDao.createIndex(request.getIndex()); // Create the index if it doesn't exist
 
-        try {
-            indexDao.createIndex(request.getIndexName()); // Create the index if it doesn't exist
+        String documentId = indexDao.index(
+                request.getIndex(),
+                request.getDocumentId(),
+                request.getHash(),
+                request.getContentType(),
+                request.getIndexFields());
 
-            String documentId = indexDao.index(
-                    request.getIndexName(),
-                    request.getDocumentId(),
-                    request.getHash(),
-                    request.getContentType(),
-                    request.getIndexFields());
-
-            return new IndexerResponse(request.getIndexName(), documentId, request.getHash());
-
-        } catch (DaoException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+        return new IndexerResponse(request.getIndex(), documentId, request.getHash());
     }
 
 
     @Override
-    public IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ServiceException {
+    public IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ValidationException {
 
-        try {
-            // Store the file
-            String hash = this.storeFile(file);
-            request.setHash(hash);
+        // Store the file
+        String hash = this.storeFile(file);
+        request.setHash(hash);
 
-            // Index it
-            return this.indexFile(request);
-
-        } catch (ServiceException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+        // Index it
+        return this.indexFile(request);
     }
 
     @Override
-    public byte[] getFileByHash(String hash) throws ServiceException {
+    public byte[] getFileByHash(String hash) throws TimeoutException {
 
-        try {
-            return this.storageDao.getContent(hash);
-
-        } catch (DaoException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+        return this.storageDao.getContent(hash);
     }
 
     @Override
-    public Metadata getFileMetadataById(String index, String id) throws ServiceException, NotFoundException {
+    public Metadata getFileMetadataById(Optional<String> index, String id) throws NotFoundException {
 
-        try {
-            return this.indexDao.searchById(index, id);
-
-        } catch (DaoException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+        return this.indexDao.searchById(index, id);
     }
 
     @Override
-    public Metadata getFileMetadataByHash(String index, String hash) throws ServiceException, NotFoundException {
+    public Metadata getFileMetadataByHash(Optional<String> index, String hash) throws NotFoundException {
 
         Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
         Page<Metadata> search = this.searchFiles(index, query, new PageRequest(0, 1));
@@ -168,30 +134,18 @@ public class StoreServiceImpl implements StoreService {
 
 
     @Override
-    public void createIndex(String index) throws ServiceException {
+    public void createIndex(String index) {
 
-        try {
-            this.indexDao.createIndex(index);
-
-        } catch (DaoException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+        this.indexDao.createIndex(index);
     }
 
     @Override
-    public Page<Metadata> searchFiles(String index, Query query, Pageable pageable) throws ServiceException {
+    public Page<Metadata> searchFiles(Optional<String> index, Query query, Pageable pageable) {
 
-        try {
-           return new PageImpl<>(
-               indexDao.search(pageable, index, query),
-               pageable,
-               indexDao.count(index, query));
-           
-        } catch (DaoException ex) {
-            log.error("Exception occur:", ex);
-            throw new ServiceException(ex.getMessage());
-        }
+        return new PageImpl<>(
+                indexDao.search(pageable, index, query),
+                pageable,
+                indexDao.count(index, query));
     }
 
     /**
@@ -200,10 +154,10 @@ public class StoreServiceImpl implements StoreService {
      * @param object
      * @throws ServiceException
      */
-    private <O> void validate(O object) throws ServiceException {
+    private <O> void validate(O object) throws ValidationException {
         Set<ConstraintViolation<O>> violations = validator.validate(object);
         if (!violations.isEmpty()) {
-            throw new ServiceException(violations.toString());
+            throw new ValidationException(violations.toString());
         }
     }
 }

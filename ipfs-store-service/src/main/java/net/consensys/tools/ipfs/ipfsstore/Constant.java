@@ -8,7 +8,4 @@ public abstract class Constant {
   
   public static final String ERROR_NOT_NULL_OR_EMPTY = "cannot be null or empty";
 
-  public static String printHash(String hash) {
-      return "[hash=" + hash + "]";
-  }
 }

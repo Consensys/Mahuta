@@ -448,7 +448,7 @@ public class IPFSStoreTest {
         Metadata metadata = this.undertest.getMetadataById(INDEX_NAME, id);
         // ###########################
 
-        assertEquals(INDEX_NAME, metadata.getIndexName());
+        assertEquals(INDEX_NAME, metadata.getIndex());
         assertEquals(id, metadata.getDocumentId());
         assertEquals(hash, metadata.getHash());
         assertEquals(contentType, metadata.getContentType());
@@ -574,7 +574,7 @@ public class IPFSStoreTest {
         LOG.info(result.toString());
 
         assertEquals(1, result.getTotalElements());
-        assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+        assertEquals(INDEX_NAME, result.getContent().get(0).getIndex());
         assertEquals(id, result.getContent().get(0).getDocumentId());
         assertEquals(hash, result.getContent().get(0).getHash());
         assertEquals(contentType, result.getContent().get(0).getContentType());
@@ -648,7 +648,7 @@ public class IPFSStoreTest {
         LOG.info(result.toString());
 
         assertEquals(1, result.getTotalElements());
-        assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+        assertEquals(INDEX_NAME, result.getContent().get(0).getIndex());
         assertEquals(id, result.getContent().get(0).getDocumentId());
         assertEquals(hash, result.getContent().get(0).getHash());
         assertEquals(contentType, result.getContent().get(0).getContentType());
@@ -723,7 +723,7 @@ public class IPFSStoreTest {
         LOG.info(result.toString());
 
         assertEquals(result.getTotalElements(), 1);
-        assertEquals(result.getContent().get(0).getIndexName(), INDEX_NAME);
+        assertEquals(result.getContent().get(0).getIndex(), INDEX_NAME);
         assertEquals(result.getContent().get(0).getDocumentId(), id);
         assertEquals(result.getContent().get(0).getHash(), hash);
         assertEquals(result.getContent().get(0).getContentType(), contentType);
@@ -797,7 +797,7 @@ public class IPFSStoreTest {
         LOG.info(result.toString());
 
         assertEquals(1, result.getTotalElements());
-        assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+        assertEquals(INDEX_NAME, result.getContent().get(0).getIndex());
         assertEquals(id, result.getContent().get(0).getDocumentId());
         assertEquals(hash, result.getContent().get(0).getHash());
         assertEquals(contentType, result.getContent().get(0).getContentType());
@@ -872,7 +872,7 @@ public class IPFSStoreTest {
         LOG.info(result.toString());
 
         assertEquals(1, result.getTotalElements());
-        assertEquals(INDEX_NAME, result.getContent().get(0).getIndexName());
+        assertEquals(INDEX_NAME, result.getContent().get(0).getIndex());
         assertEquals(id, result.getContent().get(0).getDocumentId());
         assertEquals(hash, result.getContent().get(0).getHash());
         assertEquals(contentType, result.getContent().get(0).getContentType());

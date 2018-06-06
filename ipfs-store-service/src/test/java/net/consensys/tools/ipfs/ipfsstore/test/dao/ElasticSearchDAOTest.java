@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.assertj.core.util.Arrays;
@@ -70,8 +71,9 @@ import net.consensys.tools.ipfs.ipfsstore.dao.index.ElasticSearchIndexDao;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
@@ -123,7 +125,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
 
     @Test
-    public void indexCreateSuccessTest() throws DaoException, IOException {
+    public void indexCreateSuccessTest() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -187,7 +189,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void indexCreateSuccessNoAttributeTest() throws DaoException, IOException {
+    public void indexCreateSuccessNoAttributeTest() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -248,7 +250,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void indexUpdateSuccessTest() throws DaoException, IOException {
+    public void indexUpdateSuccessTest() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -313,7 +315,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void indexCreateKOIllegalArgumentsTest1() throws IOException, DaoException {
+    public void indexCreateKOIllegalArgumentsTest1() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -327,7 +329,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void indexCreateKOIllegalArgumentsTest2() throws IOException, DaoException {
+    public void indexCreateKOIllegalArgumentsTest2() throws IOException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -341,8 +343,8 @@ public class ElasticSearchDAOTest {
     }
 
 
-    @Test(expected = DaoException.class)
-    public void indexCreateUnexpectedExceptionTest() throws DaoException {
+    @Test(expected = TechnicalException.class)
+    public void indexCreateUnexpectedExceptionTest() {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -366,7 +368,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
 
     @Test
-    public void searchByIdSuccessTest() throws DaoException, NotFoundException {
+    public void searchByIdSuccessTest() throws NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -391,7 +393,7 @@ public class ElasticSearchDAOTest {
         when(getRequestBuilder.get()).thenReturn(getResponse);
 
         // #################################################
-        Metadata meta = underTest.searchById(indexName, documentId);
+        Metadata meta = underTest.searchById(Optional.of(indexName), documentId);
         // #################################################
 
         ArgumentCaptor<String> argumentCaptorIndexName = ArgumentCaptor.forClass(String.class);
@@ -410,31 +412,58 @@ public class ElasticSearchDAOTest {
 
 
         assertEquals(documentId, meta.getDocumentId());
-        assertEquals(indexName, meta.getIndexName());
+        assertEquals(indexName, meta.getIndex());
         assertEquals(hash, meta.getHash());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void searchByIdKOIllegalArgumentsTest1() throws IOException, DaoException, NotFoundException {
+    public void searchByIdKOIllegalArgumentsTest() throws IOException, NotFoundException {
         String documentId = null;
 
         // #################################################
-        underTest.searchById(indexName, null);
+        underTest.searchById(Optional.of(indexName), null);
         // ################################################# 
+        
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void searchByIdKOIllegalArgumentsTest2() throws IOException, DaoException, NotFoundException {
-        String documentId = "123";
+    @Test
+    public void searchByIdNoIndexTest() throws IOException, NotFoundException {
+      String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
+      String contentType = "application/pdf";
+      String documentId = "123";
+      String customAttributeKey = "test";
+      String customAttributeVal = "test123";
 
+        // Mock
+        Map<String, Object> sourceMap = new HashMap<>();
+        sourceMap.put(IndexDao.HASH_INDEX_KEY, hash);
+        sourceMap.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
+        sourceMap.put(customAttributeKey, customAttributeVal);
+
+        GetResponse getResponse = mock(GetResponse.class);
+        when(getResponse.getSourceAsMap()).thenReturn(sourceMap);
+        when(getResponse.getId()).thenReturn(documentId);
+        when(getResponse.getIndex()).thenReturn("_all");
+        when(getResponse.isExists()).thenReturn(true);
+
+        GetRequestBuilder getRequestBuilder = mock(GetRequestBuilder.class);
+        PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenReturn(getRequestBuilder);
+        when(getRequestBuilder.get()).thenReturn(getResponse);
+        
         // #################################################
-        underTest.searchById("", documentId);
+        underTest.searchById( Optional.empty(), documentId);
         // ################################################# 
+        
+        ArgumentCaptor<String> argumentCaptorIndexFormatted = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(client, Mockito.times(1)).prepareGet(argumentCaptorIndexFormatted.capture(), anyString(), anyString());
+        String indexFormatted = argumentCaptorIndexFormatted.<String>getValue();
+        LOGGER.debug(indexFormatted);
+        assertEquals("_all", indexFormatted);
     }
 
 
     @Test(expected = NotFoundException.class)
-    public void searchByIdNotFoundExceptionTest() throws DaoException, NotFoundException {
+    public void searchByIdNotFoundExceptionTest() throws NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -460,14 +489,14 @@ public class ElasticSearchDAOTest {
         when(getRequestBuilder.get()).thenReturn(getResponse);
 
         // #################################################
-        underTest.searchById(indexName, documentId);
+        underTest.searchById(Optional.of(indexName), documentId);
         // #################################################
 
     }
 
 
-    @Test(expected = DaoException.class)
-    public void searchByIdUnexpectedExceptionTest() throws DaoException, NotFoundException {
+    @Test(expected = TechnicalException.class)
+    public void searchByIdUnexpectedExceptionTest() throws TechnicalException, NotFoundException {
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -493,7 +522,7 @@ public class ElasticSearchDAOTest {
         when(getRequestBuilder.get()).thenThrow(new RuntimeException());
 
         // #################################################
-        underTest.searchById(indexName, documentId);
+        underTest.searchById(Optional.of(indexName), documentId);
         // #################################################
 
     }
@@ -505,7 +534,7 @@ public class ElasticSearchDAOTest {
 
 
     @Test
-    public void searchSuccessNullQueryTest() throws DaoException, JSONException {
+    public void searchSuccessNullQueryTest() throws JSONException {
         int pageNo = 0;
         int pageSize = 20;
 
@@ -550,7 +579,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, null);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), null);
         // #################################################
 
 
@@ -587,7 +616,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessFullTextQueryTest() throws DaoException, JSONException {
+    public void searchSuccessFullTextQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -633,7 +662,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -658,7 +687,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessEqualsQueryTest() throws DaoException, JSONException {
+    public void searchSuccessEqualsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -702,7 +731,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -727,7 +756,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessNotEqualsQueryTest() throws DaoException, JSONException {
+    public void searchSuccessNotEqualsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -772,7 +801,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -797,7 +826,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessContainsQueryTest() throws DaoException, JSONException {
+    public void searchSuccessContainsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -842,7 +871,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -867,7 +896,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessInQueryTest() throws DaoException, JSONException {
+    public void searchSuccessInQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -913,7 +942,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -938,7 +967,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessltQueryTest() throws DaoException, JSONException {
+    public void searchSuccessltQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -983,7 +1012,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -1009,7 +1038,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccesslteQueryTest() throws DaoException, JSONException {
+    public void searchSuccesslteQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1054,7 +1083,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -1080,7 +1109,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessgtQueryTest() throws DaoException, JSONException {
+    public void searchSuccessgtQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1125,7 +1154,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -1151,7 +1180,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void searchSuccessgteQueryTest() throws DaoException, JSONException {
+    public void searchSuccessgteQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
         Pageable pagination = new PageRequest(pageNo, pageSize);
@@ -1196,7 +1225,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        List<Metadata> searchResult = underTest.search(pagination, indexName, query);
+        List<Metadata> searchResult = underTest.search(pagination, Optional.of(indexName), query);
         // #################################################
 
 
@@ -1223,7 +1252,7 @@ public class ElasticSearchDAOTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void searchSuccessNullQueryIllegalArgumentExceptionTest1() throws DaoException, JSONException {
+    public void searchSuccessNullQueryIllegalArgumentExceptionTest1() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
 
@@ -1268,15 +1297,15 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        underTest.search(null, indexName, null);
+        underTest.search(null, Optional.of(indexName), null);
         // #################################################
 
 
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void searchSuccessNullQueryIllegalArgumentExceptionTest2() throws DaoException, JSONException {
+    @Test
+    public void searchSuccessNoIndexExceptionTest2() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
 
@@ -1321,14 +1350,20 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenReturn(searchResponse);
 
         // #################################################
-        underTest.search(pagination, null, null);
+        underTest.search(pagination, Optional.empty(), null);
         // #################################################
 
+        ArgumentCaptor<String> argumentCaptorIndexFormatted = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(client, Mockito.times(1)).prepareSearch(argumentCaptorIndexFormatted.capture());
+        String indexFormatted = argumentCaptorIndexFormatted.<String>getValue();
+        LOGGER.debug(indexFormatted);
+        assertEquals("_all", indexFormatted);
+        
     }
 
 
-    @Test(expected = DaoException.class)
-    public void searchSuccessNullQueryUnexpectedxceptionTest1() throws DaoException, JSONException {
+    @Test(expected = TechnicalException.class)
+    public void searchSuccessNullQueryUnexpectedxceptionTest1() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
 
@@ -1373,7 +1408,7 @@ public class ElasticSearchDAOTest {
         when(listenableActionFuture.actionGet()).thenThrow(new RuntimeException());
 
         // #################################################
-        underTest.search(pagination, indexName, null);
+        underTest.search(pagination, Optional.of(indexName), null);
         // #################################################
 
     }
@@ -1384,7 +1419,7 @@ public class ElasticSearchDAOTest {
     // #########################################################
 
     @Test
-    public void countSuccessTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void countSuccessTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1405,7 +1440,7 @@ public class ElasticSearchDAOTest {
         when(searchRequestBuilder.get()).thenReturn(searchResponse);
 
         // #################################################
-        long totalResult = underTest.count(indexName, null);
+        long totalResult = underTest.count(Optional.of(indexName), null);
         // #################################################
 
 
@@ -1426,8 +1461,8 @@ public class ElasticSearchDAOTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void countIllegalArgumentExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    @Test
+    public void countNoIndexTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1448,14 +1483,34 @@ public class ElasticSearchDAOTest {
         when(searchRequestBuilder.get()).thenReturn(searchResponse);
 
         // #################################################
-        underTest.count(null, null);
+        long totalResult = underTest.count(Optional.empty(), null);
         // #################################################
 
+        Mockito.verify(client, Mockito.times(1)).prepareSearch(anyString());
+
+        ArgumentCaptor<QueryBuilder> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(QueryBuilder.class);
+        Mockito.verify(searchRequestBuilder, Mockito.times(1)).setQuery(argumentCaptorQueryBuilder.capture());
+        QueryBuilder queryCaptured = argumentCaptorQueryBuilder.<QueryBuilder>getValue();
+        LOGGER.debug(queryCaptured.toString());
+        JSONAssert.assertEquals("{\n" +
+                "   \"match_all\": {\"boost\" : 1.0}" +
+                "}", queryCaptured.toString(), true);
+        
+        ArgumentCaptor<String> argumentCaptorIndexFormatted = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(client, Mockito.times(1)).prepareSearch(argumentCaptorIndexFormatted.capture());
+        String indexFormatted = argumentCaptorIndexFormatted.<String>getValue();
+        LOGGER.debug(indexFormatted);
+        assertEquals("_all", indexFormatted);
+
+
+        Mockito.verify(searchRequestBuilder, Mockito.times(1)).get();
+
+        assertEquals(totalResult, total);
 
     }
 
-    @Test(expected = DaoException.class)
-    public void countUnexpectedExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    @Test(expected = TechnicalException.class)
+    public void countUnexpectedExceptionTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1476,7 +1531,7 @@ public class ElasticSearchDAOTest {
         when(searchRequestBuilder.get()).thenThrow(new RuntimeException());
 
         // #################################################
-        underTest.count(indexName, null);
+        underTest.count(Optional.of(indexName), null);
         // #################################################
 
 
@@ -1489,7 +1544,7 @@ public class ElasticSearchDAOTest {
 
     // Need to use PowerMockito to mock a final method
     @Test
-    public void createIndexSuccessTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void createIndexSuccessTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1526,7 +1581,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test
-    public void createIndexAlreadyExistTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void createIndexAlreadyExistTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 
@@ -1551,7 +1606,7 @@ public class ElasticSearchDAOTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createIndexIllegalArgumentExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    public void createIndexIllegalArgumentExceptionTest() throws JSONException, InterruptedException, ExecutionException {
 
         // #################################################
         underTest.createIndex(null);
@@ -1560,8 +1615,8 @@ public class ElasticSearchDAOTest {
 
     }
 
-    @Test(expected = DaoException.class)
-    public void createIndexUnexpectedExceptionTest() throws DaoException, JSONException, InterruptedException, ExecutionException {
+    @Test(expected = TechnicalException.class)
+    public void createIndexUnexpectedExceptionTest() throws JSONException, InterruptedException, ExecutionException {
 
         long total = 10;
 

@@ -15,11 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 public class HealthCheckScheduler {
 
   private Map<String, HealthCheck> healthChecks;
-  
+
   public HealthCheckScheduler() {
     healthChecks = new HashMap<>();
   }
-  
+
   /**
    * Register the health check service
    * @param name        Name of the service

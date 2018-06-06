@@ -16,7 +16,7 @@ import lombok.ToString;
 public class IndexerResponse {
 
     @JsonProperty("index")
-    private String indexName;
+    private String index;
 
     @JsonProperty("id")
     private String documentId;

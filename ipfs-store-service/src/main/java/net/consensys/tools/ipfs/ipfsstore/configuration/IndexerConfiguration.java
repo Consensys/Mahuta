@@ -60,8 +60,7 @@ public class IndexerConfiguration extends AbstractConfiguration {
       throw new IllegalArgumentException("ipfs-store.index.host" + ERROR_NOT_NULL_OR_EMPTY);
     if (StringUtils.isEmpty(port))
       throw new IllegalArgumentException("ipfs-store.index.host" + ERROR_NOT_NULL_OR_EMPTY);
-    if (additional == null || !additional.containsKey(KEY_CLUSTER)
-        || StringUtils.isEmpty(additional.get(KEY_CLUSTER)))
+    if (!this.getAdditionalParam(KEY_CLUSTER).isPresent())
       throw new IllegalArgumentException("ipfs-store.index.additional.clusterName" + ERROR_NOT_NULL_OR_EMPTY);
 
     try {

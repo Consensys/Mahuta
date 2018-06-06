@@ -5,7 +5,7 @@
 
 	<groupId>net.consensys.tools.ipfs</groupId>
 	<artifactId>ipfs-store</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -25,14 +25,6 @@
 	</modules>
 
 	<repositories>
-        <repository> <!-- Workaround to ignore sonatype repository by travisCI -->
-          	<id>sonatype</id>
-          	<url>http://repo1.maven.org/maven2</url>
-        </repository>
-        <repository><!-- Workaround to ignore sonatype repository by travisCI -->
-          	<id>sonatype-apache</id>
-          	<url>http://repo1.maven.org/maven2</url>
-        </repository>
         <repository>
           	<id>central_repository</id>
           	<url>http://repo1.maven.org/maven2</url>
@@ -52,5 +44,9 @@
 			<url>https://repo.spring.io/libs-release</url>
 		</pluginRepository>
 	</pluginRepositories>
+
+    <scm>
+        <connection>scm:https://github.com/ConsenSys/IPFS-Store.git</connection>
+    </scm>
 
 </project>

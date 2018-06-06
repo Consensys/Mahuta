@@ -17,12 +17,11 @@ public class IndexerRequest {
 
     @NotNull
     @JsonProperty("index")
-    private String indexName;
+    private String index;
 
     @JsonProperty("id")
     private String documentId;
 
-    @NotNull
     @JsonProperty("hash")
     private String hash;
 

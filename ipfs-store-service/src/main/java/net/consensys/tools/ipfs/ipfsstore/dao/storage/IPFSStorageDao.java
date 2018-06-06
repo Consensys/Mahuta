@@ -1,9 +1,13 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.storage;
 
 import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
-import static net.consensys.tools.ipfs.ipfsstore.Constant.printHash;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.util.StringUtils;
 
@@ -12,8 +16,10 @@ import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
 import lombok.extern.slf4j.Slf4j;
+import net.consensys.tools.ipfs.ipfsstore.configuration.StorageConfiguration;
 import net.consensys.tools.ipfs.ipfsstore.dao.StorageDao;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
 
 /**
  * IPFS implementation of StorageDao
@@ -23,10 +29,25 @@ import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
 @Slf4j
 public class IPFSStorageDao implements StorageDao {
 
-    private final IPFS ipfs;
+    private static final String THREAD_POOL_PARAM = "thread_pool";
+    private static final int DEFAULT_THREAD_POOL = 10;
+    private static final String TIMEOUT_PARAM = "timeout";
+    private static final int DEFAULT_TIMEOUT = 10000;
 
-    public IPFSStorageDao(IPFS ipfs) {
+    private final IPFS ipfs;
+    private final ExecutorService pool;
+    private final Integer timeout;
+
+    public IPFSStorageDao(StorageConfiguration storageConfiguration, IPFS ipfs) {
         this.ipfs = ipfs;
+        
+        this.pool = Executors.newFixedThreadPool(storageConfiguration.getAdditionalParam(THREAD_POOL_PARAM)
+                .map(Integer::valueOf)
+                .orElse(DEFAULT_THREAD_POOL));
+        
+        this.timeout = storageConfiguration.getAdditionalParam(TIMEOUT_PARAM)
+                .map(Integer::valueOf)
+                .orElse(DEFAULT_TIMEOUT);
     }
     
     @Override
@@ -44,7 +65,7 @@ public class IPFSStorageDao implements StorageDao {
     }
 
     @Override
-    public String createContent(byte[] content) throws DaoException {
+    public String createContent(byte[] content) {
 
         log.debug("Store file in IPFS ...");
 
@@ -57,35 +78,46 @@ public class IPFSStorageDao implements StorageDao {
 
             String hash = response.hash.toString();
 
-            log.debug("Store created in IPFS " + printHash(hash));
+            log.debug("File created in IPFS: hash={} ", hash);
 
             return hash;
 
         } catch (IOException ex) {
             log.error("Exception while storing file in IPFS", ex);
-            throw new DaoException("Exception while storing file in IPFS: " + ex.getMessage());
+            throw new TechnicalException("Exception while storing file in IPFS: " + ex.getMessage());
         }
     }
 
     @Override
-    public byte[] getContent(String hash) throws DaoException {
+    public byte[] getContent(String hash) throws TimeoutException {
 
-        log.debug("Get file in IPFS " + printHash(hash));
+        log.debug("Get file in IPFS [hash: {}] ", hash);
 
         // Validation
         if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
-            byte[] content = this.ipfs.cat(filePointer);
-
-            log.debug("Get file in IPFS [hash=" + hash + "]");
+            
+            Future<byte[]> ipfsFetcherResult = pool.submit(new IPFSFetcher(ipfs, filePointer));
+            
+            byte[] content = ipfsFetcherResult.get(timeout, TimeUnit.MILLISECONDS);
+       
+            log.debug("Get file in IPFS [hash: {}]", hash);
 
             return content;
 
-        } catch (IOException ex) {
-            log.error("Exception while getting file in IPFS " + printHash(hash), ex);
-            throw new DaoException("Exception while getting file in IPFS " + printHash(hash) + ex.getMessage());
+        } catch (java.util.concurrent.TimeoutException ex ) {
+            log.error("Timeout Exception while getting file in IPFS [hash: {}]", hash, ex);
+            throw new TimeoutException("Timeout Exception while getting file in IPFS [hash: "+hash+"]");
+
+        } catch (InterruptedException ex) {
+            log.error("Interrupted Exception while getting file in IPFS [hash: {}]", hash, ex);
+            throw new TechnicalException("Interrupted Exception while getting file in IPFS [hash: "+hash+"]", ex);
+            
+        } catch (ExecutionException ex) {
+            log.error("Execution Exception while getting file in IPFS [hash: {}]", hash, ex);
+            throw new TechnicalException("Execution Exception while getting file in IPFS [hash: "+hash+"]", ex);
         }
     }
 

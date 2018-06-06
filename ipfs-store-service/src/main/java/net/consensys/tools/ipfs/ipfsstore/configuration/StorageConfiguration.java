@@ -60,7 +60,7 @@ public class StorageConfiguration extends AbstractConfiguration {
 
       IPFS ipfs = new IPFS(host, port);
 
-      StorageDao bean = new IPFSStorageDao(ipfs);
+      StorageDao bean = new IPFSStorageDao(this, ipfs);
       
       // Register to the heath check service
       healthCheckScheduler.registerHealthCheck("ipfs", bean);

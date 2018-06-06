@@ -78,7 +78,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     @Override
     public Page<E> findByfullTextSearch(String fullTextCriteria, Pageable pagination) {
 
-        LOGGER.debug("Find all {}", printFullTextSearch(fullTextCriteria, pagination));
+        LOGGER.debug("Find all [criteria: {}, pagination: {}]", fullTextCriteria, pagination);
         
         if(fullTextFields.isEmpty()) {
             LOGGER.warn("Can't perform a full text search. no fields configured [fullTextFields]");
@@ -90,7 +90,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
         Page<E> result = this.search(query, pagination);
 
-        LOGGER.debug("Find all {} : {}", printFullTextSearch(fullTextCriteria, pagination), result);
+        LOGGER.debug("Find all [criteria: {}, pagination: {}] : {}", fullTextCriteria, pagination, result);
 
         return result;
     }
@@ -99,7 +99,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     public E findByHash(String hash) {
 
         try {
-            LOGGER.debug("Find By Hash {}", printHash(hash));
+            LOGGER.debug("Find By Hash [hash: {}]", hash);
 
             byte[] content = this.client.get(indexName, hash);
 
@@ -109,12 +109,12 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
             E entity = deserialize(content);
 
-            LOGGER.debug("Find By Hash {}: {}", printHash(hash), entity);
+            LOGGER.debug("Find By Hash [hash: {}]: {}", hash, entity);
 
             return entity;
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Find By Hash " + printHash(hash), e);
+            LOGGER.error("Find By Hash [hash: {}]", hash, e);
             return null;
         }
     }
@@ -123,17 +123,17 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     @Override
     public String saveWithoutAutoSetup(E entity) {
         try {
-            LOGGER.debug("Saving entity (withoutAutoSetup) {}", printEntity(entity));
+            LOGGER.debug("Saving entity (withoutAutoSetup) [entity: {}]", entity);
 
             // Store and index the entity into IPFS+ElasticSearch through ipfs-document-persister service
             String hash = this.client.store(serialize(entity));
 
-            LOGGER.debug("Entity {} saved. {}", printEntity(entity), printHash(hash));
+            LOGGER.debug("Entity {} saved. {}", entity, hash);
 
             return hash;
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Error while saving the entity " + printEntity(entity), e);
+            LOGGER.error("Error while saving the entity {}", entity, e);
             return null;
         }
     }
@@ -142,7 +142,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
     protected Page<E> search(Query query, Pageable pageable) {
 
         try {
-            LOGGER.debug("Find all {}", printQuery(query, pageable));
+            LOGGER.debug("Find all [query: {}, pagination: {}]", query, pageable);
 
             Page<byte[]> searchAndFetch = this.client.searchAndFetch(indexName, query, pageable);
 
@@ -151,7 +151,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
             return new PageImpl<>(result, pageable, searchAndFetch.getTotalElements());
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Find all " + printQuery(query, pageable), e);
+            LOGGER.error("Find all [query: {}, pagination: {}]", query, pageable, e);
             return null;
         }
     }
@@ -300,19 +300,4 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         return indexField;
     }
 
-    private String printFullTextSearch(String fullTextCriteria, Pageable pagination) {
-        return "[fullTextCriteria=" + fullTextCriteria + ", pageable=" + pagination + "]";
-    }
-
-    private String printHash(String hash) {
-        return "[hash=" + hash + "]";
-    }
-
-    private String printEntity(E entity) {
-        return "[entity=" + entity + "]";
-    }
-
-    private String printQuery(Query query, Pageable pageable) {
-        return "[pageable=" + pageable + ", query=" + query + "]";
-    }
 }

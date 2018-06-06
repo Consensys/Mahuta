@@ -532,9 +532,9 @@ public class IPFSStore {
      * @param indexFields Index fields (key/value attribute)
      * @return IndexerRequest object
      */
-    private static IndexerRequest createRequest(String indexName, String hash, String id, String contentType, List<IndexField> indexFields) {
+    private static IndexerRequest createRequest(String index, String hash, String id, String contentType, List<IndexField> indexFields) {
         IndexerRequest request = new IndexerRequest();
-        request.setIndexName(indexName);
+        request.setIndex(index);
         request.setHash(hash);
         request.setDocumentId(id);
         request.setContentType(contentType);

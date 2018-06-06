@@ -1,7 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.pinning;
 
 import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
-import static net.consensys.tools.ipfs.ipfsstore.Constant.printHash;
 
 import java.io.IOException;
 
@@ -12,7 +11,7 @@ import io.ipfs.multihash.Multihash;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.configuration.AbstractConfiguration;
 import net.consensys.tools.ipfs.ipfsstore.dao.PinningStrategy;
-import net.consensys.tools.ipfs.ipfsstore.exception.DaoException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 @Slf4j
 public class NativePinningStrategy implements PinningStrategy {
@@ -34,7 +33,7 @@ public class NativePinningStrategy implements PinningStrategy {
 
 
   @Override
-  public void pin(String hash) throws DaoException {
+  public void pin(String hash) {
 
       log.debug("pin file in IPFS  [hash={}]", hash);
 
@@ -49,12 +48,12 @@ public class NativePinningStrategy implements PinningStrategy {
 
       } catch (IOException ex) {
           log.error("Exception while pinning file in IPFS [hash={}]", hash, ex);
-          throw new DaoException("Exception while pinning file in IPFS " + printHash(hash) + ": " + ex.getMessage());
+          throw new TechnicalException("Exception while pinning file in IPFS " + hash + ": " + ex.getMessage());
       }
   }
 
   @Override
-  public void unpin(String hash) throws DaoException {
+  public void unpin(String hash) {
 
       log.debug("unpin file in IPFS [hash={}]", hash);
 
@@ -69,7 +68,7 @@ public class NativePinningStrategy implements PinningStrategy {
 
       } catch (IOException ex) {
           log.error("Exception while pinning file in IPFS [hash={}]", hash, ex);
-          throw new DaoException("Exception while pinning file in IPFS " + printHash(hash) + ex.getMessage());
+          throw new TechnicalException("Exception while pinning file in IPFS " + hash + ex.getMessage());
       }
 
   }
