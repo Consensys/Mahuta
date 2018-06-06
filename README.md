@@ -231,6 +231,7 @@ A pinning strategy defines the way you want to pin (permanently store) your cont
 Pinning stategies can be combined together and are executed asynchronously from the main thread.
 
 **Strategies**
+
 | Name (type) | Description |
 | -------- | -------- | 
 | native | Pin the node |

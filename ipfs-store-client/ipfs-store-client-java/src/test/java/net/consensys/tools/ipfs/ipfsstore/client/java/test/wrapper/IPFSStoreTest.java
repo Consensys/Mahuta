@@ -84,7 +84,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/store"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/raw/store"))
                 .andExpect(header("content-type", containsString("multipart/form-data")))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
@@ -112,7 +112,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/store"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/raw/store"))
                 .andExpect(header("content-type", containsString("multipart/form-data")))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
@@ -168,7 +168,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/index"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/raw/index"))
                 .andExpect(header("content-type", containsString("application/json")))
                 .andExpect(jsonPath("index", containsString(INDEX_NAME)))
                 .andExpect(jsonPath("hash", containsString(hash)))
@@ -204,7 +204,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/index"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/raw/index"))
                 .andExpect(header("content-type", containsString("application/json")))
                 .andExpect(jsonPath("index", containsString(INDEX_NAME)))
                 .andExpect(jsonPath("hash", containsString(hash)))
@@ -245,7 +245,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/store_index")))
+        mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/raw/store_index")))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
@@ -282,7 +282,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/store_index")))
+        mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/raw/store_index")))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
@@ -319,7 +319,7 @@ public class IPFSStoreTest {
                         "    \"hash\": \"" + hash + "\"\n" +
                         "}";
 
-        mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/store_index")))
+        mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/raw/store_index")))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withServerError());
 
@@ -348,7 +348,7 @@ public class IPFSStoreTest {
         byte[] bytes = IOUtils.toByteArray(is);
 
         // MOCK
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/fetch/" + INDEX_NAME + "/" + hash))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/fetch/" + hash + "?index=" + INDEX_NAME))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(bytes, MediaType.APPLICATION_PDF));
 
@@ -370,7 +370,7 @@ public class IPFSStoreTest {
         byte[] bytes = IOUtils.toByteArray(is);
 
         // MOCK
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/fetch/" + INDEX_NAME + "/" + hash))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/fetch/" + hash + "?index=" + INDEX_NAME))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withServerError());
 
@@ -440,7 +440,7 @@ public class IPFSStoreTest {
                         "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?page=0&size=1"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
 
@@ -474,7 +474,7 @@ public class IPFSStoreTest {
                         "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?page=0&size=1"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
 
@@ -491,7 +491,7 @@ public class IPFSStoreTest {
         String id = "ABC";
 
         // MOCK
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/documents?page=0&size=1"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withServerError());
 
@@ -562,7 +562,7 @@ public class IPFSStoreTest {
                         "    \"number\": 1\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=" + INDEX_NAME))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
@@ -636,7 +636,7 @@ public class IPFSStoreTest {
                         "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=0&size=2"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index="+INDEX_NAME+"&page=0&size=2"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
@@ -711,7 +711,7 @@ public class IPFSStoreTest {
                         "    \"number\": 1\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=1&size=2"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=" + INDEX_NAME + "&page=1&size=2"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
@@ -785,7 +785,7 @@ public class IPFSStoreTest {
                         "    \"number\": 0\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=0&size=2&sort=id&dir=DESC"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=" + INDEX_NAME + "&page=0&size=2&sort=id&dir=DESC"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
@@ -860,7 +860,7 @@ public class IPFSStoreTest {
                         "    \"number\": 1\n" +
                         "}";
 
-        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/search/" + INDEX_NAME + "?page=1&size=2&sort=id&dir=DESC"))
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index="+INDEX_NAME+"&page=1&size=2&sort=id&dir=DESC"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
