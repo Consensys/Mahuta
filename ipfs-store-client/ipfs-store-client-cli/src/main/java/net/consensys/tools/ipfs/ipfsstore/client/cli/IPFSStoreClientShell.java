@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.consensys.tools.ipfs.ipfsstore.exception.ClientShellException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,7 @@ import org.springframework.shell.standard.ShellOption;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.consensys.tools.ipfs.ipfsstore.client.cli.model.ClientShellException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
