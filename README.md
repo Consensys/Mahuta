@@ -39,7 +39,7 @@ $ export ELASTIC_HOST=localhost
 $ export ELASTIC_PORT=9300
 $ export ELASTIC_CLUSTERNAME=elasticsearch
 
-$ java -jar target/ipfs-store.jar
+$ java -jar target/ipfs-store-exec.jar
 ```
 
 **Docker:**
