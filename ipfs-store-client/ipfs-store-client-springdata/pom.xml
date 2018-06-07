@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>net.consensys.tools.ipfs</groupId>
 			<artifactId>ipfs-store-client-java</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<!-- Test -->
