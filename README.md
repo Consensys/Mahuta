@@ -1,7 +1,12 @@
 IPFS-Store
 ======
 
-**IPFS-Store** aim is to provide an easy to use IPFS storage service with search capability for your project.
+**IPFS-Store** is an easy to use API on top of IPFS with the following features:
+- IPFS proxy
+- Search capabilities
+- Pinning strategy (replication stretegy)
+
+[![IPFS-_Store_-_New_frame.jpg](https://s22.postimg.cc/pgubsxo7l/IPFS-_Store_-_New_frame.jpg)](https://postimg.cc/image/mziklo4b1/)
 
 ## Getting Started
 
@@ -69,14 +74,6 @@ $ docker-compose -f docker-compose.yml up
 
 ### Overview
 
-#### Configuration
-
-Represents the configuration operations.
-
-| Operation | Description | Method | URI |
-| -------- | -------- | -------- | -------- |
-| create_index | Create an index in ElasticSearch |POST | /ipfs-store/config/index/{index} |
-
 ##### Persistence
 
 Represents the writting operations.
@@ -111,6 +108,13 @@ Represents the read operations.
 | search | Search content | GET | /ipfs-store/query/search |
 
 
+#### Configuration
+
+Represents the configuration operations.
+
+| Operation | Description | Method | URI |
+| -------- | -------- | -------- | -------- |
+| create_index | Create an index in ElasticSearch |POST | /ipfs-store/config/index/{index} |
 
 [WIKI: API-Documentation](https://github.com/ConsenSys/IPFS-Store/wiki/3.-API-Documentation)
 
@@ -118,136 +122,6 @@ Represents the read operations.
 
 
 ## Advanced Configuration
-
-The following section shows how to tweak IPFS-store. Any of these properties can be overwritten using command arguments ``--{property_name}={property_value}`` (for example `--server.port=8888`)
-
-
-**Full configuration file:**
-
-```
-server:
-  port: 8040
-  contextPath: /ipfs-store
-
-logging:
-  level:
-    net.consensys: ${LOG_LEVEL:INFO}
-
-ipfs-store:
-  storage:
-    type: IPFS
-    host: ${IPFS_HOST:localhost}
-    port: ${IPFS_PORT:5001}
-    additional:
-      timeout: 5000
-      thread_pool: 10
-    
-  index:
-    type: ELASTICSEARCH
-    host: ${ELASTIC_HOST:localhost}
-    port: ${ELASTIC_PORT:9300}
-    additional:
-      clusterName: ${ELASTIC_CLUSTERNAME:docker-cluster}
-      indexNullValue: true
-      
-  pinning:
-    strategies:
-      - 
-        id: ipfs_node
-        type: native
-        host: ${IPFS_HOST:localhost}
-        port: ${IPFS_PORT:5001}
-      - 
-        id: ipfs_cluster
-        type: ipfs_cluster
-        enable: ${IPFS_CLUSTER_ENABLE:false}
-        host: ${IPFS_CLUSTER_HOST:localhost}
-        port: ${IPFS_CLUSTER_PORT:9094}
-
-  api-spec:
-    query:
-      fetch: /query/fetch/{hash}
-      search: /query/search
-    config:
-      index: /config/index/{index}
-    persistence:
-      raw:
-        store: /raw/store
-        index: /raw/index
-        store_index: /raw/store_index
-      json:
-        store: /json/store
-        index: /json/index
-        store_index: /json/store_index
-        
-```
-
-
-### Storage layer
-
-The storage layer is built in a generic way where different storage technologies could be used.  
-
-*At the moment, only IPFS is supported.*
-
-#### IPFS
-
-| Property | Type | Sample value | Description |
-| -------- | -------- | -------- | -------- | 
-| ipfs-store.storage.type | String | IPFS | Select IPFS as a storage layer |
-| ipfs-store.storage.host | String | localhost | Host to connect to the node |
-| ipfs-store.storage.port | Integer | 5000 | Port to connect to the node |
-| ipfs-store.storage.additional.timeout | Integer | 10000 | Timeout to find a file by hash |
-
-
-
-#### SWARM
-
-*Coming soon*
-
-
-
-### Index layer
-
-The Index layer is built in a generic way where different search engine technologies could be used.  
-
-*At the moment, only ElasticSearch is supported.*
-
-#### ELASTICSEARCH
-
-| Property | Type | Sample value | Description |
-| -------- | -------- | -------- | -------- | 
-| ipfs-store.index.type | String | ELASTICTSEARCH | Select ELASTICTSEARCH as a index layer |
-| ipfs-store.index.host | String | localhost | Host to connect to ElasticSearch
-| ipfs-store.index.port | Integer | 9300 | Port to connect to ElasticSearch |
-| ipfs-store.index.additional.clusterName | String | es-cluster | Name of the cluster |
-| ipfs-store.index.additional.indexNullValue | Boolean | true | Index empty/null value with a default value `NULL` (useful to search on empty field) |
-
-
-
-### Pinning strategy
-
-A pinning strategy defines the way you want to pin (permanently store) your content. Whilst a `native` pinning strategy consists in pinning the content directly in a node. `ipfs_cluster` consists in pinning an IPFS-cluster to replicate the content across the cluster of nodes. Other implementations could be imagined.
-
-Pinning stategies can be combined together and are executed asynchronously from the main thread.
-
-**Strategies**
-
-| Name (type) | Description |
-| -------- | -------- | 
-| native | Pin the node |
-| ipfs_cluster | Pin an ipfs cluster node that replicates the content |
-
-
-| Property | Type | Sample value | Description |
-| -------- | -------- | -------- | -------- | 
-| ipfs-store.pinning.strategies | Strategy[] | List og strategies|
-| ipfs-store.pinning.strategies[0].id | String | Unique identifier of the stratefy |
-| ipfs-store.pinning.strategies[0].type | String | Type of the strategy (`native`, `ipfs_cluster`) |
-| ipfs-store.pinning.strategies[0].enable | Boolean | Enable/Disable the strategy |
-| ipfs-store.pinning.strategies[0].host | String | Basic configuration (host)  
-| ipfs-store.pinning.strategies[0].port | String | Basic configuration (port) | 
-| ipfs-store.pinning.strategies[0].additional | Map | Basic configuration (additional) |
-
 
 [WIKI: Configuration](https://github.com/ConsenSys/IPFS-Store/wiki/2.-Configuration)
 
