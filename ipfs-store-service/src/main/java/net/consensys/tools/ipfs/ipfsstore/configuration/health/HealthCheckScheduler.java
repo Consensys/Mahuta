@@ -30,7 +30,7 @@ public class HealthCheckScheduler {
     healthChecks.put(name, healthCheckService);
   }
 
-  @Scheduled(initialDelay = 10000, fixedDelayString = "${ipfs-store.healthcheck.pollInterval:30000}")
+  @Scheduled(initialDelay = 10000, fixedDelayString = "#{settings.healthCheckPollInterval}")
   public void checkHealth() {
     healthChecks.values().forEach(HealthCheck::check);
   }
