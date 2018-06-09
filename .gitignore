@@ -35,8 +35,9 @@ hs_err_pid*
 .idea/
 *.iml
 
-# Node
+# Node NPM BOWER
 node_modules
+bower_components
 
 #Truffle
 build/

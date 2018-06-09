@@ -36,6 +36,17 @@ ipfs-store:
         enable: ${IPFS_CLUSTER_ENABLE:false}
         host: ${IPFS_CLUSTER_HOST:localhost}
         port: ${IPFS_CLUSTER_PORT:9094}
+        store_index: /json/store_index
+  
+  security:
+    cors:
+      origins: "*"
+      methods: "GET,POST"
+      headers: "Origin,Content-Type,Accept"
+      credentials: "false"
+       
+  healthcheck:
+    pollInterval: 10000
 
   api-spec:
     query:
@@ -52,7 +63,3 @@ ipfs-store:
         store: /json/store
         index: /json/index
         store_index: /json/store_index
-  
-        
-  healthcheck:
-    pollInterval: 10000
