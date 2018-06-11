@@ -1,6 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.storage;
 
-import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
+import static net.consensys.tools.ipfs.ipfsstore.Settings.ERROR_NOT_NULL_OR_EMPTY;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

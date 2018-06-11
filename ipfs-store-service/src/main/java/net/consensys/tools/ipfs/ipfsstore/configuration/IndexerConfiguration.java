@@ -1,7 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.configuration;
 
-import static net.consensys.tools.ipfs.ipfsstore.Constant.ERROR_NOT_NULL_OR_EMPTY;
-import static net.consensys.tools.ipfs.ipfsstore.Constant.INDEXER_ELASTICSEARCH;
+import static net.consensys.tools.ipfs.ipfsstore.Settings.ERROR_NOT_NULL_OR_EMPTY;
+import static net.consensys.tools.ipfs.ipfsstore.Settings.INDEXER_ELASTICSEARCH;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

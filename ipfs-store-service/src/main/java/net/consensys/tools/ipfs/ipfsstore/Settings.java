@@ -8,6 +8,13 @@ import lombok.Data;
 @Configuration
 @Data
 public class Settings {
+
+    // ### CONSTANT ########################
+    public static final String INDEXER_ELASTICSEARCH = "ELASTICSEARCH";
+    public static final String STORAGE_IPFS = "IPFS";
+    public static final String STORAGE_SWARM = "SWARM";
+    public static final String ERROR_NOT_NULL_OR_EMPTY = "cannot be null or empty";
+    // ########################################
     
     // ### HEATH CHECK ########################
     @Value("${ipfs-store.healthcheck.pollInterval:60000}")
@@ -21,7 +28,7 @@ public class Settings {
     private String corsMethods;
     @Value("${ipfs-store.security.cors.headers:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept}")
     private String corsHeaders;
-    @Value("${ipfs-store.security.cors.credentials:*}")
+    @Value("${ipfs-store.security.cors.credentials:false}")
     private boolean corsCredentials;
     // ########################################
      
