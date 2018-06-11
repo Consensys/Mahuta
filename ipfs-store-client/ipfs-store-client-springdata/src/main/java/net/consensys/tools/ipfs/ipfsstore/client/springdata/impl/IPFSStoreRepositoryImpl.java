@@ -82,7 +82,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
 
             byte[] content = this.client.getById(indexName, id.toString());
 
-            if (content == null) {
+            if (content == null || content.length == 0) {
                 return null;
             }
 
