@@ -21,7 +21,9 @@ public class NativePinningStrategy implements PinningStrategy {
   private final IPFS ipfs;
 
   public NativePinningStrategy(AbstractConfiguration config) {
-    this.ipfs = new IPFS(config.getHost(), config.getPort());
+    this.ipfs = config.getAdditionalParam("multiaddress")
+            .map(multiaddress -> new IPFS(multiaddress))
+            .orElseGet(() -> new IPFS(config.getHost(), config.getPort()));
   }
 
   

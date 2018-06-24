@@ -50,30 +50,22 @@ public class StorageConfiguration extends AbstractConfiguration {
   @ConditionalOnProperty(value = "ipfs-store.storage.type", havingValue = STORAGE_IPFS)
   public StorageDao ipfsStorageDao() throws ConnectionException {
 
-    if (StringUtils.isEmpty(host))
-      throw new IllegalArgumentException("ipfs-store.storage.host" + ERROR_NOT_NULL_OR_EMPTY);
-    if (StringUtils.isEmpty(port))
-      throw new IllegalArgumentException("ipfs-store.storage.host" + ERROR_NOT_NULL_OR_EMPTY);
-
-    try {
-      log.info("Connecting to IPFS [host: {}, ipfsPort: {}]", host, port);
-
-      IPFS ipfs = new IPFS(host, port);
-
+      log.info("Connecting to IPFS [{}]", super.toString());
+           
+      IPFS ipfs = super.getAdditionalParam("multiaddress")
+              .map(multiaddress -> new IPFS(multiaddress))
+              .orElseGet(() -> new IPFS(host, port));
+    
       StorageDao bean = new IPFSStorageDao(this, ipfs);
       
       // Register to the heath check service
       healthCheckScheduler.registerHealthCheck("ipfs", bean);
       
-      log.info("Connected to IPFS [host: {}, ipfsPort: {}]", host, port);
-      log.debug(ipfs.config.show().toString());
-
+      log.info("Connected to IPFS [{}]", super.toString());
+      //log.debug(ipfs.config.show().toString());
+    
       return bean;
 
-    } catch (IOException ex) {
-      log.error("Error while connecting to IPFS [host: {}, ipfsPort: {}", host, port);
-      throw new ConnectionException("Error while connecting to IPFS", ex);
-    }
   }
 
   /**
