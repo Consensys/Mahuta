@@ -14,7 +14,7 @@ ipfs-store:
     additional:
       timeout: 5000
       thread_pool: 10
-      multiaddress: ${IPFS_MULTIADDRESS:null}
+      multiaddress: ${IPFS_MULTIADDRESS:}
     
   index:
     type: ELASTICSEARCH
@@ -32,7 +32,7 @@ ipfs-store:
         host: ${IPFS_HOST:localhost}
         port: ${IPFS_PORT:5001}
         additional:
-          multiaddress: ${IPFS_MULTIADDRESS}
+          multiaddress: ${IPFS_MULTIADDRESS:}
       - 
         id: ipfs_cluster
         type: ipfs_cluster

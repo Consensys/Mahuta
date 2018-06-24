@@ -53,7 +53,8 @@ public class StorageConfiguration extends AbstractConfiguration {
         log.info("Connecting to IPFS [{}]", super.toString());
 
         IPFS ipfs = super.getAdditionalParam("multiaddress")
-                .map(multiaddress -> new IPFS(multiaddress)).orElseGet(() -> new IPFS(host, port));
+                .map(multiaddress -> new IPFS(multiaddress))
+                .orElseGet(() -> new IPFS(host, port));
 
         StorageDao bean = new IPFSStorageDao(this, ipfs);
 

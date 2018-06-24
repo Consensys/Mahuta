@@ -3,6 +3,8 @@ package net.consensys.tools.ipfs.ipfsstore.configuration;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.util.StringUtils;
+
 import lombok.Data;
 import lombok.ToString;
 
@@ -21,7 +23,16 @@ public class AbstractConfiguration {
         if (additional == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(additional.get(key));
+        Optional<String> result = Optional.ofNullable(additional.get(key));
+        if(!result.isPresent()) {
+        	return Optional.empty();
+        }
+        
+        if(StringUtils.isEmpty(result.get())) {
+        	return Optional.empty();
+        }
+        
+        return result;
     }
 
     @Override
