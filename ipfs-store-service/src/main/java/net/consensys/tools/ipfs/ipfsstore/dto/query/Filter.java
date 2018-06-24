@@ -50,12 +50,11 @@ public class Filter {
     }
 
     /**
-     * Get Index field names
-     * If the attribute 'names' is null, we return 'name'
+     * Get Index field names If the attribute 'names' is null, we return 'name'
      */
     public String[] getNames() {
         if (names == null || names.length == 0) {
-            return new String[]{name};
+            return new String[] { name };
         } else {
             return names;
         }

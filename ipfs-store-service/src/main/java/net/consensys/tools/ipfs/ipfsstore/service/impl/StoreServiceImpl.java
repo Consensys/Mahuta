@@ -46,7 +46,8 @@ public class StoreServiceImpl implements StoreService {
     private final PinningConfiguration pinningConfiguration;
 
     @Autowired
-    public StoreServiceImpl(IndexDao indexDao, StorageDao storageDao, PinningConfiguration pinningConfiguration) {
+    public StoreServiceImpl(IndexDao indexDao, StorageDao storageDao,
+            PinningConfiguration pinningConfiguration) {
         this.indexDao = indexDao;
         this.storageDao = storageDao;
         this.pinningConfiguration = pinningConfiguration;
@@ -57,22 +58,22 @@ public class StoreServiceImpl implements StoreService {
         this.validator = factory.getValidator();
     }
 
-
     @Override
     public String storeFile(byte[] file) {
-        
+
         // Store file
         String hash = this.storageDao.createContent(file);
-        
+
         // pin file
         pinningConfiguration.getPinningStrategies().forEach((pinStrategy) -> {
-          CompletableFuture.supplyAsync(() -> {
-              log.debug("Executing async pin_service [name={}] for hash {}", pinStrategy.getName(), hash);
-              pinStrategy.pin(hash);
-              return true;
-          });
+            CompletableFuture.supplyAsync(() -> {
+                log.debug("Executing async pin_service [name={}] for hash {}",
+                        pinStrategy.getName(), hash);
+                pinStrategy.pin(hash);
+                return true;
+            });
         });
-        
+
         return hash;
     }
 
@@ -82,22 +83,18 @@ public class StoreServiceImpl implements StoreService {
         validate(request);
 
         log.trace(request.toString());
-        
+
         indexDao.createIndex(request.getIndex()); // Create the index if it doesn't exist
 
-        String documentId = indexDao.index(
-                request.getIndex(),
-                request.getDocumentId(),
-                request.getHash(),
-                request.getContentType(),
-                request.getIndexFields());
+        String documentId = indexDao.index(request.getIndex(), request.getDocumentId(),
+                request.getHash(), request.getContentType(), request.getIndexFields());
 
         return new IndexerResponse(request.getIndex(), documentId, request.getHash());
     }
 
-
     @Override
-    public IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ValidationException {
+    public IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request)
+            throws ValidationException {
 
         // Store the file
         String hash = this.storeFile(file);
@@ -114,24 +111,29 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Metadata getFileMetadataById(Optional<String> index, String id) throws NotFoundException {
+    public Metadata getFileMetadataById(Optional<String> index, String id)
+            throws NotFoundException {
 
         return this.indexDao.searchById(index, id);
     }
 
     @Override
-    public Metadata getFileMetadataByHash(Optional<String> index, String hash) throws NotFoundException {
+    public Metadata getFileMetadataByHash(Optional<String> index, String hash)
+            throws NotFoundException {
 
-        Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES case sensitive analyser
+        Query query = new Query().equals(IndexDao.HASH_INDEX_KEY, hash.toLowerCase()); // TODO ES
+                                                                                       // case
+                                                                                       // sensitive
+                                                                                       // analyser
         Page<Metadata> search = this.searchFiles(index, query, new PageRequest(0, 1));
 
         if (search.getTotalElements() == 0) {
-            throw new NotFoundException("File [hash=" + hash + "] not found in the index [" + index + "]");
+            throw new NotFoundException(
+                    "File [hash=" + hash + "] not found in the index [" + index + "]");
         }
 
         return search.getContent().get(0);
     }
-
 
     @Override
     public void createIndex(String index) {
@@ -142,9 +144,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public Page<Metadata> searchFiles(Optional<String> index, Query query, Pageable pageable) {
 
-        return new PageImpl<>(
-                indexDao.search(pageable, index, query),
-                pageable,
+        return new PageImpl<>(indexDao.search(pageable, index, query), pageable,
                 indexDao.count(index, query));
     }
 

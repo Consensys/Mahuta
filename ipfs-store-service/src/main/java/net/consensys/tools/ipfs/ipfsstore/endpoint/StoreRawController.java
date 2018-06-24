@@ -41,15 +41,16 @@ public class StoreRawController {
         this.mapper = new ObjectMapper();
     }
 
-
     /**
      * Store a content (any type) on IPFS
      *
-     * @param file File sent as a Multipart
+     * @param file
+     *            File sent as a Multipart
      * @return IPFS hash
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.raw.store}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody StoreResponse storeFile(@RequestParam(value = "file") @Valid @NotNull MultipartFile file) {
+    public @ResponseBody StoreResponse storeFile(
+            @RequestParam(value = "file") @Valid @NotNull MultipartFile file) {
 
         try {
             return new StoreResponse(this.storeService.storeFile(file.getBytes()));
@@ -63,13 +64,14 @@ public class StoreRawController {
     /**
      * Index a content into the search engine
      *
-     * @param request Request containing IDs, Hash and metadata
+     * @param request
+     *            Request containing IDs, Hash and metadata
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ValidationException 
+     * @throws ValidationException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.raw.index}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    IndexerResponse indexFile(@RequestBody @Valid IndexerRequest request) throws ValidationException {
+    public @ResponseBody IndexerResponse indexFile(@RequestBody @Valid IndexerRequest request)
+            throws ValidationException {
 
         return this.storeService.indexFile(request);
     }
@@ -77,15 +79,18 @@ public class StoreRawController {
     /**
      * Store and Index a content
      *
-     * @param requestStr Request containing IDs, Hash and metadata
-     * @param file       File sent as a Multipart
+     * @param requestStr
+     *            Request containing IDs, Hash and metadata
+     * @param file
+     *            File sent as a Multipart
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ValidationException 
+     * @throws ValidationException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.raw.store_index}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody IndexerResponse storeAndIndexFile(
             @RequestPart(name = "request") @Valid @NotNull String requestStr,
-            @RequestPart(name = "file") @Valid @NotNull @NotBlank MultipartFile file) throws ValidationException {
+            @RequestPart(name = "file") @Valid @NotNull @NotBlank MultipartFile file)
+            throws ValidationException {
 
         try {
             IndexerRequest request = mapper.readValue(requestStr, IndexerRequest.class);

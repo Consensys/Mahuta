@@ -39,18 +39,19 @@ public class StoreJSONController {
         this.mapper = new ObjectMapper();
     }
 
-
     /**
      * Store a content (any type) on IPFS
      *
-     * @param request   Request containing payload
+     * @param request
+     *            Request containing payload
      * @return IPFS hash
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.json.store}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody StoreResponse storeFile(@RequestBody @NotNull JsonNode payload) {
 
         try {
-            return new StoreResponse(this.storeService.storeFile(this.mapper.writeValueAsBytes(payload)));
+            return new StoreResponse(
+                    this.storeService.storeFile(this.mapper.writeValueAsBytes(payload)));
 
         } catch (IOException e) {
             log.error("Error in the rest controller", e);
@@ -61,12 +62,14 @@ public class StoreJSONController {
     /**
      * Index a content into the search engine
      *
-     * @param request Request containing IDs, Hash and metadata
+     * @param request
+     *            Request containing IDs, Hash and metadata
      * @return Response containing the tuple (index, ID, hash)
-     * @throws ValidationException 
+     * @throws ValidationException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.json.index}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody IndexerResponse indexFile(@RequestBody @Valid @NotNull IndexerRequest request) throws ValidationException {
+    public @ResponseBody IndexerResponse indexFile(
+            @RequestBody @Valid @NotNull IndexerRequest request) throws ValidationException {
 
         return this.storeService.indexFile(request);
     }
@@ -74,15 +77,19 @@ public class StoreJSONController {
     /**
      * Store and Index a content
      *
-     * @param request   Request containing payload and indexation properties (index, content-type, fields, et.)
+     * @param request
+     *            Request containing payload and indexation properties (index, content-type, fields,
+     *            et.)
      * @return Response containing the tuple (index, ID, hash)
      * @throws ValidationException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.persistence.json.store_index}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody IndexerResponse storeAndIndexFile(@RequestBody @Valid @NotNull JSONIndexRequest request) throws ValidationException  {
+    public @ResponseBody IndexerResponse storeAndIndexFile(
+            @RequestBody @Valid @NotNull JSONIndexRequest request) throws ValidationException {
 
         try {
-            return this.storeService.storeAndIndexFile(this.mapper.writeValueAsBytes(request.getPayload()), request);
+            return this.storeService.storeAndIndexFile(
+                    this.mapper.writeValueAsBytes(request.getPayload()), request);
 
         } catch (IOException e) {
             log.error("Error in the rest controller", e);

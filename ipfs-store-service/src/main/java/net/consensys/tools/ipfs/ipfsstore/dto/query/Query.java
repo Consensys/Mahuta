@@ -98,13 +98,13 @@ public class Query {
         this.filterClauses.add(new Filter(name, QueryOperation.gte, value));
         return this;
     }
-    
+
     @JsonIgnore
     public boolean isEmpty() {
         if (this == null || this.getFilterClauses().isEmpty()) {
-          return true;
+            return true;
         } else {
-          return false;
+            return false;
         }
     }
 }

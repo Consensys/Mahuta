@@ -15,12 +15,12 @@ public class Settings {
     public static final String STORAGE_SWARM = "SWARM";
     public static final String ERROR_NOT_NULL_OR_EMPTY = "cannot be null or empty";
     // ########################################
-    
+
     // ### HEATH CHECK ########################
     @Value("${ipfs-store.healthcheck.pollInterval:60000}")
     private Integer healthCheckPollInterval;
     // ########################################
-    
+
     // ### SECURITY ########################
     @Value("${ipfs-store.security.cors.origins:*}")
     private String corsOrigins;
@@ -31,5 +31,5 @@ public class Settings {
     @Value("${ipfs-store.security.cors.credentials:false}")
     private boolean corsCredentials;
     // ########################################
-     
+
 }

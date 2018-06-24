@@ -7,26 +7,29 @@ package net.consensys.tools.ipfs.ipfsstore.dao;
  */
 public interface PinningStrategy {
 
-  /**
-   * Return the name of the strategy
-   * @return Name of the service
-   */
-  String getName();
-  
-  /**
-   * Pin the content
-   *
-   * @param hash  Unique identifier of the file
-   * @throws DaoException
-   */
-  void pin(String hash);
+    /**
+     * Return the name of the strategy
+     * 
+     * @return Name of the service
+     */
+    String getName();
 
-  /**
-   * Unpin the content
-   *
-   * @param hash  Unique identifier of the file
-   * @throws DaoException
-   */
-  void unpin(String hash);
-  
+    /**
+     * Pin the content
+     *
+     * @param hash
+     *            Unique identifier of the file
+     * @throws DaoException
+     */
+    void pin(String hash);
+
+    /**
+     * Unpin the content
+     *
+     * @param hash
+     *            Unique identifier of the file
+     * @throws DaoException
+     */
+    void unpin(String hash);
+
 }

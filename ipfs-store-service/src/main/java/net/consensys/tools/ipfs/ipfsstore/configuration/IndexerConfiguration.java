@@ -36,55 +36,60 @@ import net.consensys.tools.ipfs.ipfsstore.exception.ConnectionException;
 @DependsOn("HealthCheckScheduler")
 @Slf4j
 public class IndexerConfiguration extends AbstractConfiguration {
-  
-  private HealthCheckScheduler healthCheckScheduler;
 
-  @Autowired
-  public IndexerConfiguration(HealthCheckScheduler healthCheckScheduler) {
-    this.healthCheckScheduler = healthCheckScheduler;
-  }
-  
-  /**
-   * Load the ElasticSearch Indexer Dao bean up
-   * 
-   * @return ElasticSearch IndexerDAO bean
-   */
-  @Bean
-  @ConditionalOnProperty(value = "ipfs-store.index.type", havingValue = INDEXER_ELASTICSEARCH)
-  public IndexDao elacticSearchIndexDao() throws ConnectionException {
+    private HealthCheckScheduler healthCheckScheduler;
 
-    final String KEY_CLUSTER = "clusterName";
-    final String KEY_INDEX_NULL = "indexNullValue";
-    
-    if (StringUtils.isEmpty(host))
-      throw new IllegalArgumentException("ipfs-store.index.host" + ERROR_NOT_NULL_OR_EMPTY);
-    if (StringUtils.isEmpty(port))
-      throw new IllegalArgumentException("ipfs-store.index.host" + ERROR_NOT_NULL_OR_EMPTY);
-    if (!this.getAdditionalParam(KEY_CLUSTER).isPresent())
-      throw new IllegalArgumentException("ipfs-store.index.additional.clusterName" + ERROR_NOT_NULL_OR_EMPTY);
-
-    try {
-      log.info("Connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port, additional.get(KEY_CLUSTER));
-
-      // Load the client and start the connection
-      PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
-          Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build());
-
-      TransportClient transportClient = preBuiltTransportClient.addTransportAddress(
-          new InetSocketTransportAddress(InetAddress.getByName(host), port));
-      
-      IndexDao bean = new ElasticSearchIndexDao(preBuiltTransportClient, transportClient, Boolean.parseBoolean(additional.get(KEY_INDEX_NULL)));
-      
-      // Register to the heath check service
-      healthCheckScheduler.registerHealthCheck("elasticsearch", bean);
-      
-      log.info("Connected to ElasticSearch [host: {}, port: {}, cluster: {}] : {}", host, port, additional.get(KEY_CLUSTER), transportClient.listedNodes());
-
-      return bean;
-      
-    } catch (UnknownHostException ex) {
-      log.error("Error while connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port, additional.get(KEY_CLUSTER), ex);
-      throw new ConnectionException("Error while connecting to ElasticSearch", ex);
+    @Autowired
+    public IndexerConfiguration(HealthCheckScheduler healthCheckScheduler) {
+        this.healthCheckScheduler = healthCheckScheduler;
     }
-  }
+
+    /**
+     * Load the ElasticSearch Indexer Dao bean up
+     * 
+     * @return ElasticSearch IndexerDAO bean
+     */
+    @Bean
+    @ConditionalOnProperty(value = "ipfs-store.index.type", havingValue = INDEXER_ELASTICSEARCH)
+    public IndexDao elacticSearchIndexDao() throws ConnectionException {
+
+        final String KEY_CLUSTER = "clusterName";
+        final String KEY_INDEX_NULL = "indexNullValue";
+
+        if (StringUtils.isEmpty(host))
+            throw new IllegalArgumentException("ipfs-store.index.host" + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(port))
+            throw new IllegalArgumentException("ipfs-store.index.host" + ERROR_NOT_NULL_OR_EMPTY);
+        if (!this.getAdditionalParam(KEY_CLUSTER).isPresent())
+            throw new IllegalArgumentException(
+                    "ipfs-store.index.additional.clusterName" + ERROR_NOT_NULL_OR_EMPTY);
+
+        try {
+            log.info("Connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port,
+                    additional.get(KEY_CLUSTER));
+
+            // Load the client and start the connection
+            PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
+                    Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build());
+
+            TransportClient transportClient = preBuiltTransportClient.addTransportAddress(
+                    new InetSocketTransportAddress(InetAddress.getByName(host), port));
+
+            IndexDao bean = new ElasticSearchIndexDao(preBuiltTransportClient, transportClient,
+                    Boolean.parseBoolean(additional.get(KEY_INDEX_NULL)));
+
+            // Register to the heath check service
+            healthCheckScheduler.registerHealthCheck("elasticsearch", bean);
+
+            log.info("Connected to ElasticSearch [host: {}, port: {}, cluster: {}] : {}", host,
+                    port, additional.get(KEY_CLUSTER), transportClient.listedNodes());
+
+            return bean;
+
+        } catch (UnknownHostException ex) {
+            log.error("Error while connecting to ElasticSearch [host: {}, port: {}, cluster: {}]",
+                    host, port, additional.get(KEY_CLUSTER), ex);
+            throw new ConnectionException("Error while connecting to ElasticSearch", ex);
+        }
+    }
 }

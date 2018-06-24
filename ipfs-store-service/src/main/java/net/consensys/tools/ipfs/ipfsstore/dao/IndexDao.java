@@ -11,7 +11,6 @@ import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 
-
 /**
  * IndexerDao represents an a set of methods to index content in a SarchEngine (index)
  *
@@ -28,21 +27,29 @@ public interface IndexDao extends HealthCheck {
     /**
      * Index a content
      *
-     * @param index   Name of the index
-     * @param documentId  Document Identifier in the index (Optional, if null, auto-generated)
-     * @param hash        Content Unique Identifier
-     * @param contentType Content Type (MIMETYPE)
-     * @param indexFields index that file List of key/value attributes to index this content
+     * @param index
+     *            Name of the index
+     * @param documentId
+     *            Document Identifier in the index (Optional, if null, auto-generated)
+     * @param hash
+     *            Content Unique Identifier
+     * @param contentType
+     *            Content Type (MIMETYPE)
+     * @param indexFields
+     *            index that file List of key/value attributes to index this content
      * @return Document Identifier
      * @throws DaoException
      */
-    String index(String index, String documentId, String hash, String contentType, List<IndexField> indexFields);
+    String index(String index, String documentId, String hash, String contentType,
+            List<IndexField> indexFields);
 
     /**
      * Search content by its unique identifier
      *
-     * @param index     Name of the index
-     * @param id        Document Identifier
+     * @param index
+     *            Name of the index
+     * @param id
+     *            Document Identifier
      * @return File Metadata
      * @throws DaoException
      */
@@ -51,9 +58,12 @@ public interface IndexDao extends HealthCheck {
     /**
      * Search content in the index (index) based on a query
      *
-     * @param pageable  Pagination and Sorting
-     * @param index     Name of the index
-     * @param query     Search query
+     * @param pageable
+     *            Pagination and Sorting
+     * @param index
+     *            Name of the index
+     * @param query
+     *            Search query
      * @return A list of File Metadata
      * @throws DaoException
      */
@@ -62,8 +72,10 @@ public interface IndexDao extends HealthCheck {
     /**
      * Count content in the index (index) based on a query
      *
-     * @param index     Name of the index
-     * @param query     Search query
+     * @param index
+     *            Name of the index
+     * @param query
+     *            Search query
      * @return Total count of the search
      * @throws DaoException
      */
@@ -72,7 +84,8 @@ public interface IndexDao extends HealthCheck {
     /**
      * Create an index
      *
-     * @param index Name of the index
+     * @param index
+     *            Name of the index
      * @throws DaoException
      */
     void createIndex(String index);

@@ -13,7 +13,8 @@ public interface StorageDao extends HealthCheck {
     /**
      * Store content into the filesystem
      *
-     * @param content Content of the file
+     * @param content
+     *            Content of the file
      * @return Unique identifier of the file in the filesystem
      * @throws DaoException
      */
@@ -22,11 +23,11 @@ public interface StorageDao extends HealthCheck {
     /**
      * Retrieve a file from the filesystem
      *
-     * @param hash Unique identifier of the file
+     * @param hash
+     *            Unique identifier of the file
      * @return Content of the file
      * @throws DaoException
      */
     byte[] getContent(String hash) throws TimeoutException;
-
 
 }

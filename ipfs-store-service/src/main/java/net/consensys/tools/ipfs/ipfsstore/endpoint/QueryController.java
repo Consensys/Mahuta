@@ -1,6 +1,5 @@
 package net.consensys.tools.ipfs.ipfsstore.endpoint;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,17 +52,18 @@ public class QueryController {
         this.mapper = new ObjectMapper();
     }
 
-
     /**
      * Get content by hash
      *
-     * @param index Index name
-     * @param hash  File Unique Identifier
+     * @param index
+     *            Index name
+     * @param hash
+     *            File Unique Identifier
      * @return File content
-     * @throws TimeoutException 
+     * @throws TimeoutException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.query.fetch}", method = RequestMethod.GET)
-    public @ResponseBody  StreamingResponseBody getFile(
+    public @ResponseBody StreamingResponseBody getFile(
             @PathVariable(value = "hash") @NotNull String hash,
             @RequestParam(value = "index", required = false) Optional<String> index,
             HttpServletResponse response) throws TimeoutException {
@@ -89,27 +89,31 @@ public class QueryController {
         };
     }
 
-
     /**
      * Search contents By HTTP POST request
      *
-     * @param index         Index name
-     * @param pageNo        Page no [optional - default 1]
-     * @param pageSize      Page size [optional - default 20]
-     * @param sortAttribute Sorting attribute [optional]
-     * @param sortDirection Sorting direction [optional - default ASC]
-     * @param query         Query
-     * @return              List of result
+     * @param index
+     *            Index name
+     * @param pageNo
+     *            Page no [optional - default 1]
+     * @param pageSize
+     *            Page size [optional - default 20]
+     * @param sortAttribute
+     *            Sorting attribute [optional]
+     * @param sortDirection
+     *            Sorting direction [optional - default ASC]
+     * @param query
+     *            Query
+     * @return List of result
      */
     @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Page<Metadata> searchContentsByPost(
-            @RequestParam(value = "index", required = false)                                  Optional<String> index,
-            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO)   int pageNo,
+    public @ResponseBody Page<Metadata> searchContentsByPost(
+            @RequestParam(value = "index", required = false) Optional<String> index,
+            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO) int pageNo,
             @RequestParam(value = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(value = "sort", required = false)                                   Optional<String> sortAttribute,
-            @RequestParam(value = "dir", required = false, defaultValue = "ASC")              Sort.Direction sortDirection,
-            @RequestBody                                                                      Query query) {
+            @RequestParam(value = "sort", required = false) Optional<String> sortAttribute,
+            @RequestParam(value = "dir", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @RequestBody Query query) {
 
         return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
     }
@@ -117,26 +121,32 @@ public class QueryController {
     /**
      * Search contents By HTTP GET request
      *
-     * @param index         Index name
-     * @param pageNo        Page no [optional - default 1]
-     * @param pageSize      Page size [optional - default 20]
-     * @param sortAttribute Sorting attribute [optional]
-     * @param sortDirection Sorting direction [optional - default ASC]
-     * @param queryStr      Query
-     * @return              List of result
+     * @param index
+     *            Index name
+     * @param pageNo
+     *            Page no [optional - default 1]
+     * @param pageSize
+     *            Page size [optional - default 20]
+     * @param sortAttribute
+     *            Sorting attribute [optional]
+     * @param sortDirection
+     *            Sorting direction [optional - default ASC]
+     * @param queryStr
+     *            Query
+     * @return List of result
      */
     @RequestMapping(value = "${ipfs-store.api-spec.query.search}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Page<Metadata> searchContentsByGet(
-            @RequestParam(value = "index", required = false)                                  Optional<String> index,
-            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO)   int pageNo,
+    public @ResponseBody Page<Metadata> searchContentsByGet(
+            @RequestParam(value = "index", required = false) Optional<String> index,
+            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO) int pageNo,
             @RequestParam(value = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(value = "sort", required = false)                                   Optional<String> sortAttribute,
-            @RequestParam(value = "dir", required = false, defaultValue = "ASC")              Sort.Direction sortDirection,
-            @RequestParam(value = "query", required = false)                                  Optional<String> queryStr)  {
+            @RequestParam(value = "sort", required = false) Optional<String> sortAttribute,
+            @RequestParam(value = "dir", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @RequestParam(value = "query", required = false) Optional<String> queryStr) {
 
         Query query = queryStr
-                .map(LambdaUtils.throwingFunctionWrapper(q -> this.mapper.readValue(q, Query.class)))
+                .map(LambdaUtils
+                        .throwingFunctionWrapper(q -> this.mapper.readValue(q, Query.class)))
                 .orElse(null);
 
         return executeSearch(index, pageNo, pageSize, sortAttribute, sortDirection, query);
@@ -144,18 +154,27 @@ public class QueryController {
 
     /**
      * execute search (common to searchContentsByGet and searchContentsByPost)
-     * @param index         Index name
-     * @param pageNo        Page no [optional - default 1]
-     * @param pageSize      Page size [optional - default 20]
-     * @param sortAttribute Sorting attribute [optional]
-     * @param sortDirection Sorting direction [optional - default ASC]
-     * @param queryStr      Query
-     * @return              List of result
+     * 
+     * @param index
+     *            Index name
+     * @param pageNo
+     *            Page no [optional - default 1]
+     * @param pageSize
+     *            Page size [optional - default 20]
+     * @param sortAttribute
+     *            Sorting attribute [optional]
+     * @param sortDirection
+     *            Sorting direction [optional - default ASC]
+     * @param queryStr
+     *            Query
+     * @return List of result
      */
-    private Page<Metadata> executeSearch(Optional<String> index, int pageNo, int pageSize, Optional<String> sortAttribute, Sort.Direction sortDirection, Query query) {
+    private Page<Metadata> executeSearch(Optional<String> index, int pageNo, int pageSize,
+            Optional<String> sortAttribute, Sort.Direction sortDirection, Query query) {
 
         PageRequest pagination = sortAttribute
-                .map((s) -> new PageRequest(pageNo, pageSize, new Sort(sortDirection, sortAttribute.get())))
+                .map((s) -> new PageRequest(pageNo, pageSize,
+                        new Sort(sortDirection, sortAttribute.get())))
                 .orElse(new PageRequest(pageNo, pageSize));
 
         return this.storeService.searchFiles(index, query, pagination);
@@ -164,7 +183,8 @@ public class QueryController {
     /**
      * Try to guess the content-type from the stream
      * 
-     * @param content inputstream
+     * @param content
+     *            inputstream
      * @return Guessed content-type or application/octet-stream
      */
     private static String guessContentType(InputStream content) {
@@ -172,7 +192,7 @@ public class QueryController {
         try {
             String guessedContentType = URLConnection.guessContentTypeFromStream(content);
 
-            if(!StringUtils.isEmpty(guessedContentType)) {
+            if (!StringUtils.isEmpty(guessedContentType)) {
                 return guessedContentType;
             } else {
                 return MediaType.APPLICATION_OCTET_STREAM_VALUE;

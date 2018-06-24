@@ -14,24 +14,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HealthCheckScheduler {
 
-  private Map<String, HealthCheck> healthChecks;
+    private Map<String, HealthCheck> healthChecks;
 
-  public HealthCheckScheduler() {
-    healthChecks = new HashMap<>();
-  }
+    public HealthCheckScheduler() {
+        healthChecks = new HashMap<>();
+    }
 
-  /**
-   * Register the health check service
-   * @param name        Name of the service
-   * @param healthCheck Bean implementing HealthCheck
-   */
-  public void registerHealthCheck(String name, HealthCheck healthCheckService) {
-    log.debug("register HealthCheck {}", name);
-    healthChecks.put(name, healthCheckService);
-  }
+    /**
+     * Register the health check service
+     * 
+     * @param name
+     *            Name of the service
+     * @param healthCheck
+     *            Bean implementing HealthCheck
+     */
+    public void registerHealthCheck(String name, HealthCheck healthCheckService) {
+        log.debug("register HealthCheck {}", name);
+        healthChecks.put(name, healthCheckService);
+    }
 
-  @Scheduled(initialDelay = 10000, fixedDelayString = "#{settings.healthCheckPollInterval}")
-  public void checkHealth() {
-    healthChecks.values().forEach(HealthCheck::check);
-  }
+    @Scheduled(initialDelay = 10000, fixedDelayString = "#{settings.healthCheckPollInterval}")
+    public void checkHealth() {
+        healthChecks.values().forEach(HealthCheck::check);
+    }
 }

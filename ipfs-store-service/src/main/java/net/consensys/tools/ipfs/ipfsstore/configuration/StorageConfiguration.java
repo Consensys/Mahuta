@@ -34,49 +34,48 @@ import net.consensys.tools.ipfs.ipfsstore.exception.ConnectionException;
 @Slf4j
 public class StorageConfiguration extends AbstractConfiguration {
 
-  private HealthCheckScheduler healthCheckScheduler;
+    private HealthCheckScheduler healthCheckScheduler;
 
-  @Autowired
-  public StorageConfiguration(HealthCheckScheduler healthCheckScheduler) {
-    this.healthCheckScheduler = healthCheckScheduler;
-  }
-  
-  /**
-   * Load the IPFS Storage Dao bean up
-   * 
-   * @return IPFS StorageDAO bean
-   */
-  @Bean
-  @ConditionalOnProperty(value = "ipfs-store.storage.type", havingValue = STORAGE_IPFS)
-  public StorageDao ipfsStorageDao() throws ConnectionException {
+    @Autowired
+    public StorageConfiguration(HealthCheckScheduler healthCheckScheduler) {
+        this.healthCheckScheduler = healthCheckScheduler;
+    }
 
-      log.info("Connecting to IPFS [{}]", super.toString());
-           
-      IPFS ipfs = super.getAdditionalParam("multiaddress")
-              .map(multiaddress -> new IPFS(multiaddress))
-              .orElseGet(() -> new IPFS(host, port));
-    
-      StorageDao bean = new IPFSStorageDao(this, ipfs);
-      
-      // Register to the heath check service
-      healthCheckScheduler.registerHealthCheck("ipfs", bean);
-      
-      log.info("Connected to IPFS [{}]", super.toString());
-      //log.debug(ipfs.config.show().toString());
-    
-      return bean;
+    /**
+     * Load the IPFS Storage Dao bean up
+     * 
+     * @return IPFS StorageDAO bean
+     */
+    @Bean
+    @ConditionalOnProperty(value = "ipfs-store.storage.type", havingValue = STORAGE_IPFS)
+    public StorageDao ipfsStorageDao() throws ConnectionException {
 
-  }
+        log.info("Connecting to IPFS [{}]", super.toString());
 
-  /**
-   * Load the Swarm Storage Dao bean up
-   * 
-   * @return Swarm StorageDAO bean
-   */
-  @Bean
-  @ConditionalOnProperty(value = "ipfs-store.storage.type", havingValue = STORAGE_SWARM)
-  public StorageDao swarmStorageDao() throws ConnectionException {
-    throw new UnsupportedOperationException("Swarm StorageDAO is not implemented yet !");
-  }
+        IPFS ipfs = super.getAdditionalParam("multiaddress")
+                .map(multiaddress -> new IPFS(multiaddress)).orElseGet(() -> new IPFS(host, port));
+
+        StorageDao bean = new IPFSStorageDao(this, ipfs);
+
+        // Register to the heath check service
+        healthCheckScheduler.registerHealthCheck("ipfs", bean);
+
+        log.info("Connected to IPFS [{}]", super.toString());
+        // log.debug(ipfs.config.show().toString());
+
+        return bean;
+
+    }
+
+    /**
+     * Load the Swarm Storage Dao bean up
+     * 
+     * @return Swarm StorageDAO bean
+     */
+    @Bean
+    @ConditionalOnProperty(value = "ipfs-store.storage.type", havingValue = STORAGE_SWARM)
+    public StorageDao swarmStorageDao() throws ConnectionException {
+        throw new UnsupportedOperationException("Swarm StorageDAO is not implemented yet !");
+    }
 
 }
