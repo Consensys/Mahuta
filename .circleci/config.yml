@@ -19,7 +19,9 @@ jobs:
           - v1-dependencies-{{ checksum "pom.xml" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-      - run: mvn clean install -DskipTests
+      - run:
+          name: maven install
+          command: mvn clean install -DskipTests
       - save_cache:
           paths:
             - ~/.m2
