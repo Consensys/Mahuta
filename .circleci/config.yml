@@ -28,5 +28,5 @@ jobs:
           name: Run tests
           command: mvn test
       - run:
-          name: Deploy artifacts
+          name: Upload artifacts
           command: - mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
