@@ -38,4 +38,10 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
       # run tests!
-      - run: mvn test
+      - run:
+          name: Run tests
+          command: mvn test
+
+      - run:
+          name: Deploy
+          command: - mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
