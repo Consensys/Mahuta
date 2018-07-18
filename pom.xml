@@ -46,7 +46,16 @@
 	</pluginRepositories>
 
     <scm>
+		<url>https://github.com/ConsenSys/IPFS-Store</url>
         <connection>scm:https://github.com/ConsenSys/IPFS-Store.git</connection>
+		<tag>HEAD</tag>
     </scm>
+
+	<distributionManagement>
+		<repository>
+			<id>bintray</id>
+			<url>https://api.bintray.com/maven/consensys/kauri/ipfs-store/;publish=1</url>
+		</repository>
+	</distributionManagement>
 
 </project>
