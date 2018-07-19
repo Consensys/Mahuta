@@ -1,9 +1,11 @@
 #!/bin/bash
-echo Username $CIRCLE_USERNAME
-if [ "$CIRCLE_USERNAME" != "circleci" ]; then
+GIT_COMMIT_DESC=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
+echo Git commit message: $GIT_COMMIT_DESC
+if [[ "$GIT_COMMIT_DESC" != *"maven-release-plugin"* ]]; then
   #get highest tags across all branches, not just the current branch
-  NEW_VERSION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)
 
+  NEW_VERSION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)
+  echo $NEW_VERSION
   git checkout testtagging
 
   mvn --batch-mode release:update-versions -DdevelopmentVersion=$NEW_DEV_VERSION
