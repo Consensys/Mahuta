@@ -1,0 +1,63 @@
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+      - run:
+          name: maven install
+          command: mvn clean install -DskipTests
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+      - run:
+          name: Run tests
+          command: mvn test
+    #  - run:
+    #      name: Upload artifacts
+    #      command: mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
+
+  git-tag:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      -run:
+        name: Tag version and bump dev version
+        command: |
+          IPFS_STORE_VERSION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}'
+            --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')
+          bash scripts/gittag.sh $IPFS_STORE_VERSION
+          NEW_DEV_VERSION=$(scripts/get-next-dev-ver.sh)
+          echo $NEW_DEV_VERSION
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - git-tag:
+          requires:
+            - build
+          filters:
+            branches:
+              only: development
