@@ -18,4 +18,4 @@ echo Running release:prepare with releaseVersion:$RELEASE_VERSION and  Ddevelopm
 
 mvn -B release:prepare -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEW_DEV_VERSION-SNAPSHOT
 
-mvn release:perform -Darguments="-Dmaven.javadoc.skip=true"
+mvn -s ./.circleci/.circleci.settings.xml release:perform -Darguments="-Dmaven.javadoc.skip=true" -DskipTests
