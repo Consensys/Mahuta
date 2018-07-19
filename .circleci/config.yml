@@ -44,7 +44,7 @@ jobs:
       - checkout
       - run:
           name: Tag version and bump dev version
-          command: ./scripts/tag-and-bump-version.sh
+          command: echo done
 
 workflows:
   version: 2

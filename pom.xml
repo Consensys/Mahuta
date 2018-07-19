@@ -46,6 +46,8 @@
 
 	<scm>
 		<connection>scm:git:git:://github.com/ConsenSys/IPFS-Store.git</connection>
+		<developerConnection>scm:git:git:://github.com/ConsenSys/IPFS-Store.git</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>
@@ -54,5 +56,18 @@
 			<url>https://api.bintray.com/maven/consensys/kauri/ipfs-store/;publish=1</url>
 		</repository>
 	</distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
