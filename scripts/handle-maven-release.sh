@@ -11,19 +11,11 @@ VNUM3=$((VNUM3+1))
 #create new version
 NEW_DEV_VERSION="$VNUM1.$VNUM2.$VNUM3"
 
+git config --global user.email "cassidy.joshua@gmail.com"
+git config --global user.name "joshorig"
+
 echo Running release:prepare with releaseVersion:$RELEASE_VERSION and  DdevelopmentVersion:$NEW_DEV_VERSION-SNAPSHOT
 
 mvn -B release:prepare -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEW_DEV_VERSION-SNAPSHOT
 
 mvn release:perform -Darguments="-Dmaven.javadoc.skip=true"
-
-#NEW_DEV_VERSION=$(scripts/get-next-dev-ver.sh)
-#echo $NEW_DEV_VERSION
-
-#git checkout testtagging
-
-#mvn --batch-mode release:update-versions -DdevelopmentVersion=$NEW_DEV_VERSION-SNAPSHOT
-
-#git add .
-#git commit -m "CircleCI build $CIRCLE_BUILD_NUM updating version after tag"
-#git push origin testtagging
