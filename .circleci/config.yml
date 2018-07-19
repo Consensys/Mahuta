@@ -51,7 +51,7 @@ workflows:
   build-deploy:
     jobs:
       - build
-      - git-tag:
+      - release:
           requires:
             - build
           filters:
