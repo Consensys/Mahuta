@@ -33,7 +33,7 @@ jobs:
     #      name: Upload artifacts
     #      command: mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
 
-  git-tag:
+  release:
     docker:
       - image: circleci/openjdk:8-jdk
     working_directory: ~/repo
@@ -43,8 +43,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Tag version and bump dev version
-          command: echo done
+          name: Release
+          command: ./scripts/handle-maven-release.sh
 
 workflows:
   version: 2
