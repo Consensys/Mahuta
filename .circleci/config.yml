@@ -46,6 +46,19 @@ jobs:
           name: Release
           command: ./scripts/handle-maven-release.sh
 
+  update-dev-branch:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - run:
+          name: Release
+          command: ./scripts/update-development-branch-version.sh
+
 workflows:
   version: 2
   build-deploy:
@@ -54,6 +67,12 @@ workflows:
       - release:
           requires:
             - build
+          filters:
+            branches:
+              only: development
+      - update-dev-branch:
+          requires:
+            - release
           filters:
             branches:
               only: development
