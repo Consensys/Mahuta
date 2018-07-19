@@ -40,28 +40,27 @@ public class IPFSStorageDao implements StorageDao {
 
     public IPFSStorageDao(StorageConfiguration storageConfiguration, IPFS ipfs) {
         this.ipfs = ipfs;
-        
-        this.pool = Executors.newFixedThreadPool(storageConfiguration.getAdditionalParam(THREAD_POOL_PARAM)
-                .map(Integer::valueOf)
-                .orElse(DEFAULT_THREAD_POOL));
-        
-        this.timeout = storageConfiguration.getAdditionalParam(TIMEOUT_PARAM)
-                .map(Integer::valueOf)
+
+        this.pool = Executors
+                .newFixedThreadPool(storageConfiguration.getAdditionalParam(THREAD_POOL_PARAM)
+                        .map(Integer::valueOf).orElse(DEFAULT_THREAD_POOL));
+
+        this.timeout = storageConfiguration.getAdditionalParam(TIMEOUT_PARAM).map(Integer::valueOf)
                 .orElse(DEFAULT_TIMEOUT);
     }
-    
+
     @Override
     public Result check() {
-      log.debug("check IPFS health ...");
-      
-      try {
-        ipfs.config.show();
-        log.debug("IPFS is OK");
-        return Result.healthy();
-      } catch(Exception e) {
-        log.error("IPFS is KO", e);
-        return Result.unhealthy(e);
-      }
+        log.debug("check IPFS health ...");
+
+        try {
+            ipfs.config.show();
+            log.debug("IPFS is OK");
+            return Result.healthy();
+        } catch (Exception e) {
+            log.error("IPFS is KO", e);
+            return Result.unhealthy(e);
+        }
     }
 
     @Override
@@ -70,10 +69,12 @@ public class IPFSStorageDao implements StorageDao {
         log.debug("Store file in IPFS ...");
 
         // Validation
-        if (content == null) throw new IllegalArgumentException("content " + ERROR_NOT_NULL_OR_EMPTY);
+        if (content == null)
+            throw new IllegalArgumentException("content " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
-            NamedStreamable.ByteArrayWrapper requestFile = new NamedStreamable.ByteArrayWrapper(content);
+            NamedStreamable.ByteArrayWrapper requestFile = new NamedStreamable.ByteArrayWrapper(
+                    content);
             MerkleNode response = this.ipfs.add(requestFile).get(0);
 
             String hash = response.hash.toString();
@@ -84,7 +85,8 @@ public class IPFSStorageDao implements StorageDao {
 
         } catch (IOException ex) {
             log.error("Exception while storing file in IPFS", ex);
-            throw new TechnicalException("Exception while storing file in IPFS: " + ex.getMessage());
+            throw new TechnicalException(
+                    "Exception while storing file in IPFS: " + ex.getMessage());
         }
     }
 
@@ -94,30 +96,34 @@ public class IPFSStorageDao implements StorageDao {
         log.debug("Get file in IPFS [hash: {}] ", hash);
 
         // Validation
-        if (StringUtils.isEmpty(hash)) throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(hash))
+            throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
             Multihash filePointer = Multihash.fromBase58(hash);
-            
+
             Future<byte[]> ipfsFetcherResult = pool.submit(new IPFSFetcher(ipfs, filePointer));
-            
+
             byte[] content = ipfsFetcherResult.get(timeout, TimeUnit.MILLISECONDS);
-       
+
             log.debug("Get file in IPFS [hash: {}]", hash);
 
             return content;
 
-        } catch (java.util.concurrent.TimeoutException ex ) {
+        } catch (java.util.concurrent.TimeoutException ex) {
             log.error("Timeout Exception while getting file in IPFS [hash: {}]", hash, ex);
-            throw new TimeoutException("Timeout Exception while getting file in IPFS [hash: "+hash+"]");
+            throw new TimeoutException(
+                    "Timeout Exception while getting file in IPFS [hash: " + hash + "]");
 
         } catch (InterruptedException ex) {
             log.error("Interrupted Exception while getting file in IPFS [hash: {}]", hash, ex);
-            throw new TechnicalException("Interrupted Exception while getting file in IPFS [hash: "+hash+"]", ex);
-            
+            throw new TechnicalException(
+                    "Interrupted Exception while getting file in IPFS [hash: " + hash + "]", ex);
+
         } catch (ExecutionException ex) {
             log.error("Execution Exception while getting file in IPFS [hash: {}]", hash, ex);
-            throw new TechnicalException("Execution Exception while getting file in IPFS [hash: "+hash+"]", ex);
+            throw new TechnicalException(
+                    "Execution Exception while getting file in IPFS [hash: " + hash + "]", ex);
         }
     }
 

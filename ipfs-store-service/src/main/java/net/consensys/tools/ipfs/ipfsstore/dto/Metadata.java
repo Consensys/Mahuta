@@ -40,20 +40,24 @@ public class Metadata implements Serializable {
         if (indexFields == null) {
             return null;
         }
-        return indexFields.stream().filter(f -> f.getName().equals(indexFieldName)).findFirst().map(IndexField::getValue).orElse(null);
+        return indexFields.stream().filter(f -> f.getName().equals(indexFieldName)).findFirst()
+                .map(IndexField::getValue).orElse(null);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
         Metadata metadata = (Metadata) o;
-        return Objects.equals(index, metadata.index) &&
-                Objects.equals(documentId, metadata.documentId) &&
-                Objects.equals(hash, metadata.hash) &&
-                Objects.equals(contentType, metadata.contentType) &&
-                Objects.equals(indexFields, metadata.indexFields);
+        return Objects.equals(index, metadata.index)
+                && Objects.equals(documentId, metadata.documentId)
+                && Objects.equals(hash, metadata.hash)
+                && Objects.equals(contentType, metadata.contentType)
+                && Objects.equals(indexFields, metadata.indexFields);
     }
 
     @Override

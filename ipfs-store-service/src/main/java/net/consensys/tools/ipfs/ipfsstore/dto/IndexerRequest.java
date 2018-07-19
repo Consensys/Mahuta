@@ -31,5 +31,4 @@ public class IndexerRequest {
     @JsonProperty("index_fields")
     private List<IndexField> indexFields;
 
-
 }

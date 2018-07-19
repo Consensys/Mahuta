@@ -30,55 +30,61 @@ import net.consensys.tools.ipfs.ipfsstore.dao.pinning.NativePinningStrategy;
 @Slf4j
 public class PinningConfiguration {
 
-  private final static Map<String, Function<AbstractConfiguration, PinningStrategy>> executors = new HashMap<>();
-  
-  @Setter @Getter
-  private List<AbstractConfiguration> strategies;
-  @Getter
-  private List<PinningStrategy> pinningStrategies = new ArrayList<>();
-  
-  public PinningConfiguration() { }
-  
-  @PostConstruct
-  public void init() {
-    
-    // Configure each pinning strategy instantiation specifications
-    executors.put(NativePinningStrategy.NAME, (config) -> {
-      return new NativePinningStrategy(config);
-    });
-    executors.put(IPFSClusterPinningStrategy.NAME, (config) -> {
-      return new IPFSClusterPinningStrategy(config); 
-    });
+    private final static Map<String, Function<AbstractConfiguration, PinningStrategy>> executors = new HashMap<>();
 
-    // Register each pinning service
-    if(strategies == null || strategies.size() == 0) {
-      log.warn("No pinning strategy configured");
-      return;
-    }
-    log.debug(strategies.toString());
-    
-    strategies.forEach(serviceConfig -> this.registerPinningStrategy(serviceConfig.getType(), serviceConfig));
-    
-  }
-  
-  /**
-   * Register a pinning strategy
-   * @param name    Name of the pinning strategy
-   * @param config  Configuration associated to the strategy
-   */
-  public void registerPinningStrategy(String name, AbstractConfiguration config) {
-    
-    if(!config.enable) {
-      return;
-    }
-    
-    log.info("Register Pinning Strategy (name: {}, config: {})", name, config);
+    @Setter
+    @Getter
+    private List<AbstractConfiguration> strategies;
+    @Getter
+    private List<PinningStrategy> pinningStrategies = new ArrayList<>();
 
-    if(!executors.containsKey(name)) {
-      throw new IllegalArgumentException("Unknow pinning stragtegy name ["+name+"]");
+    public PinningConfiguration() {
     }
-    
-    pinningStrategies.add(executors.get(name).apply(config));
-  }
-   
+
+    @PostConstruct
+    public void init() {
+
+        // Configure each pinning strategy instantiation specifications
+        executors.put(NativePinningStrategy.NAME, (config) -> {
+            return new NativePinningStrategy(config);
+        });
+        executors.put(IPFSClusterPinningStrategy.NAME, (config) -> {
+            return new IPFSClusterPinningStrategy(config);
+        });
+
+        // Register each pinning service
+        if (strategies == null || strategies.size() == 0) {
+            log.warn("No pinning strategy configured");
+            return;
+        }
+        log.debug(strategies.toString());
+
+        strategies.forEach(serviceConfig -> this.registerPinningStrategy(serviceConfig.getType(),
+                serviceConfig));
+
+    }
+
+    /**
+     * Register a pinning strategy
+     * 
+     * @param name
+     *            Name of the pinning strategy
+     * @param config
+     *            Configuration associated to the strategy
+     */
+    public void registerPinningStrategy(String name, AbstractConfiguration config) {
+
+        if (!config.enable) {
+            return;
+        }
+
+        log.info("Register Pinning Strategy (name: {}, config: {})", name, config);
+
+        if (!executors.containsKey(name)) {
+            throw new IllegalArgumentException("Unknow pinning stragtegy name [" + name + "]");
+        }
+
+        pinningStrategies.add(executors.get(name).apply(config));
+    }
+
 }

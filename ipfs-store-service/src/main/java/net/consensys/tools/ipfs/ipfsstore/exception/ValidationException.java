@@ -11,9 +11,9 @@ public class ValidationException extends Exception {
     public ValidationException(String message) {
         super(message);
     }
-    
+
     public ValidationException(String messageFormat, Object... args) {
-      super(String.format(messageFormat, args));
-  }
+        super(String.format(messageFormat, args));
+    }
 
 }

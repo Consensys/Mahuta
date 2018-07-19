@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SpringBootApplication
 @Profile("default")
-@ComponentScan({"net.consensys.tools.ipfs.ipfsstore"})
+@ComponentScan({ "net.consensys.tools.ipfs.ipfsstore" })
 @Slf4j
 public class Application {
 
@@ -23,5 +23,5 @@ public class Application {
         SpringApplication.run(Application.class, args);
         log.info("############### Application [{}] Started ! ############### ", NAME);
     }
-    
+
 }

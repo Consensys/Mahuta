@@ -21,7 +21,8 @@ public class ConfigController {
     /**
      * Create an index
      *
-     * @param index Index name
+     * @param index
+     *            Index name
      * @throws ServiceException
      */
     @RequestMapping(value = "${ipfs-store.api-spec.config.index}", method = RequestMethod.POST)

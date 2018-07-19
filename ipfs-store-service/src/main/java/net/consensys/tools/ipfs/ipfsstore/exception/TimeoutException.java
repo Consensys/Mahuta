@@ -11,9 +11,9 @@ public class TimeoutException extends Exception {
     public TimeoutException(String message) {
         super(message);
     }
-    
+
     public TimeoutException(String messageFormat, Object... args) {
-      super(String.format(messageFormat, args));
-  }
+        super(String.format(messageFormat, args));
+    }
 
 }

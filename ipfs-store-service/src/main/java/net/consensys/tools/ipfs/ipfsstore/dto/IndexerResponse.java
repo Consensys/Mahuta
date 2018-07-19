@@ -24,5 +24,4 @@ public class IndexerResponse {
     @JsonProperty("hash")
     private String hash;
 
-
 }

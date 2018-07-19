@@ -7,14 +7,14 @@ package net.consensys.tools.ipfs.ipfsstore.dto.query;
  */
 public enum QueryOperation {
 
-    full_text,      // Full text search
-    equals,         // Equals
-    not_equals,     // Not equals
-    contains,       // Contains the word/phrase
-    in,             // in the following list
-    gt,             // Greater than
-    gte,            // Greater than or Equals
-    lt,             // Less than
-    lte             // Less than or Equals
+    full_text, // Full text search
+    equals, // Equals
+    not_equals, // Not equals
+    contains, // Contains the word/phrase
+    in, // in the following list
+    gt, // Greater than
+    gte, // Greater than or Equals
+    lt, // Less than
+    lte // Less than or Equals
 
 }

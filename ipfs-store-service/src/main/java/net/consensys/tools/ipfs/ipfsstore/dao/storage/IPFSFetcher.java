@@ -13,23 +13,24 @@ public class IPFSFetcher implements Callable<byte[]> {
 
     private final IPFS ipfs;
     private final Multihash multihash;
-    
+
     public IPFSFetcher(IPFS ipfs, Multihash multihash) {
         this.ipfs = ipfs;
         this.multihash = multihash;
     }
-    
+
     @Override
     public byte[] call() {
-        
+
         try {
             return this.ipfs.cat(multihash);
 
         } catch (IOException ex) {
             log.error("Exception while getting file in IPFS [hash: {}]", multihash, ex);
-            throw new TechnicalException("Exception while getting file in IPFS " + multihash + ex.getMessage());
+            throw new TechnicalException(
+                    "Exception while getting file in IPFS " + multihash + ex.getMessage());
         }
-        
+
     }
 
 }

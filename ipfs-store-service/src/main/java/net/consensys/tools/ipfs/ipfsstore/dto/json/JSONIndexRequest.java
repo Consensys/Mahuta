@@ -18,5 +18,5 @@ public class JSONIndexRequest extends IndexerRequest {
     @NotNull
     @JsonProperty("payload")
     private JsonNode payload;
-  
+
 }

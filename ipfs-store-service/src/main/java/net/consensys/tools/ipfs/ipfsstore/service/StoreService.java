@@ -23,7 +23,8 @@ public interface StoreService {
     /**
      * Store a file in the target filesystem
      *
-     * @param file File content (binary)
+     * @param file
+     *            File content (binary)
      * @return File Unique Identifier
      * @throws ServiceException
      */
@@ -32,7 +33,8 @@ public interface StoreService {
     /**
      * Index a file
      *
-     * @param request Request containing metadata to index (ID, hash, type, index fields)
+     * @param request
+     *            Request containing metadata to index (ID, hash, type, index fields)
      * @return Response containing the tuple (index, index ID, file ID)
      * @throws ServiceException
      */
@@ -41,17 +43,21 @@ public interface StoreService {
     /**
      * Store a file and index it
      *
-     * @param file    File content (binary)
-     * @param request Request containing metadata to index (ID, hash, type, index fields)
+     * @param file
+     *            File content (binary)
+     * @param request
+     *            Request containing metadata to index (ID, hash, type, index fields)
      * @return Request containing metadata to index (ID, hash, type, index fields)
      * @throws ServiceException
      */
-    IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request) throws ValidationException;
+    IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request)
+            throws ValidationException;
 
     /**
      * Get Content by File Unique Identifier
      *
-     * @param hash File Unique Identifier
+     * @param hash
+     *            File Unique Identifier
      * @return File content (binary)
      * @throws ServiceException
      */
@@ -60,8 +66,10 @@ public interface StoreService {
     /**
      * Get Content Metadata by Index Unique Identifier
      *
-     * @param index Index name
-     * @param id    Index Unique Identifier
+     * @param index
+     *            Index name
+     * @param id
+     *            Index Unique Identifier
      * @return Content Metadata (ID, hash, type, index fields)
      * @throws ServiceException
      */
@@ -70,8 +78,10 @@ public interface StoreService {
     /**
      * Get Content Metadata by File Unique Identifier
      *
-     * @param index Index name
-     * @param hash  File Unique Identifier
+     * @param index
+     *            Index name
+     * @param hash
+     *            File Unique Identifier
      * @return Content Metadata (ID, hash, type, index fields)
      * @throws ServiceException
      */
@@ -80,9 +90,12 @@ public interface StoreService {
     /**
      * Search in the index a list of content against a multi-criteria search query
      *
-     * @param index      Index name
-     * @param query      Query
-     * @param pagination Pagination & Sorting
+     * @param index
+     *            Index name
+     * @param query
+     *            Query
+     * @param pagination
+     *            Pagination & Sorting
      * @return Page of Metadata result (ID, hash, type, index fields)
      * @throws ServiceException
      */
@@ -91,7 +104,8 @@ public interface StoreService {
     /**
      * Create an index
      *
-     * @param index Index name
+     * @param index
+     *            Index name
      * @throws ServiceException
      */
     void createIndex(String index);
