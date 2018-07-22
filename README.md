@@ -62,10 +62,11 @@ $ docker run -p 8040:8040 kauri/ipfs-store
 ```
 
 b. If you prefer build all-in-one with docker-compose
+
 ```
-$ docker-compose -f docker-compose.yml build
-$ docker-compose -f docker-compose.yml up
+$ ./docker-compose.sh
 ```
+
 
 [WIKI: Getting-started](https://github.com/ConsenSys/IPFS-Store/wiki/1.-Getting-started)
 
