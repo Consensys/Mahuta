@@ -14,7 +14,7 @@ sudo rm -rf .ipfs-docker-staging
 
 
 echo "Build"
-mvn clean install
+mvn clean install -f ../pom.xml
 docker-compose build
 
 
