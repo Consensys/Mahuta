@@ -22,4 +22,4 @@ echo "Start"
 docker-compose up 
 
 
-trap "docker-compose kill -f ipfs-store-service/docker-compose.yml" INT
+trap "docker-compose kill" INT
