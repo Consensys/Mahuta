@@ -22,6 +22,8 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
@@ -159,6 +161,10 @@ public class ElasticSearchDAOTest {
         when(indicesAdminClient.prepareRefresh(eq(indexName))).thenReturn(refreshRequestBuilder);
         when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
 
+        mockCheckIndexExist(indicesAdminClient, true);
+        mockMapping(indicesAdminClient);
+
+        
         // #################################################
         String docReturned = underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
         // #################################################
@@ -218,9 +224,12 @@ public class ElasticSearchDAOTest {
         RefreshResponse refreshResponse = mock(RefreshResponse.class);
         PowerMockito.when(client.admin()).thenReturn(adminClient);
         when(adminClient.indices()).thenReturn(indicesAdminClient);
-        when(indicesAdminClient.prepareRefresh(eq(indexName))).thenReturn(refreshRequestBuilder);
+        when(indicesAdminClient.prepareRefresh(anyString())).thenReturn(refreshRequestBuilder);
         when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
 
+        mockCheckIndexExist(indicesAdminClient, true);
+        mockMapping(indicesAdminClient);
+        
         // #################################################
         String docReturned = underTest.index(indexName, documentId, hash, contentType, null);
         // #################################################
@@ -285,6 +294,9 @@ public class ElasticSearchDAOTest {
         when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
         when(refreshRequestBuilder.get()).thenReturn(refreshResponse);
 
+        mockCheckIndexExist(indicesAdminClient, true);
+        mockMapping(indicesAdminClient);
+        
         // #################################################
         String docReturned = underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
         // #################################################
@@ -355,6 +367,12 @@ public class ElasticSearchDAOTest {
 
         // Mock
         PowerMockito.when(client.prepareGet(anyString(), anyString(), eq(documentId))).thenThrow(new RuntimeException());
+        AdminClient adminClient = PowerMockito.mock(AdminClient.class);
+        IndicesAdminClient indicesAdminClient = mock(IndicesAdminClient.class);
+
+        PowerMockito.when(client.admin()).thenReturn(adminClient);
+        when(adminClient.indices()).thenReturn(indicesAdminClient);
+        mockMapping(indicesAdminClient);
 
         // #################################################
         underTest.index(indexName, documentId, hash, contentType, getIndexFields(customAttributeKey, customAttributeVal));
@@ -1575,7 +1593,7 @@ public class ElasticSearchDAOTest {
         ArgumentCaptor<String> argumentCaptorQueryBuilder = ArgumentCaptor.forClass(String.class);
         Mockito.verify(indicesAdminClient, Mockito.times(1)).prepareCreate(argumentCaptorQueryBuilder.capture());
         String indexNameCaptured = argumentCaptorQueryBuilder.<String>getValue();
-        assertEquals(indexName, indexNameCaptured);
+        assertEquals(indexName.toLowerCase(), indexNameCaptured);
 
 
     }
@@ -1639,4 +1657,41 @@ public class ElasticSearchDAOTest {
 
 
     }
+    
+    
+    
+    
+    
+    
+    
+    private void mockCheckIndexExist(IndicesAdminClient indicesAdminClient, boolean exist) {
+        IndicesExistsResponse indicesExistsResponse = mock(IndicesExistsResponse.class);
+        ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
+        IndicesExistsRequestBuilder IndicesExistsRequestBuilder = mock(IndicesExistsRequestBuilder.class);
+        RefreshRequestBuilder refreshRequestBuilder2 = mock(RefreshRequestBuilder.class);
+
+        RefreshResponse refreshResponse = mock(RefreshResponse.class);
+        RefreshRequestBuilder refreshRequestBuilder = mock(RefreshRequestBuilder.class);
+        when(indicesAdminClient.prepareExists(any(String.class))).thenReturn(IndicesExistsRequestBuilder);
+        when(IndicesExistsRequestBuilder.execute()).thenReturn(listenableActionFuture);
+        when(listenableActionFuture.actionGet()).thenReturn(indicesExistsResponse);
+        when(indicesExistsResponse.isExists()).thenReturn(true);
+        when(indicesAdminClient.prepareRefresh(any(String.class))).thenReturn(refreshRequestBuilder);
+        when(refreshRequestBuilder2.get()).thenReturn(refreshResponse);
+        
+        
+    }
+
+    private void mockMapping(IndicesAdminClient indicesAdminClient) {
+        PutMappingRequestBuilder putMappingRequestBuilder = mock(PutMappingRequestBuilder.class);
+        PutMappingResponse putMappingResponse = mock(PutMappingResponse.class);
+
+        when(indicesAdminClient.preparePutMapping(any(String.class))).thenReturn(putMappingRequestBuilder);
+        when(putMappingRequestBuilder.setType(anyString())).thenReturn(putMappingRequestBuilder);
+        when(putMappingRequestBuilder.setSource(anyString(), eq(XContentType.JSON))).thenReturn(putMappingRequestBuilder);
+        when(putMappingRequestBuilder.get()).thenReturn(putMappingResponse);
+        
+        
+    }
+    
 }

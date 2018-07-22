@@ -143,7 +143,10 @@ public class ElasticSearchIndexDao implements IndexDao {
         if (StringUtils.isEmpty(hash))
             throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
+        
         try {
+            String indexFormated = formatIndex(Optional.of(index));
+            
             DocWriteResponse response;
             Map<String, Object> source = new HashMap<>();
 
@@ -151,18 +154,17 @@ public class ElasticSearchIndexDao implements IndexDao {
             source.put(IndexDao.HASH_INDEX_KEY, hash);
             source.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
             if (indexFields != null) {
-                source.putAll(convert(indexFields));
+                source.putAll(convert(indexFormated, indexFields));
             }
 
-            log.debug(source.toString());
-
-            if (!this.doesExist(index, documentId)) {
-                response = client.prepareIndex(index.toLowerCase(), index.toLowerCase(), documentId)
+            log.debug("source={}", source.toString());
+            if (!this.doesExist(indexFormated, documentId)) {
+                response = client.prepareIndex(indexFormated, indexFormated, documentId)
                         .setSource(convertObjectToJsonString(source), XContentType.JSON).get();
 
             } else {
                 response = client
-                        .prepareUpdate(index.toLowerCase(), index.toLowerCase(), documentId)
+                        .prepareUpdate(indexFormated, indexFormated, documentId)
                         .setDoc(convertObjectToJsonString(source), XContentType.JSON).get();
             }
 
@@ -170,7 +172,7 @@ public class ElasticSearchIndexDao implements IndexDao {
                     "Document indexed ElasticSearch [index: {}, documentId:{}, indexFields: {}]. Result ID= {} ",
                     index, documentId, indexFields, response.getId());
 
-            this.refreshIndex(index);
+            this.refreshIndex(indexFormated);
 
             return response.getId();
 
@@ -302,11 +304,13 @@ public class ElasticSearchIndexDao implements IndexDao {
             throw new IllegalArgumentException("index " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
-            boolean exists = client.admin().indices().prepareExists(index).execute().actionGet()
+            
+            // Check existence
+            boolean exists = client.admin().indices().prepareExists(formatIndex(Optional.of(index))).execute().actionGet()
                     .isExists();
 
             if (!exists) {
-                client.admin().indices().prepareCreate(index).get();
+                client.admin().indices().prepareCreate(formatIndex(Optional.of(index))).get();
                 log.debug("Index [index: {}] created in ElasticSearch", index);
 
             } else {
@@ -346,30 +350,56 @@ public class ElasticSearchIndexDao implements IndexDao {
      *            List of IndexField
      * @return Map
      */
-    private Map<String, Object> convert(List<IndexField> indexFields) {
+    private Map<String, Object> convert(String index, List<IndexField> indexFields) {
         if (indexFields == null) {
             return null;
         }
-
-        return indexFields.stream().collect(Collectors.toMap(field -> field.getName(),
-                field -> handleNullValue(field.getValue())));
+        
+        // Enable fieldata to be able to search and sort by string field
+        // https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html#_fielddata_is_disabled_on_literal_text_literal_fields_by_default
+        indexFields.stream().forEach( (f) -> {
+            if(f.getValue() instanceof String) {
+                String src = "{\""+index+"\":{\"properties\":{\""+f.getName()+"\":{\"type\":\"text\",\"fielddata\":true}}}}";
+                client.admin().indices().preparePutMapping(index)
+                        .setType(index)
+                        .setSource(src, XContentType.JSON)
+                        .get();
+                
+            }
+        });
+        
+        return indexFields.stream()
+                .collect(Collectors.toMap(
+                        field -> field.getName(),
+                        field -> handleNullValue(field.getValue())));
     }
 
     /**
      * Replace null or empty string value by NULL to add it in the index (E.S. doesn't index null
      * value)
      *
-     * @param value
-     *            Value
+     * @param value Value
      * @return Value replaced by NULL if null or empty
      */
     private Object handleNullValue(Object value) {
-        if (indexNullValues
-                && (value == null || (value instanceof String && ((String) value).length() == 0))) {
-            return NULL;
-        } else {
+        if (!indexNullValues) { // No null indexation
             return value;
         }
+        
+        if(value == null) {
+            return NULL;
+        }
+        
+        if(value instanceof String) {
+            if(StringUtils.isEmpty(value)) {
+                return NULL;
+            } else {
+                return ((String) value).toLowerCase();
+                
+            }
+        }
+        
+        return value;
     }
 
     /**
