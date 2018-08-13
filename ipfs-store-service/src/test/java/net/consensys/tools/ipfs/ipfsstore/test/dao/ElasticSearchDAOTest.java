@@ -1,5 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.test.dao;
 
+
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -927,7 +929,7 @@ public class ElasticSearchDAOTest {
         String customAttributeVal2 = "test456";
 
         Query query = new Query();
-        query.in(customAttributeKey, customAttributeVal1, customAttributeVal2);
+        query.in(customAttributeKey, asList(customAttributeVal1, customAttributeVal2));
 
         // Mock
         Map<String, Object> sourceMap = new HashMap<>();
