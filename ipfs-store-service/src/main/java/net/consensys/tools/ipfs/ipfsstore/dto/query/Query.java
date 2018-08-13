@@ -1,6 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.dto.query;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -74,7 +75,7 @@ public class Query {
         return this;
     }
 
-    public Query in(String name, Object... values) {
+    public Query in(String name, Collection<?> values) {
         this.filterClauses.add(new Filter(name, QueryOperation.in, values));
         return this;
     }

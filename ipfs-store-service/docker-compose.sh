@@ -15,11 +15,13 @@ sudo rm -rf .ipfs-docker-staging
 
 echo "Build"
 mvn clean install -f ../pom.xml
-docker-compose build
+[ $? -eq 0 ] || exit $?; 
 
+docker-compose build
+[ $? -eq 0 ] || exit $?; 
 
 echo "Start"
 docker-compose up 
-
+[ $? -eq 0 ] || exit $?; 
 
 trap "docker-compose kill" INT

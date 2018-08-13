@@ -1,8 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.dao.index;
 
-import static java.util.Arrays.asList;
-
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -371,17 +370,20 @@ public class ElasticSearchIndexDao implements IndexDao {
         return indexFields.stream()
                 .collect(Collectors.toMap(
                         field -> field.getName(),
-                        field -> handleNullValue(field.getValue())));
+                        field -> manipulateValue(field.getValue())));
     }
 
     /**
-     * Replace null or empty string value by NULL to add it in the index (E.S. doesn't index null
-     * value)
+     * Manipulate value
+     * - Replace null or empty string value by NULL to add it in the index (E.S. doesn't index null value)
+     * - Lower-case
+     * - Arrays
      *
      * @param value Value
      * @return Value replaced by NULL if null or empty
      */
-    private Object handleNullValue(Object value) {
+    private Object manipulateValue(Object value) {
+        
         if (!indexNullValues) { // No null indexation
             return value;
         }
@@ -468,7 +470,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         query.getFilterClauses().forEach(f -> {
 
-            Object value = handleNullValue(f.getValue());
+            Object value = manipulateValue(f.getValue());
 
             try {
 
@@ -487,9 +489,16 @@ public class ElasticSearchIndexDao implements IndexDao {
                     elasticSearchQuery.must(QueryBuilders.matchQuery(f.getName(), value));
                     break;
                 case in:
-                    elasticSearchQuery.filter(QueryBuilders.termsQuery(f.getName(),
-                            asList((Object[]) value).stream().map(o -> o.toString().toLowerCase())
-                                    .collect(Collectors.toList())));
+                    
+                    if (value instanceof Collection<?>){
+                        Collection<?> values = (Collection<?>) value;
+                        Collection<String> terms = values.stream().map(o -> o.toString().toLowerCase()).collect(Collectors.toList()); 
+                        elasticSearchQuery.filter(QueryBuilders.termsQuery(f.getName(), terms));
+                        
+                    } else {
+                        throw new IllegalArgumentException("in operation: expected type Collection<?>");
+                    }
+
                     break;
                 case lt:
                     elasticSearchQuery.must(QueryBuilders.rangeQuery(f.getName()).lt(value));
