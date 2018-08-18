@@ -72,6 +72,15 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
         this.attributeHash = attributeHash;
         this.attributeId = attributeId;
+        
+        if(indexName != null) {
+            try {
+                LOGGER.trace("Created index [{}]", indexName);
+                client.createIndex(indexName);
+            } catch (IPFSStoreException e) {
+                LOGGER.error("Error whilst creating the index [{}]", indexName);
+            }
+        }
     }
 
 
