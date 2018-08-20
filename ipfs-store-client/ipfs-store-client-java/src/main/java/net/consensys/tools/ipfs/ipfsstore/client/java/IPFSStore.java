@@ -1,7 +1,6 @@
 package net.consensys.tools.ipfs.ipfsstore.client.java;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -77,12 +76,12 @@ public class IPFSStore {
      */
     public String store(String filePath) throws IPFSStoreException {
 
-        try {
-            return this.store(new FileInputStream(filePath));
+        try(FileInputStream input = new FileInputStream(filePath)) {
+            return this.store(input);
 
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new IPFSStoreException(e);
-        }
+        } 
     }
 
     /**
