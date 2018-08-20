@@ -97,7 +97,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public String store(byte[] file) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("store [size=" + file.length + "]");
+            LOGGER.debug("store [size={}]", file.length);
 
             ByteArrayResource content = new ByteArrayResource(file) {
                 @Override
@@ -127,7 +127,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                     requestEntity,
                     StoreResponse.class);
 
-            LOGGER.debug("store [] : hash=" + response.getBody().getHash());
+            LOGGER.debug("store [] : hash= {}", response.getBody().getHash());
 
             return response.getBody().getHash();
 
@@ -264,8 +264,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             URI url = uriComponentsBuilder.build().encode().toUri();
 
-            LOGGER.trace("url=" + url);
-            LOGGER.trace("query=" + query);
+            LOGGER.trace("url={}", url);
+            LOGGER.trace("query={}", query);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -277,7 +277,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                             HttpMethod.POST, entity, new ParameterizedTypeReference<RestResponsePage<Metadata>>() {
                             });
 
-            LOGGER.trace("result" + response.getBody());
+            LOGGER.trace("result {}", response.getBody());
 
             LOGGER.debug("Search [indexName={}, query={}] : {} result(s)", index, query, response.getBody().getTotalElements());
 

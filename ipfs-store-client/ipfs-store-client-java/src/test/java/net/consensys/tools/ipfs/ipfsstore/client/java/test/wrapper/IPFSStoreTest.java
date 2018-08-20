@@ -722,12 +722,12 @@ public class IPFSStoreTest {
 
         LOG.info(result.toString());
 
-        assertEquals(result.getTotalElements(), 1);
-        assertEquals(result.getContent().get(0).getIndex(), INDEX_NAME);
-        assertEquals(result.getContent().get(0).getDocumentId(), id);
-        assertEquals(result.getContent().get(0).getHash(), hash);
-        assertEquals(result.getContent().get(0).getContentType(), contentType);
-        assertEquals(result.getContent().get(0).getIndexFieldValue("author"), author);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(INDEX_NAME, result.getContent().get(0).getIndex());
+        assertEquals(id, result.getContent().get(0).getDocumentId());
+        assertEquals(hash, result.getContent().get(0).getHash());
+        assertEquals(contentType, result.getContent().get(0).getContentType());
+        assertEquals(author, result.getContent().get(0).getIndexFieldValue("author"));
     }
 
     @Test
