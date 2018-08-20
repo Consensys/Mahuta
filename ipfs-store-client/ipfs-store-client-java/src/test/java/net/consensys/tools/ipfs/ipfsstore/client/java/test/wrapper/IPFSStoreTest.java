@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 
@@ -176,13 +177,14 @@ public class IPFSStoreTest {
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        String idReturned = this.undertest.index(INDEX_NAME, hash);
+        IdAndHash idReturned = this.undertest.index(INDEX_NAME, hash);
         // ###########################
 
 
         LOG.info("idReturned=" + idReturned);
 
-        assertEquals(id, idReturned);
+        assertEquals(id, idReturned.getId());
+        assertEquals(hash, idReturned.getHash());
     }
 
     @Test
@@ -216,13 +218,15 @@ public class IPFSStoreTest {
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        String idReturned = this.undertest.index(INDEX_NAME, hash, id, contentType, indexFields);
+        IdAndHash idReturned = this.undertest.index(INDEX_NAME, hash, id, contentType, indexFields);
         // ###########################
 
 
         LOG.info("idReturned=" + idReturned);
 
-        assertEquals(id, idReturned);
+
+        assertEquals(id, idReturned.getId());
+        assertEquals(hash, idReturned.getHash());
     }
 
 
@@ -254,13 +258,15 @@ public class IPFSStoreTest {
         File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
 
         // ###########################
-        String idReturned = this.undertest.index(new FileInputStream(file), INDEX_NAME);
+        IdAndHash idReturned = this.undertest.index(new FileInputStream(file), INDEX_NAME);
         // ###########################
 
 
         LOG.info("idReturned=" + idReturned);
 
-        assertEquals(id, idReturned);
+
+        assertEquals(id, idReturned.getId());
+        assertEquals(hash, idReturned.getHash());
     }
 
     @Test
@@ -291,13 +297,15 @@ public class IPFSStoreTest {
         File file = new File(Objects.requireNonNull(classLoader.getResource("pdf-sample.pdf")).getFile());
 
         // ###########################
-        String idReturned = this.undertest.index(new FileInputStream(file), INDEX_NAME, id, contentType, indexFields);
+        IdAndHash idReturned = this.undertest.index(new FileInputStream(file), INDEX_NAME, id, contentType, indexFields);
         // ###########################
 
 
         LOG.info("idReturned=" + idReturned);
 
-        assertEquals(id, idReturned);
+
+        assertEquals(id, idReturned.getId());
+        assertEquals(hash, idReturned.getHash());
     }
 
     @Test(expected = IPFSStoreException.class)

@@ -67,9 +67,10 @@ public class IndexerConfiguration extends AbstractConfiguration {
         log.info("Connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port,
                 additional.get(KEY_CLUSTER));
         
-        try(PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
-                Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build())) {
-
+        try {
+            PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
+                    Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build());
+            
             TransportClient transportClient = preBuiltTransportClient.addTransportAddress(
                     new InetSocketTransportAddress(InetAddress.getByName(host), port));
 
