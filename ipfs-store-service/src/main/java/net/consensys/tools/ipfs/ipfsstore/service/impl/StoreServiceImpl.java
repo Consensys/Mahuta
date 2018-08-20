@@ -65,14 +65,14 @@ public class StoreServiceImpl implements StoreService {
         String hash = this.storageDao.createContent(file);
 
         // pin file
-        pinningConfiguration.getPinningStrategies().forEach((pinStrategy) -> {
+        pinningConfiguration.getPinningStrategies().forEach(pinStrategy -> 
             CompletableFuture.supplyAsync(() -> {
                 log.debug("Executing async pin_service [name={}] for hash {}",
                         pinStrategy.getName(), hash);
                 pinStrategy.pin(hash);
                 return true;
-            });
-        });
+            })
+        );
 
         return hash;
     }

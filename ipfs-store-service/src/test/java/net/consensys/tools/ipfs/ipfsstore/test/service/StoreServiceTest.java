@@ -538,10 +538,10 @@ public class StoreServiceTest {
         Page<Metadata> pageReturned = underTest.searchFiles(Optional.of(index), query, pagination);
         // #################################################
 
-        assertEquals(pageReturned.getTotalElements(), total);
-        assertEquals(pageReturned.getSize(), pageSize);
-        assertEquals(pageReturned.getNumberOfElements(), 1);
-        assertEquals(pageReturned.getTotalPages(), 1);
+        assertEquals(total, pageReturned.getTotalElements());
+        assertEquals(pageSize, pageReturned.getSize());
+        assertEquals(1, pageReturned.getNumberOfElements());
+        assertEquals(1, pageReturned.getTotalPages());
 
         Mockito.verify(indexDao, Mockito.times(1)).search(any(Pageable.class), eq(Optional.of(index)), any(Query.class));
         Mockito.verify(indexDao, Mockito.times(1)).count(eq(Optional.of(index)), any(Query.class));

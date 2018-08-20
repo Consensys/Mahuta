@@ -356,7 +356,7 @@ public class ElasticSearchIndexDao implements IndexDao {
         
         // Enable fieldata to be able to search and sort by string field
         // https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html#_fielddata_is_disabled_on_literal_text_literal_fields_by_default
-        indexFields.stream().forEach( (f) -> {
+        indexFields.stream().forEach( f -> {
             if(f.getValue() instanceof String) {
                 String src = "{\""+index+"\":{\"properties\":{\""+f.getName()+"\":{\"type\":\"text\",\"fielddata\":true}}}}";
                 client.admin().indices().preparePutMapping(index)
@@ -369,7 +369,7 @@ public class ElasticSearchIndexDao implements IndexDao {
         
         return indexFields.stream()
                 .collect(Collectors.toMap(
-                        field -> field.getName(),
+                        IndexField::getName,
                         field -> manipulateValue(field.getValue())));
     }
 

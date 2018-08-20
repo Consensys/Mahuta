@@ -10,13 +10,13 @@ import net.consensys.tools.ipfs.ipfsstore.Settings;
 @Configuration
 public class WebMVCConfiguration extends WebMvcConfigurerAdapter {
 
-    private static final String mappingPath = "/**";
+    private static final String MAPPING_PATH = "/**";
 
-    public String[] allowedOrigin;
-    public String[] allowedMethods;
-    public String[] allowedHeaders;
-    public boolean allowCredentials;
-    public Integer maxAge;
+    public final String[] allowedOrigin;
+    public final String[] allowedMethods;
+    public final String[] allowedHeaders;
+    public final boolean allowCredentials;
+    public final Integer maxAge;
 
     @Autowired
     public WebMVCConfiguration(Settings settings) {
@@ -37,7 +37,7 @@ public class WebMVCConfiguration extends WebMvcConfigurerAdapter {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
-        registry.addMapping(mappingPath).allowedOrigins(this.allowedOrigin)
+        registry.addMapping(MAPPING_PATH).allowedOrigins(this.allowedOrigin)
                 .allowedMethods(this.allowedMethods).allowedHeaders(this.allowedHeaders)
                 .allowCredentials(this.allowCredentials).maxAge(this.maxAge);
     }

@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
  * @param <ID> Entity ID type
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
-public interface IPFSStoreCustomRepository<E, ID extends Serializable> {
+public interface IPFSStoreCustomRepository<E, I extends Serializable> {
 
     /**
      * Find elements in the repository by full text search

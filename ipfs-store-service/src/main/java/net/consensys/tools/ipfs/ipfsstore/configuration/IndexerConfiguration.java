@@ -64,14 +64,13 @@ public class IndexerConfiguration extends AbstractConfiguration {
             throw new IllegalArgumentException(
                     "ipfs-store.index.additional.clusterName" + ERROR_NOT_NULL_OR_EMPTY);
 
+        log.info("Connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port,
+                additional.get(KEY_CLUSTER));
+        
         try {
-            log.info("Connecting to ElasticSearch [host: {}, port: {}, cluster: {}]", host, port,
-                    additional.get(KEY_CLUSTER));
-
-            // Load the client and start the connection
             PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
                     Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build());
-
+            
             TransportClient transportClient = preBuiltTransportClient.addTransportAddress(
                     new InetSocketTransportAddress(InetAddress.getByName(host), port));
 

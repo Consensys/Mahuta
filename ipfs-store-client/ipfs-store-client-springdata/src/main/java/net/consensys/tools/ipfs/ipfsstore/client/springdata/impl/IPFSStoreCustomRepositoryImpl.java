@@ -28,12 +28,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreCustomRepository;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 
-public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> implements IPFSStoreCustomRepository<E, ID> {
+public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> implements IPFSStoreCustomRepository<E, I> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreCustomRepositoryImpl.class);
 
+
+    public static final int DEFAULT_PAGE_NO = 0;
+    public static final int DEFAULT_PAGE_SIZE = 20;
+    
     protected static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
     protected static final String DEFAULT_CONTENT_TYPE = "application/json";
     protected static final String DEFAULT_ATTRIBUTE_ID = "id";
@@ -116,7 +121,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
                 return null;
             }
 
-            E entity = deserialize(content);
+            E entity = deserialize(content, hash);
 
             LOGGER.debug("Find By Hash [hash: {}]: {}", hash, entity);
 
@@ -153,9 +158,9 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         try {
             LOGGER.debug("Find all [query: {}, pagination: {}]", query, pageable);
 
-            Page<byte[]> searchAndFetch = this.client.searchAndFetch(indexName, query, pageable);
+            Page<MetadataAndPayload> searchAndFetch = this.client.searchAndFetch(indexName, query, pageable);
 
-            List<E> result = searchAndFetch.getContent().stream().map(this::deserialize).collect(Collectors.toList());
+            List<E> result = searchAndFetch.getContent().stream().map(r -> deserialize(r.getPayload(), r.getMetadata().getHash())).collect(Collectors.toList());
 
             return new PageImpl<>(result, pageable, searchAndFetch.getTotalElements());
 
@@ -165,11 +170,28 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
         }
     }
 
-    protected E deserialize(byte[] content) {
+    protected E deserialize(byte[] content, String hash) {
+        
+        E entity;
         try {
-            return this.mapper.readValue(content, entityClazz);
-        } catch (IOException e) {
-            LOGGER.error("Error while parsing json", e);
+            entity = this.mapper.readValue(content, entityClazz);
+        } catch (IOException ex) {
+            LOGGER.error("Error while parsing json", ex);
+            return null;
+        }
+        
+        
+        try {
+            this.setHash(entity, hash);
+            
+            return entity;
+            
+        } catch (NoSuchMethodException ex) {
+            LOGGER.warn("No method set{} in the entity", attributeHash);
+            return entity;
+        
+        } catch (IllegalAccessException | InvocationTargetException  ex) {
+            LOGGER.error("Error while invoking set{}", attributeHash, ex);
             return null;
         }
     }
@@ -178,8 +200,8 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
         try {
             return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
-        } catch (JsonProcessingException e1) {
-            LOGGER.error("Error while serialising the entity [entity=" + e + "]", e);
+        } catch (JsonProcessingException ex) {
+            LOGGER.error("Error while serialising the entity [entity={}]", e, ex);
             return null;
         }
     }

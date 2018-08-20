@@ -1,10 +1,7 @@
 package net.consensys.tools.ipfs.ipfsstore.configuration;
 
-import static net.consensys.tools.ipfs.ipfsstore.Settings.ERROR_NOT_NULL_OR_EMPTY;
 import static net.consensys.tools.ipfs.ipfsstore.Settings.STORAGE_IPFS;
 import static net.consensys.tools.ipfs.ipfsstore.Settings.STORAGE_SWARM;
-
-import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,7 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.util.StringUtils;
 
 import io.ipfs.api.IPFS;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +49,7 @@ public class StorageConfiguration extends AbstractConfiguration {
         log.info("Connecting to IPFS [{}]", super.toString());
 
         IPFS ipfs = super.getAdditionalParam("multiaddress")
-                .map(multiaddress -> new IPFS(multiaddress))
+                .map(IPFS::new)
                 .orElseGet(() -> new IPFS(host, port));
 
         StorageDao bean = new IPFSStorageDao(this, ipfs);
@@ -62,7 +58,6 @@ public class StorageConfiguration extends AbstractConfiguration {
         healthCheckScheduler.registerHealthCheck("ipfs", bean);
 
         log.info("Connected to IPFS [{}]", super.toString());
-        // log.debug(ipfs.config.show().toString());
 
         return bean;
 
@@ -79,4 +74,5 @@ public class StorageConfiguration extends AbstractConfiguration {
         throw new UnsupportedOperationException("Swarm StorageDAO is not implemented yet !");
     }
 
+    
 }

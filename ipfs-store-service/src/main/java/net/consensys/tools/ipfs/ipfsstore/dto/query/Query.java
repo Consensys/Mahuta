@@ -102,10 +102,6 @@ public class Query {
 
     @JsonIgnore
     public boolean isEmpty() {
-        if (this == null || this.getFilterClauses().isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.getFilterClauses().isEmpty();
     }
 }

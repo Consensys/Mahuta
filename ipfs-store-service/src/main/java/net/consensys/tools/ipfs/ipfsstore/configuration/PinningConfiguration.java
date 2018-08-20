@@ -30,7 +30,7 @@ import net.consensys.tools.ipfs.ipfsstore.dao.pinning.NativePinningStrategy;
 @Slf4j
 public class PinningConfiguration {
 
-    private final static Map<String, Function<AbstractConfiguration, PinningStrategy>> executors = new HashMap<>();
+    private static final Map<String, Function<AbstractConfiguration, PinningStrategy>> executors = new HashMap<>();
 
     @Setter
     @Getter
@@ -38,22 +38,15 @@ public class PinningConfiguration {
     @Getter
     private List<PinningStrategy> pinningStrategies = new ArrayList<>();
 
-    public PinningConfiguration() {
-    }
-
     @PostConstruct
     public void init() {
 
         // Configure each pinning strategy instantiation specifications
-        executors.put(NativePinningStrategy.NAME, (config) -> {
-            return new NativePinningStrategy(config);
-        });
-        executors.put(IPFSClusterPinningStrategy.NAME, (config) -> {
-            return new IPFSClusterPinningStrategy(config);
-        });
+        executors.put(NativePinningStrategy.NAME, NativePinningStrategy::new);
+        executors.put(IPFSClusterPinningStrategy.NAME, IPFSClusterPinningStrategy::new);
 
         // Register each pinning service
-        if (strategies == null || strategies.size() == 0) {
+        if (strategies == null || strategies.isEmpty()) {
             log.warn("No pinning strategy configured");
             return;
         }

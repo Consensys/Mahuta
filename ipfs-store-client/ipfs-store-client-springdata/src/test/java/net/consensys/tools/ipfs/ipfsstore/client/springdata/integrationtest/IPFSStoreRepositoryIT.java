@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -57,6 +58,7 @@ public class IPFSStoreRepositoryIT {
     }
 
     @Test
+    @Ignore
     public void run() throws InterruptedException {
 
 
@@ -66,8 +68,6 @@ public class IPFSStoreRepositoryIT {
 
         Entity e = underTest.save(Factory.getEntity(id, name, age));
         assertEquals(id, e.getId());
-
-        Thread.sleep(2000);
 
         Entity e1 = underTest.findOne(id);
         assertEquals(id, e1.getId());
