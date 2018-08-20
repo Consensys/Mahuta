@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreRepository;
+import net.consensys.tools.ipfs.ipfsstore.client.springdata.impl.IPFSStoreCustomRepositoryImpl;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.test.sample.Entity;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.test.sample.Factory;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.test.sample.TestRepository;
@@ -183,7 +184,7 @@ public class IPFSStoreRepositoryTest {
     @Test
     public void findAll() throws Exception {
         int total = 50;
-        Pageable pagination = new PageRequest(IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_SIZE);
+        Pageable pagination = new PageRequest(IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<byte[]> contentList = page.getContent().stream().map(e -> {
@@ -202,9 +203,9 @@ public class IPFSStoreRepositoryTest {
 
         LOGGER.debug(result.toString());
 
-        assertEquals("Result should contain " + IPFSStoreRepository.DEFAULT_PAGE_SIZE + " elements", IPFSStoreRepository.DEFAULT_PAGE_SIZE, result.getContent().size());
+        assertEquals("Result should contain " + IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE + " elements", IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE, result.getContent().size());
         assertEquals("Result should have a total of " + total + " elements", total, result.getTotalElements());
-        assertEquals("Result should have be on page no " + IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_NO, result.getNumber());
+        assertEquals("Result should have be on page no " + IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, result.getNumber());
 
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), eq(null), eq(pagination));
     }
@@ -242,7 +243,7 @@ public class IPFSStoreRepositoryTest {
     public void findAllWithSort() throws Exception {
         int total = 50;
         Sort sort = new Sort(Direction.ASC, "id");
-        Pageable pagination = new PageRequest(IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_SIZE, sort);
+        Pageable pagination = new PageRequest(IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE, sort);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<byte[]> contentList = page.getContent().stream().map(e -> {
@@ -261,9 +262,9 @@ public class IPFSStoreRepositoryTest {
 
         LOGGER.debug(result.toString());
 
-        assertEquals("Result should contain " + IPFSStoreRepository.DEFAULT_PAGE_SIZE + " elements", IPFSStoreRepository.DEFAULT_PAGE_SIZE, result.getContent().size());
+        assertEquals("Result should contain " + IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE + " elements", IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE, result.getContent().size());
         assertEquals("Result should have a total of " + total + " elements", total, result.getTotalElements());
-        assertEquals("Result should have be on page no " + IPFSStoreRepository.DEFAULT_PAGE_NO, IPFSStoreRepository.DEFAULT_PAGE_NO, result.getNumber());
+        assertEquals("Result should have be on page no " + IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, result.getNumber());
 
 
         Mockito.verify(client, Mockito.times(1)).searchAndFetch(eq(index), eq(null), eq(pagination));

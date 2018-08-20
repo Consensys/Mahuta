@@ -17,7 +17,7 @@ import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreRepository;
 
-public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSStoreCustomRepositoryImpl<E, ID> implements IPFSStoreRepository<E, ID> {
+public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStoreCustomRepositoryImpl<E, I> implements IPFSStoreRepository<E, I> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreRepositoryImpl.class);
 
     @Autowired
@@ -76,7 +76,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     }
 
     @Override
-    public E findOne(ID id) {
+    public E findOne(I id) {
         try {
             LOGGER.debug("Retrieve entity [id={}]", id);
 
@@ -158,7 +158,7 @@ public class IPFSStoreRepositoryImpl<E, ID extends Serializable> extends IPFSSto
     }
 
     @Override
-    public Iterable<E> findAll(Iterable<ID> ids) {
+    public Iterable<E> findAll(Iterable<I> ids) {
         throw new UnsupportedOperationException();
     }
 

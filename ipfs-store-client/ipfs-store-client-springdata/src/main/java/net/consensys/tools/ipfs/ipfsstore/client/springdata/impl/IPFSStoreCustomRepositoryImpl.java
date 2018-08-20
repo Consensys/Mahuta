@@ -31,9 +31,13 @@ import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreExcepti
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreCustomRepository;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 
-public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> implements IPFSStoreCustomRepository<E, ID> {
+public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> implements IPFSStoreCustomRepository<E, I> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreCustomRepositoryImpl.class);
 
+
+    public static final int DEFAULT_PAGE_NO = 0;
+    public static final int DEFAULT_PAGE_SIZE = 20;
+    
     protected static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
     protected static final String DEFAULT_CONTENT_TYPE = "application/json";
     protected static final String DEFAULT_ATTRIBUTE_ID = "id";
@@ -178,8 +182,8 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, ID extends Serializable> 
 
         try {
             return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
-        } catch (JsonProcessingException e1) {
-            LOGGER.error("Error while serialising the entity [entity=" + e + "]", e);
+        } catch (JsonProcessingException ex) {
+            LOGGER.error("Error while serialising the entity [entity={}]", e, ex);
             return null;
         }
     }
