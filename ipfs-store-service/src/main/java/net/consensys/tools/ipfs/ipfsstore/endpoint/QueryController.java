@@ -173,7 +173,7 @@ public class QueryController {
             Optional<String> sortAttribute, Sort.Direction sortDirection, Query query) {
 
         PageRequest pagination = sortAttribute
-                .map((s) -> new PageRequest(pageNo, pageSize,
+                .map(s -> new PageRequest(pageNo, pageSize,
                         new Sort(sortDirection, sortAttribute.get())))
                 .orElse(new PageRequest(pageNo, pageSize));
 
