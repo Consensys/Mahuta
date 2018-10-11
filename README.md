@@ -17,6 +17,7 @@ These instructions will get you a copy of the project up and running on your loc
 - Java 8
 - Maven 
 - Docker (optional)
+- For elasticsearch, set [vm.max_map_count](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode) to at least 262144 on the host
 
 
 ### Build
