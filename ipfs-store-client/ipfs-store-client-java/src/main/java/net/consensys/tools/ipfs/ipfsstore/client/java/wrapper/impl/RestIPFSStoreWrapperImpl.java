@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -27,6 +25,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.utils.RestResponsePage;
 import net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.IPFSStoreWrapper;
@@ -41,9 +40,8 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
  *
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
+@Slf4j
 public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestIPFSStoreWrapperImpl.class);
 
     private static final String BASE_API_PATH = "/ipfs-store";
     private static final String STORE_API_PATH = "/raw/store";
@@ -79,17 +77,17 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     @Override
     public void createIndex(String index) throws IPFSStoreException {
         try {
-            LOGGER.debug("createIndex [indexName={}]", index);
+            log.debug("createIndex [indexName={}]", index);
 
             restTemplate.postForLocation(
                     this.endpoint + BASE_API_PATH + CREATE_INDEX_API_PATH + "/" + index,
                     HttpEntity.EMPTY);
 
-            LOGGER.debug("Index [indexName={}] created !", index);
+            log.debug("Index [indexName={}] created !", index);
 
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while creating the index [index={}]", index, ex);
+            log.error("Error while creating the index [index={}]", index, ex);
             throw new IPFSStoreException("Error while creating the index [index=" + index + "]", ex);
         }
     }
@@ -97,7 +95,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public String store(byte[] file) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("store [size={}]", file.length);
+            log.debug("store [size={}]", file.length);
 
             ByteArrayResource content = new ByteArrayResource(file) {
                 @Override
@@ -127,12 +125,12 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                     requestEntity,
                     StoreResponse.class);
 
-            LOGGER.debug("store [] : hash= {}", response.getBody().getHash());
+            log.debug("store [] : hash= {}", response.getBody().getHash());
 
             return response.getBody().getHash();
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while storing the file", ex);
+            log.error("Error while storing the file", ex);
             throw new IPFSStoreException("Error while storing the file", ex);
         }
     }
@@ -140,7 +138,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public IndexerResponse index(IndexerRequest request) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("index [request={}]", request);
+            log.debug("index [request={}]", request);
 
             HttpHeaders httpHeader = new HttpHeaders();
             httpHeader.setContentType(MediaType.APPLICATION_JSON);
@@ -152,12 +150,12 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                     IndexerResponse.class);
 
 
-            LOGGER.debug("index [request={}] : {}", request, response);
+            log.debug("index [request={}] : {}", request, response);
 
             return response;
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while indexing the content", ex);
+            log.error("Error while indexing the content", ex);
             throw new IPFSStoreException("Error while indexing the content", ex);
         }
     }
@@ -165,7 +163,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public IndexerResponse storeAndIndex(byte[] file, IndexerRequest request) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("storeAndIndex [request={}]", request);
+            log.debug("storeAndIndex [request={}]", request);
 
             ByteArrayResource content = new ByteArrayResource(file) {
                 @Override
@@ -202,12 +200,12 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                     requestEntity,
                     IndexerResponse.class);
 
-            LOGGER.debug("storeAndIndex [request={}] : {}", request, response.getBody());
+            log.debug("storeAndIndex [request={}] : {}", request, response.getBody());
 
             return response.getBody();
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while storing and indexing the content request=" + request, ex);
+            log.error("Error while storing and indexing the content request=" + request, ex);
             throw new IPFSStoreException("Error while storing and indexing the content request=" + request, ex);
         }
     }
@@ -215,7 +213,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public byte[] fetch(String index, String hash) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("fetch [indexName={}, hash={}]", index, hash);
+            log.debug("fetch [indexName={}, hash={}]", index, hash);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -227,12 +225,12 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                     entity,
                     byte[].class);
 
-            LOGGER.debug("fetch [indexName={}, hash={}] : {}", index, hash, response);
+            log.debug("fetch [indexName={}, hash={}] : {}", index, hash, response);
 
             return response.getBody();
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while fetching the content", ex);
+            log.error("Error while fetching the content", ex);
             throw new IPFSStoreException("Error while fetching the content", ex);
         }
     }
@@ -240,7 +238,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
     public Page<Metadata> search(String index, Query query, Pageable pageable) throws IPFSStoreException {
 
         try {
-            LOGGER.debug("Search [indexName={}, query={}]", index, query);
+            log.debug("Search [indexName={}, query={}]", index, query);
 
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                     .fromUriString(this.endpoint + BASE_API_PATH + SEARCH_API_PATH + "?index=" + index);
@@ -264,8 +262,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             URI url = uriComponentsBuilder.build().encode().toUri();
 
-            LOGGER.trace("url={}", url);
-            LOGGER.trace("query={}", query);
+            log.trace("url={}", url);
+            log.trace("query={}", query);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -277,14 +275,14 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                             HttpMethod.POST, entity, new ParameterizedTypeReference<RestResponsePage<Metadata>>() {
                             });
 
-            LOGGER.trace("result {}", response.getBody());
+            log.trace("result {}", response.getBody());
 
-            LOGGER.debug("Search [indexName={}, query={}] : {} result(s)", index, query, response.getBody().getTotalElements());
+            log.debug("Search [indexName={}, query={}] : {} result(s)", index, query, response.getBody().getTotalElements());
 
             return response.getBody();
 
         } catch (RestClientException ex) {
-            LOGGER.error("Error while searching [indexName={}, query={}]", index, query, ex);
+            log.error("Error while searching [indexName={}, query={}]", index, query, ex);
             throw new IPFSStoreException("Error while searching  [indexName=" + index + ", query="+query+"]", ex);
         }
     }

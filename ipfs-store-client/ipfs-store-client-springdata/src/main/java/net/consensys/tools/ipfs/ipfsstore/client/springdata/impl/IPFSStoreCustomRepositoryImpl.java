@@ -16,8 +16,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,15 +24,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreCustomRepository;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 
+@Slf4j
 public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> implements IPFSStoreCustomRepository<E, I> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreCustomRepositoryImpl.class);
-
 
     public static final int DEFAULT_PAGE_NO = 0;
     public static final int DEFAULT_PAGE_SIZE = 20;
@@ -80,10 +78,10 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
         
         if(indexName != null) {
             try {
-                LOGGER.trace("Created index [{}]", indexName);
+                log.trace("Created index [{}]", indexName);
                 client.createIndex(indexName);
             } catch (IPFSStoreException e) {
-                LOGGER.error("Error whilst creating the index [{}]", indexName);
+                log.error("Error whilst creating the index [{}]", indexName);
             }
         }
     }
@@ -92,10 +90,10 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
     @Override
     public Page<E> findByfullTextSearch(String fullTextCriteria, Pageable pagination) {
 
-        LOGGER.debug("Find all [criteria: {}, pagination: {}]", fullTextCriteria, pagination);
+        log.debug("Find all [criteria: {}, pagination: {}]", fullTextCriteria, pagination);
         
         if(fullTextFields.isEmpty()) {
-            LOGGER.warn("Can't perform a full text search. no fields configured [fullTextFields]");
+            log.warn("Can't perform a full text search. no fields configured [fullTextFields]");
             return null;
         }
 
@@ -104,7 +102,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
 
         Page<E> result = this.search(query, pagination);
 
-        LOGGER.debug("Find all [criteria: {}, pagination: {}] : {}", fullTextCriteria, pagination, result);
+        log.debug("Find all [criteria: {}, pagination: {}] : {}", fullTextCriteria, pagination, result);
 
         return result;
     }
@@ -113,7 +111,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
     public E findByHash(String hash) {
 
         try {
-            LOGGER.debug("Find By Hash [hash: {}]", hash);
+            log.debug("Find By Hash [hash: {}]", hash);
 
             byte[] content = this.client.get(indexName, hash);
 
@@ -123,12 +121,12 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
 
             E entity = deserialize(content, hash);
 
-            LOGGER.debug("Find By Hash [hash: {}]: {}", hash, entity);
+            log.debug("Find By Hash [hash: {}]: {}", hash, entity);
 
             return entity;
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Find By Hash [hash: {}]", hash, e);
+            log.error("Find By Hash [hash: {}]", hash, e);
             return null;
         }
     }
@@ -137,17 +135,17 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
     @Override
     public String saveWithoutAutoSetup(E entity) {
         try {
-            LOGGER.debug("Saving entity (withoutAutoSetup) [entity: {}]", entity);
+            log.debug("Saving entity (withoutAutoSetup) [entity: {}]", entity);
 
             // Store and index the entity into IPFS+ElasticSearch through ipfs-document-persister service
             String hash = this.client.store(serialize(entity));
 
-            LOGGER.debug("Entity {} saved. {}", entity, hash);
+            log.debug("Entity {} saved. {}", entity, hash);
 
             return hash;
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Error while saving the entity {}", entity, e);
+            log.error("Error while saving the entity {}", entity, e);
             return null;
         }
     }
@@ -156,7 +154,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
     protected Page<E> search(Query query, Pageable pageable) {
 
         try {
-            LOGGER.debug("Find all [query: {}, pagination: {}]", query, pageable);
+            log.debug("Find all [query: {}, pagination: {}]", query, pageable);
 
             Page<MetadataAndPayload> searchAndFetch = this.client.searchAndFetch(indexName, query, pageable);
 
@@ -165,7 +163,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
             return new PageImpl<>(result, pageable, searchAndFetch.getTotalElements());
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Find all [query: {}, pagination: {}]", query, pageable, e);
+            log.error("Find all [query: {}, pagination: {}]", query, pageable, e);
             return null;
         }
     }
@@ -176,7 +174,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
         try {
             entity = this.mapper.readValue(content, entityClazz);
         } catch (IOException ex) {
-            LOGGER.error("Error while parsing json", ex);
+            log.error("Error while parsing json", ex);
             return null;
         }
         
@@ -187,11 +185,11 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
             return entity;
             
         } catch (NoSuchMethodException ex) {
-            LOGGER.warn("No method set{} in the entity", attributeHash);
+            log.warn("No method set{} in the entity", attributeHash);
             return entity;
         
         } catch (IllegalAccessException | InvocationTargetException  ex) {
-            LOGGER.error("Error while invoking set{}", attributeHash, ex);
+            log.error("Error while invoking set{}", attributeHash, ex);
             return null;
         }
     }
@@ -201,7 +199,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
         try {
             return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
         } catch (JsonProcessingException ex) {
-            LOGGER.error("Error while serialising the entity [entity={}]", e, ex);
+            log.error("Error while serialising the entity [entity={}]", e, ex);
             return null;
         }
     }
