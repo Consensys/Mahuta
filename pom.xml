@@ -15,7 +15,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-        <spring-data.version>1.4.1.RELEASE</spring-data.version>
+        <spring-data.version>1.13.6.RELEASE</spring-data.version>
         <java-ipfs.version>v1.2.0</java-ipfs.version>
         <elasticsearch.version>6.4.2</elasticsearch.version>
         <commonio.version>2.6</commonio.version>

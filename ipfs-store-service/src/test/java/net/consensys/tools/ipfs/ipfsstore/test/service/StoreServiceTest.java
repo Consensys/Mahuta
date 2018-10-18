@@ -515,7 +515,7 @@ public class StoreServiceTest {
     public void searchFilesSuccessTest() throws Exception {
 
         int total = 1;
-        int pageNo = 1;
+        int pageNo = 0;
         int pageSize = 20;
       
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
