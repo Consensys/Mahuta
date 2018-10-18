@@ -81,7 +81,7 @@ import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
-@PrepareForTest({TransportClient.class, AdminClient.class})
+@PrepareForTest({TransportClient.class, AdminClient.class, SearchHit.class, SearchHits.class})
 public class ElasticSearchDAOTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchDAOTest.class);
@@ -105,7 +105,7 @@ public class ElasticSearchDAOTest {
 
         PowerMockito.whenNew(TransportClient.class).withAnyArguments().thenReturn(client);
 
-        underTest = new ElasticSearchIndexDao(preBuiltTransportClient, client, true);
+        underTest = new ElasticSearchIndexDao(client, true);
     }
 
     public static List<IndexField> getIndexFields(String key, String value) {
@@ -867,16 +867,16 @@ public class ElasticSearchDAOTest {
         sourceMap.put(customAttributeKey, customAttributeVal);
 
         SearchHit searchHit1 = mock(SearchHit.class);
-        when(searchHit1.getSourceAsMap()).thenReturn(sourceMap);
-        when(searchHit1.getId()).thenReturn(documentId);
-        when(searchHit1.getType()).thenReturn(indexName);
-        when(searchHit1.getIndex()).thenReturn(indexName);
+        PowerMockito.when(searchHit1.getSourceAsMap()).thenReturn(sourceMap);
+        PowerMockito.when(searchHit1.getId()).thenReturn(documentId);
+        PowerMockito.when(searchHit1.getType()).thenReturn(indexName);
+        PowerMockito.when(searchHit1.getIndex()).thenReturn(indexName);
 
         SearchHits searchHits = mock(SearchHits.class);
-        when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
+        PowerMockito.when(searchHits.getHits()).thenReturn(Arrays.array(searchHit1));
 
         SearchResponse searchResponse = mock(SearchResponse.class);
-        when(searchResponse.getHits()).thenReturn(searchHits);
+        PowerMockito.when(searchResponse.getHits()).thenReturn(searchHits);
 
         ListenableActionFuture listenableActionFuture = mock(ListenableActionFuture.class);
 

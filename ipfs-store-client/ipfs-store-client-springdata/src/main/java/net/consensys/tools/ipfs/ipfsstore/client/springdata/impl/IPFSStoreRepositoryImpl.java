@@ -1,26 +1,26 @@
 package net.consensys.tools.ipfs.ipfsstore.client.springdata.impl;
 
 import java.io.Serializable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreRepository;
 
+@Slf4j
 public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStoreCustomRepositoryImpl<E, I> implements IPFSStoreRepository<E, I> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStoreRepositoryImpl.class);
 
     @Autowired
     public IPFSStoreRepositoryImpl(IPFSStore client, String indexName, Set<String> indexFields, Set<String> fullTextFields, Class<E> entityClazz) {
@@ -40,7 +40,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
     @Override
     public <S extends E> S save(S entity, Map<String, Object> externalIndexFields) {
         try {
-            LOGGER.debug("Saving entity [entity: {}, external_index_fields: {}]", entity, externalIndexFields);
+            log.debug("Saving entity [entity: {}, external_index_fields: {}]", entity, externalIndexFields);
 
 
             // Identifier
@@ -53,7 +53,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
                 }
                 
             } catch (NoSuchMethodException e) {
-                LOGGER.warn("No method getId() in the entity");
+                log.warn("No method getId() in the entity");
             }
 
             // Store and index the entity into IPFS+ElasticSearch through ipfs-store service
@@ -69,10 +69,10 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
             try {
                 this.setHash(entity, idAndHash.getHash());
             } catch (NoSuchMethodException e) {
-                LOGGER.warn("No method setHash(hash) in the entity");
+                log.warn("No method setHash(hash) in the entity");
             }
 
-            LOGGER.debug("Entity [entity: {}, external_index_fields: {}] saved. hash={}", entity, externalIndexFields, idAndHash.getHash());
+            log.debug("Entity [entity: {}, external_index_fields: {}] saved. hash={}", entity, externalIndexFields, idAndHash.getHash());
 
             return entity;
 
@@ -80,7 +80,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
                 IllegalAccessException |
                 IllegalArgumentException |
                 InvocationTargetException e) {
-            LOGGER.error("Error while saving the entity [entity: {}, external_index_fields: {}]", entity, externalIndexFields, e);
+            log.error("Error while saving the entity [entity: {}, external_index_fields: {}]", entity, externalIndexFields, e);
             return null;
         }
     }
@@ -88,7 +88,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
     @Override
     public E findOne(I id) {
         try {
-            LOGGER.debug("Retrieve entity [id={}]", id);
+            log.debug("Retrieve entity [id={}]", id);
 
             MetadataAndPayload result = this.client.getById(indexName, id.toString());
 
@@ -98,12 +98,12 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
 
             E entity = deserialize(result.getPayload(), result.getMetadata().getHash());
 
-            LOGGER.debug("Entity [id={}] retrieved. entity={}", id, entity);
+            log.debug("Entity [id={}] retrieved. entity={}", id, entity);
 
             return entity;
 
         } catch (IPFSStoreException e) {
-            LOGGER.error("Error while retrieving the entity [id={}]", id, e);
+            log.error("Error while retrieving the entity [id={}]", id, e);
             return null;
         }
     }
@@ -133,7 +133,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
         try {
             return (this.client.getMetadataById(indexName, id.toString()) != null);
         } catch (IPFSStoreException e) {
-            LOGGER.error("Error while retrieving the entity [id={}]", id, e);
+            log.error("Error while retrieving the entity [id={}]", id, e);
             return false;
         }
     }

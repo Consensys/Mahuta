@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
+import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
@@ -34,9 +33,9 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
  *
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
+@Slf4j
 public class IPFSStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IPFSStore.class);
     private static final String ID_ATTRIBUTE = "_id";
 
     private final IPFSStoreWrapper wrapper;
@@ -324,7 +323,7 @@ public class IPFSStore {
 
         Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(0, 1));
         if (searchResult.getTotalElements() == 0) {
-            LOGGER.warn("Content [indexName={}, id={}] not found", indexName, id);
+            log.warn("Content [indexName={}, id={}] not found", indexName, id);
             return null;
         }
 
@@ -451,7 +450,7 @@ public class IPFSStore {
                         .build();
                 
             } catch (IPFSStoreException e) {
-                LOGGER.error("Error while fetching " + m.getHash(), e);
+                log.error("Error while fetching " + m.getHash(), e);
                 return null;
             }
         }).collect(Collectors.toList());

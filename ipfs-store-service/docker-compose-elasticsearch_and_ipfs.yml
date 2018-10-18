@@ -2,21 +2,6 @@ version: '2'
 
 services:
 
-  ipfs-store:
-    build: ./
-    image: kauri/ipfs-store
-    ports:
-    - "8040:8040"
-    depends_on:
-      - elasticsearch
-    environment:
-      LOG_LEVEL: TRACE
-      ELASTIC_HOST: elasticsearch
-      ELASTIC_PORT: 9300
-      IPFS_MULTIADDRESS: /dnsaddr/ipfs.infura.io/tcp/5001/https
-    networks:
-      - default
-
   elasticsearch:
     image:  docker.elastic.co/elasticsearch/elasticsearch-oss:6.4.2 
     ports:
@@ -37,5 +22,14 @@ services:
         hard: 65536
     networks:
       - default
-
+          
+  ipfs:
+    image: jbenet/go-ipfs
+    ports:
+          - "4001:4001"
+          - "5001:5001"
+          - "8081:8080"
+    volumes:
+      - .ipfs-docker-data:/data/ipfs/
+      - .ipfs-docker-staging:/export
 

@@ -26,7 +26,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.util.StringUtils;
@@ -61,16 +60,13 @@ public class ElasticSearchIndexDao implements IndexDao {
 
     private final ObjectMapper mapper;
 
-    @SuppressWarnings("unused") // Needed to keep the connection alive
-    private final PreBuiltTransportClient preBuiltTransportClient;
     private final TransportClient client;
     private final boolean indexNullValues;
 
     /*
      * Constructor
      */
-    public ElasticSearchIndexDao(PreBuiltTransportClient preBuiltTransportClient,
-            TransportClient client, boolean indexNullValues) {
+    public ElasticSearchIndexDao(TransportClient client, boolean indexNullValues) {
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -82,7 +78,6 @@ public class ElasticSearchIndexDao implements IndexDao {
                 .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
 
         this.indexNullValues = indexNullValues;
-        this.preBuiltTransportClient = preBuiltTransportClient;
         this.client = client;
     }
 

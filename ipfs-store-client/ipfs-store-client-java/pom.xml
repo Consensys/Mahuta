@@ -10,39 +10,31 @@
 	<artifactId>ipfs-store-client-java</artifactId>
 
 	<properties>
-		<java.version>1.8</java.version>
-		<spring.version>5.1.1.RELEASE</spring.version>
-		<spring-data.version>1.4.1.RELEASE</spring-data.version>
-		<jackson.version>2.9.4</jackson.version>
-		<lombok.version>1.16.20</lombok.version>
-		<commonio.version>2.6</commonio.version>
 	</properties>
 
 	<dependencies>
 
-		<!-- Internal dependencies -->
-		<dependency>
-			<groupId>net.consensys.tools.ipfs</groupId>
-			<artifactId>ipfs-store-service</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <!-- IPFS-Store Common -->
+        <dependency>
+            <groupId>net.consensys.tools.ipfs</groupId>
+            <artifactId>ipfs-store-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
 
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-commons-core</artifactId>
+			<artifactId>spring-data-commons</artifactId>
 			<version>${spring-data.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.hobsoft.spring</groupId>
@@ -59,18 +51,26 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
 
 		<!-- Test -->
 		<dependency>
@@ -90,7 +90,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>

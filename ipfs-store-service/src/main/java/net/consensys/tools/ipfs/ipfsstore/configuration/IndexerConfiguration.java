@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -68,20 +68,21 @@ public class IndexerConfiguration extends AbstractConfiguration {
                 additional.get(KEY_CLUSTER));
         
         try {
-            PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(
-                    Settings.builder().put("cluster.name", additional.get(KEY_CLUSTER)).build());
-            
-            TransportClient transportClient = preBuiltTransportClient.addTransportAddress(
-                    new InetSocketTransportAddress(InetAddress.getByName(host), port));
 
-            IndexDao bean = new ElasticSearchIndexDao(preBuiltTransportClient, transportClient,
+            Settings settings = Settings.builder()
+                    .put("cluster.name", additional.get(KEY_CLUSTER)).build();
+
+            TransportClient transportClient = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
+  
+            IndexDao bean = new ElasticSearchIndexDao(transportClient,
                     Boolean.parseBoolean(additional.get(KEY_INDEX_NULL)));
-
+            
             // Register to the heath check service
             healthCheckScheduler.registerHealthCheck("elasticsearch", bean);
-
-            log.info("Connected to ElasticSearch [host: {}, port: {}, cluster: {}] : {}", host,
-                    port, additional.get(KEY_CLUSTER), transportClient.listedNodes());
+            
+           log.info("Connected to ElasticSearch [host: {}, port: {}, cluster: {}] : {}", host,
+                    port, additional.get(KEY_CLUSTER).toString(), transportClient.listedNodes().toString());
 
             return bean;
 
