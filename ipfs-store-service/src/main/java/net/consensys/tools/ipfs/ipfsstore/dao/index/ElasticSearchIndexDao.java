@@ -371,8 +371,6 @@ public class ElasticSearchIndexDao implements IndexDao {
     /**
      * Manipulate value
      * - Replace null or empty string value by NULL to add it in the index (E.S. doesn't index null value)
-     * - Lower-case
-     * - Arrays
      *
      * @param value Value
      * @return Value replaced by NULL if null or empty
@@ -388,15 +386,16 @@ public class ElasticSearchIndexDao implements IndexDao {
         }
         
         if(value instanceof String) {
-            if(StringUtils.isEmpty(value)) {
+            if(((String) value).length() == 0) {
                 return NULL;
             } else {
-                return ((String) value).toLowerCase();
-                
+                return value;
             }
+            
+        } else {
+            return value;
         }
         
-        return value;
     }
 
     /**
