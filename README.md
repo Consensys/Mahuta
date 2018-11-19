@@ -11,7 +11,7 @@ A request requires the following the information:
     some metadata (index fields) - indexed on a search engine alongside the payload IPFS hash
 
 
-[![IPFS-_Store_-_New_frame.jpg](https://s22.postimg.cc/pgubsxo7l/IPFS-_Store_-_New_frame.jpg)](https://postimg.cc/image/mziklo4b1/)
+[![IPFS-_Store_-_New_frame.jpg](https://api.beta.kauri.io:443/ipfs/QmPznCZDvzmEun5qstBQyyLEDfDFqbhuS24Pgsixy1eSnP)](https://postimg.cc/image/mziklo4b1/)
 
 ## Getting Started
 
