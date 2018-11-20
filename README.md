@@ -1,42 +1,90 @@
 IPFS-Store
 ======
 
-**IPFS-Store** aims to provide an API on top of IPFS with the following features:
-- IPFS proxy
-- Search capabilities
-- Pinning strategy (replication strategy)
+**IPFS-Store** is a search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications requiring content discovery (conditional queries or full text search with fuzziness) in a set of IPFS files. This service also offers extra-features for you IPFS environment such as multi-pinning (replication), smart contract event listening (wip).
 
-[![IPFS-_Store_-_New_frame.jpg](https://s22.postimg.cc/pgubsxo7l/IPFS-_Store_-_New_frame.jpg)](https://postimg.cc/image/mziklo4b1/)
+IPFS-Store can be deployed as a simple, scalable and configurable API and comes with client libraries (Java, JavaScript) to easily integrate it in an application.
+
+A request requires the following the information:
+
+    a payload (JSON or multipart file) - stored on IPFS
+    some metadata (index fields) - indexed on a search engine alongside the payload IPFS hash
+
+
+[![IPFS-_Store_-_New_frame.jpg](https://api.beta.kauri.io:443/ipfs/QmPznCZDvzmEun5qstBQyyLEDfDFqbhuS24Pgsixy1eSnP)](https://postimg.cc/image/mziklo4b1/)
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
-### Prerequisites
+
+### Docker
+
+#### Prerequisites
+
+IPFS-Store depends of two components: 
+- an IPFS node ([go](https://github.com/ipfs/go-ipfs) or [js](https://github.com/ipfs/js-ipfs) implementation)
+- a search engine (currently only ElasticSearch is supported)
+
+##### Create a virtual network
+
+Let's create a private Docker network to make our containers able to communicate together.
+
+```
+$ docker network create ipfs-store-network
+```
+
+##### Start IPFS daemon
+
+Start an IPFS daemon to join the IPFS network and expore the port 4001 (peer2p networking) and 5001(API)
+
+```
+$ docker run -d --name ipfs -v /path/to/ipfs/export:/export -v /path/to/ipfs/data:/data/ipfs -p :4001:4001 -p :5001:5001 ipfs/go-ipfs:latest
+```
+
+##### Start ElasticSearch
+
+Start ElasticSearch database used as a content indexer.
+
+```
+$ docker run -d --name elasticsearch -v /path/to/elasticsearch:/data/elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" --net ipfs-store-network docker.elastic.co/elasticsearch/elasticsearch:6.5.0
+```
+
+#### Start IPFS-Store
+
+Finally we can run IPFS-Store using the port 8040.
+
+```
+$ docker run --name ipfs_store -p 8040:8040 -e IPFS_HOST=ipfs -e ELASTIC_HOST=elasticsearch --net ipfs-store-network  gjeanmart/ipfs-store
+```
+
+A [docker-compose file](https://github.com/ConsenSys/IPFS-Store/blob/master/ipfs-store-service/docker-compose.yml) can also be used to start IPFS-Store and its dependencies.
+
+To stop the containers, run  `$ docker stop ipfs elasticsearch ipfs_store`.
+
+### From the source
+
+#### Prerequisites
 
 - Java 8
-- Maven 
-- Docker (optional)
+- Maven
 - For elasticsearch, set [vm.max_map_count](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode) to at least 262144 on the host
 
-
-### Build
+#### Build
 
 1. After checking out the code, navigate to the root directory
+
 ```
 $ cd /path/to/ipfs-store/ipfs-store-service/
 ```
 
 2. Compile, test and package the project
+
 ```
 $ mvn clean package
 ```
 
 3. Run the project
-
-a. If you have a running instance of IPFS and ElasticSearch 
-
-**Executable JAR:**
 
 ```
 $ export IPFS_HOST=localhost
@@ -47,30 +95,6 @@ $ export ELASTIC_CLUSTERNAME=elasticsearch
 
 $ java -jar target/ipfs-store-exec.jar
 ```
-
-**Docker:**
-
-```
-$ docker build  . -t kauri/ipfs-store:latest
-
-$ export IPFS_HOST=localhost
-$ export IPFS_PORT=5001
-$ export ELASTIC_HOST=localhost
-$ export ELASTIC_PORT=9300
-$ export ELASTIC_CLUSTERNAME=elasticsearch
-
-$ docker run -p 8040:8040 kauri/ipfs-store
-```
-
-b. If you prefer build all-in-one with docker-compose
-
-```
-$ ./docker-compose.sh
-```
-
-
-[WIKI: Getting-started](https://github.com/ConsenSys/IPFS-Store/wiki/1.-Getting-started)
-
 
 ## API Documentation
 
