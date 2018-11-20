@@ -4,7 +4,7 @@
 
 	<groupId>net.consensys.tools.ipfs</groupId>
 	<artifactId>ipfs-store</artifactId>
-	<version>0.1.13-SNAPSHOT</version>
+	<version>0.1.14-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
