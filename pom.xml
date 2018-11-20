@@ -4,7 +4,7 @@
 
 	<groupId>net.consensys.tools.ipfs</groupId>
 	<artifactId>ipfs-store</artifactId>
-	<version>0.1.14-SNAPSHOT</version>
+	<version>0.1.14</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -55,7 +55,7 @@
 	<scm>
 		<connection>scm:git:git:@github.com:ConsenSys/IPFS-Store.git</connection>
 		<developerConnection>scm:git:git@github.com:ConsenSys/IPFS-Store.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v0.1.14</tag>
 	</scm>
 
 	<distributionManagement>
