@@ -3,6 +3,7 @@ package net.consensys.tools.ipfs.ipfsstore;
 import java.util.Arrays;
 import java.util.stream.StreamSupport;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,13 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 @ComponentScan({ "net.consensys.tools.ipfs.ipfsstore" })
 @Slf4j
 public class Application {
-
-    private static final String NAME = "IPFS-STORE";
-
+    
     public static void main(String[] args) {
-        log.info("############### Starting Application [{}] ... ############### ", NAME);
+        log.info("############### Starting Application [{} - version: {}] ... ############### ", NAME, VERSION);
         SpringApplication.run(Application.class, args);
-        log.info("############### Application [{}] Started ! ############### ", NAME);
+        log.info("############### Application [{} - version: {}] Started ! ############### ", NAME, VERSION);
     }
 
     @SuppressWarnings("rawtypes")
@@ -45,6 +44,18 @@ public class Application {
                 .filter(prop -> !(prop.contains("credentials") || prop.contains("password")))
                 .forEach(prop -> log.trace("{}: {}", prop, env.getProperty(prop)));
         log.trace("===========================================");
+    }
+
+
+    public static String NAME;
+    @Value("${app.name}")
+    public void setName(String name) {
+        NAME = name;
+    }
+    public static String VERSION;
+    @Value("${app.version}")
+    public void setVersion(String version) {
+        VERSION = version;
     }
 
 }
