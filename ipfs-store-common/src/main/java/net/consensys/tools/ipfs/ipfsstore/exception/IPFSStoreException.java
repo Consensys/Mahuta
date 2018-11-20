@@ -1,4 +1,4 @@
-package net.consensys.tools.ipfs.ipfsstore.client.java.exception;
+package net.consensys.tools.ipfs.ipfsstore.exception;
 
 /**
  * IPFSStoreException

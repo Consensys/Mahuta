@@ -14,10 +14,12 @@ import org.springframework.data.domain.Sort;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreRepository;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 @Slf4j
 public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStoreCustomRepositoryImpl<E, I> implements IPFSStoreRepository<E, I> {
@@ -102,9 +104,12 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
 
             return entity;
 
-        } catch (IPFSStoreException e) {
-            log.error("Error while retrieving the entity [id={}]", id, e);
+        } catch (NotFoundException e) {
+            log.error("Entity not found [id={}]", id);
             return null;
+            
+        } catch (Exception e) {
+            throw new TechnicalException(e);
         }
     }
 

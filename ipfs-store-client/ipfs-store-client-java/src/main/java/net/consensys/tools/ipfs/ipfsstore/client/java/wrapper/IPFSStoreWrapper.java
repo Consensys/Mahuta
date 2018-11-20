@@ -4,11 +4,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.client.RestTemplate;
 
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
 
 
 /**

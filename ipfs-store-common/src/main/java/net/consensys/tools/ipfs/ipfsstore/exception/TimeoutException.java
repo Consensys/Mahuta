@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.REQUEST_TIMEOUT)
-public class TimeoutException extends Exception {
+public class TimeoutException extends IPFSStoreException {
 
     private static final long serialVersionUID = -1577067446504139812L;
 
