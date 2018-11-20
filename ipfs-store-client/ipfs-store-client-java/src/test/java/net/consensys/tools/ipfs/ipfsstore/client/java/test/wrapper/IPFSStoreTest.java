@@ -38,6 +38,7 @@ import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -463,7 +464,7 @@ public class IPFSStoreTest {
     }
 
 
-    @Test
+    @Test(expected=NotFoundException.class)
     public void getMetadataByIdNotFoundTest() throws Exception {
 
         String id = "ABC";
@@ -488,8 +489,6 @@ public class IPFSStoreTest {
         // ###########################
         Metadata metadata = this.undertest.getMetadataById(INDEX_NAME, id);
         // ###########################
-
-        assertNull(metadata);
     }
 
     @Test(expected = IPFSStoreException.class)
