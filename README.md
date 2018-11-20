@@ -10,8 +10,7 @@ A request requires the following the information:
 - a payload (JSON or multipart file) - stored on IPFS
 - some metadata (index fields) - indexed on a search engine alongside the payload IPFS hash
 
-
-[![IPFS-_Store_-_architecture.jpg](https://imgur.com/a/YzCDQo8)](https://imgur.com/a/YzCDQo8)
+![IPFS-_Store_-_architecture.jpg](https://i.imgur.com/8AYcJDS.jpg)
 
 ## Getting Started
 
