@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -457,6 +458,10 @@ public class IPFSStore {
             }
         }).collect(Collectors.toList());
 
+        // Apply the default pagination returned by the API if pagable is null
+        pageable = Optional.ofNullable(pageable)
+                .orElseGet(() -> new PageRequest(search.getNumber(), search.getSize()));
+        
         return new PageImpl<>(contentList, pageable, search.getTotalElements());
     }
 
