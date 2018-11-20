@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,8 +51,9 @@ public class IPFSStore {
      *
      * @param endpoint: IPFS-store service endpoint
      */
-    public IPFSStore(String endpoint) {
+    public IPFSStore(String endpoint, String... indexes) {
         this.wrapper = new RestIPFSStoreWrapperImpl(endpoint);
+        this.initIndexes(indexes);
     }
 
     /**
@@ -59,10 +61,10 @@ public class IPFSStore {
      *
      * @param wrapper
      */
-    public IPFSStore(IPFSStoreWrapper wrapper) {
+    public IPFSStore(IPFSStoreWrapper wrapper, String... indexes) {
         this.wrapper = wrapper;
+        this.initIndexes(indexes);
     }
-
 
 
     /* *********************************************
@@ -556,6 +558,23 @@ public class IPFSStore {
         request.setIndexFields(indexFields);
 
         return request;
+    }
+    
+    /**
+     * 
+     */
+    private void initIndexes(String... indexes) {
+        if(indexes != null && indexes.length > 0) {
+            Arrays.asList(indexes)
+                .stream()
+                .forEach(index -> {
+                    try {
+                        wrapper.createIndex(index);
+                    } catch (IPFSStoreException e) {
+                        log.error("Error while creating index {}", index, e);
+                    }
+                });
+        }
     }
 
 }
