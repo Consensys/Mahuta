@@ -125,7 +125,7 @@ public class StoreServiceImpl implements StoreService {
                                                                                        // case
                                                                                        // sensitive
                                                                                        // analyser
-        Page<Metadata> search = this.searchFiles(index, query, new PageRequest(0, 1));
+        Page<Metadata> search = this.searchFiles(index, query, PageRequest.of(0, 1));
 
         if (search.getTotalElements() == 0) {
             throw new NotFoundException(

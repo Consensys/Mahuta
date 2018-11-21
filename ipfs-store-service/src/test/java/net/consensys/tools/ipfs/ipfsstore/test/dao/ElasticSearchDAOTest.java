@@ -559,7 +559,7 @@ public class ElasticSearchDAOTest {
         int pageSize = 20;
 
 
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -639,7 +639,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessFullTextQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -710,7 +710,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessEqualsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -779,7 +779,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessNotEqualsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -849,7 +849,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessContainsQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -919,7 +919,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessInQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -990,7 +990,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessltQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -1061,7 +1061,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccesslteQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -1132,7 +1132,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessgtQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -1203,7 +1203,7 @@ public class ElasticSearchDAOTest {
     public void searchSuccessgteQueryTest() throws JSONException {
         int pageNo = 1;
         int pageSize = 20;
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
         String contentType = "application/pdf";
@@ -1277,7 +1277,7 @@ public class ElasticSearchDAOTest {
         int pageSize = 20;
 
 
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -1330,7 +1330,7 @@ public class ElasticSearchDAOTest {
         int pageSize = 20;
 
 
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";
@@ -1388,7 +1388,7 @@ public class ElasticSearchDAOTest {
         int pageSize = 20;
 
 
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
 
 
         String hash = "QmNN4RaVXNMVaEPLrmS7SUQpPZEQ2eJ6s5WxLw9w4GTm34";

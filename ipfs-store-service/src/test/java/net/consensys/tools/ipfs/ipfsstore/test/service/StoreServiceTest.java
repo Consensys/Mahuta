@@ -525,7 +525,7 @@ public class StoreServiceTest {
         String attribute = "author";
         String value = "Gregoire Jeanmart";
         
-        Pageable pagination = new PageRequest(pageNo, pageSize);
+        Pageable pagination = PageRequest.of(pageNo, pageSize);
         Query query = Query.newQuery().equals(attribute, value);
 
         // Mock

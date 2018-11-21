@@ -264,7 +264,7 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
                         .queryParam("size", pageable.getPageSize());
             }
 
-            if (pageable != null && pageable.getSort() != null) {
+            if (pageable != null && pageable.getSort() != null && pageable.getSort().isSorted()) {
                 Order order = pageable.getSort().iterator().next();
                 uriComponentsBuilder
                         .queryParam("sort", order.getProperty())

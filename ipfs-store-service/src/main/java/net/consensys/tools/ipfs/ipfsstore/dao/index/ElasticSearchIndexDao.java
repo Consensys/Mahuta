@@ -231,7 +231,8 @@ public class ElasticSearchIndexDao implements IndexDao {
 
             SearchRequestBuilder requestBuilder = client.prepareSearch(indexFormatted)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH).setQuery(convertQuery(query))
-                    .setFrom(pageable.getOffset()).setSize(pageable.getPageSize());
+                    .setFrom(Long.valueOf(pageable.getOffset()).intValue())
+                    .setSize(pageable.getPageSize());
 
             if (pageable.getSort() != null) {
                 for (Order order : pageable.getSort()) {
