@@ -22,10 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.client.cli.model.ClientShellException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexField;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
 
 
 /**

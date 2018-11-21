@@ -111,14 +111,14 @@ public class IPFSStorageDao implements StorageDao {
             return content;
 
         } catch (java.util.concurrent.TimeoutException ex) {
-            log.error("Timeout Exception while getting file in IPFS [hash: {}]", hash, ex);
+            log.error("Timeout Exception while getting file in IPFS [hash: {}, timeout: {} ms]", hash, timeout);
             throw new TimeoutException(
                     "Timeout Exception while getting file in IPFS [hash: " + hash + "]");
 
         } catch (InterruptedException ex) {
-            log.error("Interrupted Exception while getting file in IPFS [hash: {}]", hash, ex);
+            log.error("Interrupted Exception while getting file in IPFS [hash: {}]", hash);
             throw new TechnicalException(
-                    "Interrupted Exception while getting file in IPFS [hash: " + hash + "]", ex);
+                    "Interrupted Exception while getting file in IPFS [hash: " + hash + "]");
 
         } catch (ExecutionException ex) {
             log.error("Execution Exception while getting file in IPFS [hash: {}]", hash, ex);

@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -17,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.IPFSStoreWrapper;
@@ -27,6 +28,8 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 
 /**
  * IPFS Store Java Client
@@ -37,6 +40,7 @@ import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
 public class IPFSStore {
 
     private static final String ID_ATTRIBUTE = "_id";
+    private static final String HASH_ATTRIBUTE = "_hash";
 
     private final IPFSStoreWrapper wrapper;
 
@@ -50,8 +54,9 @@ public class IPFSStore {
      *
      * @param endpoint: IPFS-store service endpoint
      */
-    public IPFSStore(String endpoint) {
+    public IPFSStore(String endpoint, String... indexes) {
         this.wrapper = new RestIPFSStoreWrapperImpl(endpoint);
+        this.initIndexes(indexes);
     }
 
     /**
@@ -59,10 +64,10 @@ public class IPFSStore {
      *
      * @param wrapper
      */
-    public IPFSStore(IPFSStoreWrapper wrapper) {
+    public IPFSStore(IPFSStoreWrapper wrapper, String... indexes) {
         this.wrapper = wrapper;
+        this.initIndexes(indexes);
     }
-
 
 
     /* *********************************************
@@ -289,32 +294,41 @@ public class IPFSStore {
      * Return a document for a given Index Unique identifier
      *
      * @param indexName Index name
-     * @param id        Index document Unique identifier
+     * @param id        document Unique identifier
      * @return Content (metadata + payload)
      * @throws IPFSStoreException
      */
     public MetadataAndPayload getById(String indexName, String id) throws IPFSStoreException {
         Metadata metadata = this.getMetadataById(indexName, id);
 
-        if (metadata != null) {
-            return MetadataAndPayload.builder()
-                    .metadata(metadata)
-                    .payload(this.get(indexName, metadata.getHash()))
-                    .build();
+        return MetadataAndPayload.builder()
+                .metadata(metadata)
+                .payload(this.get(indexName, metadata.getHash()))
+                .build();
+    }
 
-        } else {
-            return MetadataAndPayload.builder()
-                    .metadata(metadata)
-                    .payload(new byte[0])
-                    .build();
-        }
+    /**
+     * Return a document for a given hash
+     *
+     * @param indexName Index name
+     * @param hash      Document hash
+     * @return Content (metadata + payload)
+     * @throws IPFSStoreException
+     */
+    public MetadataAndPayload getByHash(String indexName, String hash) throws IPFSStoreException {
+        Metadata metadata = this.getMetadataByHash(indexName, hash);
+
+        return MetadataAndPayload.builder()
+                .metadata(metadata)
+                .payload(this.get(indexName, hash))
+                .build();
     }
 
     /**
      * Return the content metadata (index, ID, content_type, hash and attributes)
      *
      * @param indexName Index name
-     * @param id        Index document Unique identifier
+     * @param id        Document Unique identifier
      * @return Metadata (index, ID, content_type, hash and attributes)
      * @throws IPFSStoreException
      */
@@ -323,8 +337,26 @@ public class IPFSStore {
 
         Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(0, 1));
         if (searchResult.getTotalElements() == 0) {
-            log.warn("Content [indexName={}, id={}] not found", indexName, id);
-            return null;
+            throw new NotFoundException("Content [indexName: " + indexName + ", id: "+ id + "] not found in the index");
+        }
+
+        return searchResult.getContent().get(0);
+    }
+
+    /**
+     * Return the content metadata (index, ID, content_type, hash and attributes)
+     *
+     * @param indexName Index name
+     * @param hash        document hash
+     * @return Metadata (index, ID, content_type, hash and attributes)
+     * @throws IPFSStoreException
+     */
+    public Metadata getMetadataByHash(String indexName, String hash) throws IPFSStoreException {
+        Query query = Query.newQuery().equals(HASH_ATTRIBUTE, hash);
+
+        Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(0, 1));
+        if (searchResult.getTotalElements() == 0) {
+            throw new NotFoundException("Content [indexName: " + indexName + ", hash: "+ hash + "] not found in the index");
         }
 
         return searchResult.getContent().get(0);
@@ -455,6 +487,10 @@ public class IPFSStore {
             }
         }).collect(Collectors.toList());
 
+        // Apply the default pagination returned by the API if pagable is null
+        pageable = Optional.ofNullable(pageable)
+                .orElseGet(() -> new PageRequest(search.getNumber(), search.getSize()));
+        
         return new PageImpl<>(contentList, pageable, search.getTotalElements());
     }
 
@@ -556,6 +592,23 @@ public class IPFSStore {
         request.setIndexFields(indexFields);
 
         return request;
+    }
+    
+    /**
+     * 
+     */
+    private void initIndexes(String... indexes) {
+        if(indexes != null && indexes.length > 0) {
+            Arrays.asList(indexes)
+                .stream()
+                .forEach(index -> {
+                    try {
+                        wrapper.createIndex(index);
+                    } catch (IPFSStoreException e) {
+                        log.error("Error while creating index {}", index, e);
+                    }
+                });
+        }
     }
 
 }

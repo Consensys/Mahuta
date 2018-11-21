@@ -12,12 +12,13 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,7 +27,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.utils.RestResponsePage;
 import net.consensys.tools.ipfs.ipfsstore.client.java.wrapper.IPFSStoreWrapper;
 import net.consensys.tools.ipfs.ipfsstore.dto.IndexerRequest;
@@ -34,6 +34,11 @@ import net.consensys.tools.ipfs.ipfsstore.dto.IndexerResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.StoreResponse;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TimeoutException;
+import net.consensys.tools.ipfs.ipfsstore.exception.ValidationException;
 
 /**
  * Java REST Wrapper of the IPFS-Store module
@@ -72,7 +77,18 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-
+    private IPFSStoreException handleHTTPExceptiion(HttpClientErrorException e) {
+        HttpStatus status = e.getStatusCode();
+        if (status == HttpStatus.NOT_FOUND) { 
+            return new NotFoundException(e.getResponseBodyAsString()); 
+        } else  if (status == HttpStatus.BAD_REQUEST) { 
+            return new ValidationException(e.getResponseBodyAsString()); 
+        } else  if (status == HttpStatus.REQUEST_TIMEOUT) { 
+            return new TimeoutException(e.getResponseBodyAsString());
+        }  else {
+            throw new TechnicalException(e.getResponseBodyAsString());
+        }
+    }
     
     @Override
     public void createIndex(String index) throws IPFSStoreException {
@@ -86,9 +102,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
             log.debug("Index [indexName={}] created !", index);
 
 
-        } catch (RestClientException ex) {
-            log.error("Error while creating the index [index={}]", index, ex);
-            throw new IPFSStoreException("Error while creating the index [index=" + index + "]", ex);
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
         }
     }
 
@@ -129,9 +144,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             return response.getBody().getHash();
 
-        } catch (RestClientException ex) {
-            log.error("Error while storing the file", ex);
-            throw new IPFSStoreException("Error while storing the file", ex);
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
         }
     }
 
@@ -154,9 +168,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             return response;
 
-        } catch (RestClientException ex) {
-            log.error("Error while indexing the content", ex);
-            throw new IPFSStoreException("Error while indexing the content", ex);
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
         }
     }
 
@@ -204,9 +217,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             return response.getBody();
 
-        } catch (RestClientException ex) {
-            log.error("Error while storing and indexing the content request=" + request, ex);
-            throw new IPFSStoreException("Error while storing and indexing the content request=" + request, ex);
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
         }
     }
 
@@ -229,9 +241,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             return response.getBody();
 
-        } catch (RestClientException ex) {
-            log.error("Error while fetching the content", ex);
-            throw new IPFSStoreException("Error while fetching the content", ex);
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
         }
     }
 
@@ -281,9 +292,8 @@ public class RestIPFSStoreWrapperImpl implements IPFSStoreWrapper {
 
             return response.getBody();
 
-        } catch (RestClientException ex) {
-            log.error("Error while searching [indexName={}, query={}]", index, query, ex);
-            throw new IPFSStoreException("Error while searching  [indexName=" + index + ", query="+query+"]", ex);
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
         }
     }
 

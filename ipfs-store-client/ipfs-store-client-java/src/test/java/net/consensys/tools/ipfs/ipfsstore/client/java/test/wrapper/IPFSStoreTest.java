@@ -7,6 +7,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -33,10 +34,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -327,7 +329,7 @@ public class IPFSStoreTest {
 
         mockServer.expect(requestTo(containsString(ENDPOINT + "/ipfs-store/raw/store_index")))
                 .andExpect(method(HttpMethod.POST))
-                .andRespond(withServerError());
+                .andRespond(withBadRequest());
 
 
         ClassLoader classLoader = getClass().getClassLoader();
@@ -365,7 +367,7 @@ public class IPFSStoreTest {
         assertEquals(bytes.length, contentReturned.length);
     }
 
-    @Test(expected = IPFSStoreException.class)
+    @Test(expected = Exception.class)
     public void getExceptionTest() throws Exception {
 
         String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
@@ -462,7 +464,7 @@ public class IPFSStoreTest {
     }
 
 
-    @Test
+    @Test(expected=NotFoundException.class)
     public void getMetadataByIdNotFoundTest() throws Exception {
 
         String id = "ABC";
@@ -487,8 +489,6 @@ public class IPFSStoreTest {
         // ###########################
         Metadata metadata = this.undertest.getMetadataById(INDEX_NAME, id);
         // ###########################
-
-        assertNull(metadata);
     }
 
     @Test(expected = IPFSStoreException.class)
@@ -499,7 +499,7 @@ public class IPFSStoreTest {
         // MOCK
         mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
                 .andExpect(method(HttpMethod.POST))
-                .andRespond(withServerError());
+                .andRespond(withBadRequest());
 
         // ###########################
         this.undertest.getMetadataById(INDEX_NAME, id);

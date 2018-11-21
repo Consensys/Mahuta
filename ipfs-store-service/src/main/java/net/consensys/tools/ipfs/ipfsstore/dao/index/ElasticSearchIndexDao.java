@@ -465,7 +465,13 @@ public class ElasticSearchIndexDao implements IndexDao {
         query.getFilterClauses().forEach(f -> {
 
             Object value = manipulateValue(f.getValue());
-
+            
+            // Because we are using Standard Text Analyser (lowercase filter), we need to lowercase the search argument to be able to do exact term.
+            // TODO: This is not ideal
+            if(value instanceof String) {
+                value = ((String) value).toLowerCase();
+            }
+            
             try {
 
                 switch (f.getOperation()) {

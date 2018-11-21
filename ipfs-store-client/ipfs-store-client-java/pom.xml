@@ -26,7 +26,6 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-commons</artifactId>
-			<version>${spring-data.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -36,11 +35,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 		</dependency>
-		<dependency>
-		    <groupId>org.hobsoft.spring</groupId>
-		    <artifactId>spring-rest-template-logger</artifactId>
-		    <version>1.0.0</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 		    <groupId>org.hobsoft.spring</groupId> -->
+<!-- 		    <artifactId>spring-rest-template-logger</artifactId> -->
+<!-- 		    <version>1.0.0</version> -->
+<!-- 		</dependency> -->
 
 		<!-- Common -->
 		<dependency>

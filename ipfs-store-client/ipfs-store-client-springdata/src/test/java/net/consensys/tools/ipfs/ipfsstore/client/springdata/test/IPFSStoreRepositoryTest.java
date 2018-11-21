@@ -34,7 +34,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.IdAndHash;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreRepository;
@@ -44,6 +43,9 @@ import net.consensys.tools.ipfs.ipfsstore.client.springdata.test.sample.Factory;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.test.sample.TestRepository;
 import net.consensys.tools.ipfs.ipfsstore.dto.Metadata;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
+import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
+import net.consensys.tools.ipfs.ipfsstore.exception.TechnicalException;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -173,9 +175,19 @@ public class IPFSStoreRepositoryTest {
     }
 
 
-    @Test
+    @Test(expected=TechnicalException.class)
     public void findOneException() throws Exception {
         Mockito.when(client.getById(eq(index), eq(Factory.ID))).thenThrow(new IPFSStoreException("error"));
+
+        // #################################################
+        Entity entityFetched = underTest.findOne(Factory.ID);
+        // #################################################
+    }
+
+
+    @Test
+    public void findOneNotFoundException() throws Exception {
+        Mockito.when(client.getById(eq(index), eq(Factory.ID))).thenThrow(new NotFoundException("error"));
 
         // #################################################
         Entity entityFetched = underTest.findOne(Factory.ID);
@@ -185,7 +197,7 @@ public class IPFSStoreRepositoryTest {
 
         Mockito.verify(client, Mockito.times(1)).getById(eq(index), eq(Factory.ID));
     }
-
+    
     @Test
     public void findAll() throws Exception {
         String hash = "hash";

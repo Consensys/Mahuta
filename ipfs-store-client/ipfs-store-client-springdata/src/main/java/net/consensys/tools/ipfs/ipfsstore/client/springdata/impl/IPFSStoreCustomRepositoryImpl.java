@@ -26,10 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.tools.ipfs.ipfsstore.client.java.IPFSStore;
-import net.consensys.tools.ipfs.ipfsstore.client.java.exception.IPFSStoreException;
 import net.consensys.tools.ipfs.ipfsstore.client.java.model.MetadataAndPayload;
 import net.consensys.tools.ipfs.ipfsstore.client.springdata.IPFSStoreCustomRepository;
 import net.consensys.tools.ipfs.ipfsstore.dto.query.Query;
+import net.consensys.tools.ipfs.ipfsstore.exception.IPFSStoreException;
 
 @Slf4j
 public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> implements IPFSStoreCustomRepository<E, I> {
