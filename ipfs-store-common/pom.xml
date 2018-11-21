@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.consensys.tools.ipfs</groupId>
         <artifactId>ipfs-store</artifactId>
-        <version>0.1.15-SNAPSHOT</version>
+        <version>0.1.15</version>
     </parent>
     <artifactId>ipfs-store-common</artifactId>
 
