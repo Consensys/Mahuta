@@ -4,7 +4,8 @@ app:
   
 server:
   port: 8040
-  contextPath: /ipfs-store
+  servlet:
+    context-path: /ipfs-store
 
 logging:
   level:
