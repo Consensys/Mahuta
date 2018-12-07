@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,25 +89,25 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
     }
 
     @Override
-    public E findOne(I id) {
+    public Optional<E> findById(I id) {
         try {
             log.debug("Retrieve entity [id={}]", id);
 
             MetadataAndPayload result = this.client.getById(indexName, id.toString());
 
             if (result == null || result.getPayload() == null || result.getPayload().length == 0) {
-                return null;
+                return Optional.empty();
             }
 
             E entity = deserialize(result.getPayload(), result.getMetadata().getHash());
 
             log.debug("Entity [id={}] retrieved. entity={}", id, entity);
 
-            return entity;
+            return Optional.ofNullable(entity);
 
         } catch (NotFoundException e) {
             log.error("Entity not found [id={}]", id);
-            return null;
+            return Optional.empty();
             
         } catch (Exception e) {
             throw new TechnicalException(e);
@@ -115,13 +116,13 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
 
     @Override
     public Iterable<E> findAll() {
-        PageRequest pageable = new PageRequest(DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE);
+        PageRequest pageable = PageRequest.of(DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE);
         return this.findAll(pageable);
     }
 
     @Override
     public Iterable<E> findAll(Sort sort) {
-        PageRequest pageable = new PageRequest(DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageable = PageRequest.of(DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE, sort);
         return this.findAll(pageable);
     }
 
@@ -133,7 +134,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
 
 
     @Override
-    public boolean exists(Serializable id) {
+    public boolean existsById(Serializable id) {
 
         try {
             return (this.client.getMetadataById(indexName, id.toString()) != null);
@@ -148,7 +149,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
      */
 
     @Override
-    public <S extends E> Iterable<S> save(Iterable<S> entities) {
+    public <S extends E> Iterable<S> saveAll(Iterable<S> entities) {
         throw new UnsupportedOperationException();
     }
 
@@ -158,7 +159,7 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
     }
 
     @Override
-    public void delete(Iterable<? extends E> entities) {
+    public void deleteAll(Iterable<? extends E> entities) {
         throw new UnsupportedOperationException();
     }
 
@@ -173,12 +174,12 @@ public class IPFSStoreRepositoryImpl<E, I extends Serializable> extends IPFSStor
     }
 
     @Override
-    public Iterable<E> findAll(Iterable<I> ids) {
+    public Iterable<E> findAllById(Iterable<I> ids) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void delete(Serializable id) {
+    public void deleteById(Serializable id) {
         throw new UnsupportedOperationException();
     }
 

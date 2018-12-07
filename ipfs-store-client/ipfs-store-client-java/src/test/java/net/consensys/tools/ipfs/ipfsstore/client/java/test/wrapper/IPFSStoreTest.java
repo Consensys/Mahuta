@@ -647,7 +647,7 @@ public class IPFSStoreTest {
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(0, 2));
+        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, PageRequest.of(0, 2));
         // ###########################
 
 
@@ -796,7 +796,7 @@ public class IPFSStoreTest {
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(0, 2, Sort.Direction.DESC, "id"));
+        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, PageRequest.of(0, 2, Sort.Direction.DESC, "id"));
         // ###########################
 
 

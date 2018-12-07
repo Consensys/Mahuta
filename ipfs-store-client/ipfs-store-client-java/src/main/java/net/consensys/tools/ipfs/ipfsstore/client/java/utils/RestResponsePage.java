@@ -58,7 +58,7 @@ public class RestResponsePage<T extends Serializable> extends PageImpl<T> {
     }
 
     public PageImpl<T> pageImpl() {
-        return new PageImpl<>(getContent(), new PageRequest(getNumber(),
+        return new PageImpl<>(getContent(), PageRequest.of(getNumber(),
                 getSize(), getSort()), getTotalElements());
     }
 

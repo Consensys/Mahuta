@@ -40,7 +40,7 @@ public final class Factory {
     }
 
     public static Page<Entity> getEntities(int total, int pageNo, int pageSize) {
-        return getEntities(total, new PageRequest(pageNo, pageNo));
+        return getEntities(total, PageRequest.of(pageNo, pageNo));
     }
 
     public static Page<Entity> getEntities(int total, Pageable pageable) {
