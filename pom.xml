@@ -2,9 +2,9 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.consensys.tools.ipfs</groupId>
-	<artifactId>ipfs-store</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<groupId>net.consensys.mahuta</groupId>
+	<artifactId>mahuta-parent</artifactId>
+	<version>0.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -15,19 +15,19 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-        <java-ipfs.version>v1.2.2</java-ipfs.version>
-        <elasticsearch.version>6.4.2</elasticsearch.version>
-        <commonio.version>2.6</commonio.version>
-        <powermock.version>2.0.0-RC.4</powermock.version>
-        <commons-logging.version>1.1.3</commons-logging.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        	<java-ipfs.version>v1.2.2</java-ipfs.version>
+        	<elasticsearch.version>6.4.2</elasticsearch.version>
+        	<commonio.version>2.6</commonio.version>
+        	<powermock.version>2.0.0-RC.4</powermock.version>
+        	<commons-logging.version>1.1.3</commons-logging.version>
+        	<slf4j.version>1.7.25</slf4j.version>
 	</properties>
 
 
 	<modules>
-        <module>ipfs-store-common</module>
-		<module>ipfs-store-service</module>
-		<module>ipfs-store-client</module>
+        	<module>mahuta-common</module>
+		<module>mahuta-service</module>
+		<module>mahuta-client</module>
 	</modules>
 
 	<repositories>
