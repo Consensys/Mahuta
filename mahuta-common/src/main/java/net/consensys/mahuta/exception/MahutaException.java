@@ -1,7 +1,7 @@
 package net.consensys.mahuta.exception;
 
 /**
- * IPFSStoreException
+ * MahutaException
  *
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */

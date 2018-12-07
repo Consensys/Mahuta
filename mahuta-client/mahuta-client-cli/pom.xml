@@ -37,7 +37,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>ipfs-store-cli</finalName>
+		<finalName>mahuta-cli</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

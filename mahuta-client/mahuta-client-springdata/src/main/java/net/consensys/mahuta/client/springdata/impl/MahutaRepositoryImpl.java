@@ -58,7 +58,7 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
                 log.warn("No method getId() in the entity");
             }
 
-            // Store and index the entity into IPFS+ElasticSearch through ipfs-store service
+            // Store and index the entity into IPFS+ElasticSearch through mahuta service
             IdAndHash idAndHash = this.client.index(
                     serialize(entity),
                     indexName,

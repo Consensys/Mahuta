@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * IPFSStoreCustomRepository allows to extend a classic CRUDRepository by providing custom methods
+ * MahutaCustomRepository allows to extend a classic CRUDRepository by providing custom methods
  *
  * @param <E>  Entity type
  * @param <ID> Entity ID type

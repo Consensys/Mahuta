@@ -23,7 +23,7 @@ public interface MahutaWrapper {
      *
      * @param file
      * @return hash
-     * @throws IPFSStoreException
+     * @throws MahutaException
      */
     String store(byte[] file) throws MahutaException;
 
@@ -32,7 +32,7 @@ public interface MahutaWrapper {
      *
      * @param request
      * @return response
-     * @throws IPFSStoreException
+     * @throws MahutaException
      */
     IndexerResponse index(IndexerRequest request) throws MahutaException;
 
@@ -42,7 +42,7 @@ public interface MahutaWrapper {
      * @param file
      * @param request
      * @return response
-     * @throws IPFSStoreException
+     * @throws MahutaException
      */
     IndexerResponse storeAndIndex(byte[] file, IndexerRequest request) throws MahutaException;
 
@@ -52,7 +52,7 @@ public interface MahutaWrapper {
      * @param indexName
      * @param hash
      * @return file
-     * @throws IPFSStoreException
+     * @throws MahutaException
      */
     byte[] fetch(String indexName, String hash) throws MahutaException;
 
@@ -63,7 +63,7 @@ public interface MahutaWrapper {
      * @param query
      * @param pageable
      * @return page of result
-     * @throws IPFSStoreException
+     * @throws MahutaException
      */
     Page<Metadata> search(String indexName, Query query, Pageable pageable) throws MahutaException;
 
@@ -71,7 +71,7 @@ public interface MahutaWrapper {
      * create index
      *
      * @param indexName
-     * @throws IPFSStoreException
+     * @throws MahutaException
      */
     void createIndex(String indexName) throws MahutaException;
 

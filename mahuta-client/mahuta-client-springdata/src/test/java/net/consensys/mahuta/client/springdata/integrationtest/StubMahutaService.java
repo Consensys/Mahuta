@@ -73,31 +73,31 @@ public class StubMahutaService {
         wireMockServer = new WireMockServer(wireMockConfig().port(8040));
         wireMockServer.start();
 
-        wireMockServer.addStubMapping(post(urlPathEqualTo("/ipfs-store/index"))
+        wireMockServer.addStubMapping(post(urlPathEqualTo("/mahuta/index"))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(indexResponse)).build());
 
-        wireMockServer.addStubMapping(post(urlPathEqualTo("/ipfs-store/store"))
+        wireMockServer.addStubMapping(post(urlPathEqualTo("/mahuta/store"))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(storeResponse)).build());
 
-        wireMockServer.addStubMapping(post(urlPathEqualTo("/ipfs-store/store_index"))
+        wireMockServer.addStubMapping(post(urlPathEqualTo("/mahuta/store_index"))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(indexResponse)).build());
 
-        wireMockServer.addStubMapping(get(urlPathEqualTo("/ipfs-store/fetch/entity/" + hash))
+        wireMockServer.addStubMapping(get(urlPathEqualTo("/mahuta/fetch/entity/" + hash))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(entity1Response)).build());
 
-        wireMockServer.addStubMapping(get(urlPathEqualTo("/ipfs-store/search/entity?page=1&size=2"))
+        wireMockServer.addStubMapping(get(urlPathEqualTo("/mahuta/search/entity?page=1&size=2"))
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)

@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
- * IPFSStoreRepository represents the union of a PagingAndSortingRepository and a IPFSStoreCustomRepository
+ * MahutaRepository represents the union of a PagingAndSortingRepository and a MahutaCustomRepository
  *
  * @param <E>  Entity type
  * @param <ID> Entity ID type

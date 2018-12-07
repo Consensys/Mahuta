@@ -14,7 +14,7 @@
 
 	<dependencies>
 
-        <!-- IPFS-Store Common -->
+        <!-- mahuta Common -->
         <dependency>
             <groupId>net.consensys.mahuta</groupId>
             <artifactId>mahuta-common</artifactId>
