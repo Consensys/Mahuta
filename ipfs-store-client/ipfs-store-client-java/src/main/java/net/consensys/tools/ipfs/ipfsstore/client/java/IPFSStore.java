@@ -40,7 +40,7 @@ import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 public class IPFSStore {
 
     private static final String ID_ATTRIBUTE = "_id";
-    private static final String HASH_ATTRIBUTE = "_hash";
+    private static final String HASH_ATTRIBUTE = "__hash";
 
     private final IPFSStoreWrapper wrapper;
 
