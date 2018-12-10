@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +22,8 @@ import lombok.Setter;
  * @param <T> Type of object
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
-@Getter
-@Setter
+@Getter @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RestResponsePage<T extends Serializable> extends PageImpl<T> {
 
     private static final long serialVersionUID = 1L;
@@ -44,6 +45,8 @@ public class RestResponsePage<T extends Serializable> extends PageImpl<T> {
     private boolean last;
     @JsonIgnore
     private Sort sort;
+    @JsonIgnore
+    private Pageable pageable;
 
     public RestResponsePage(List<T> content, Pageable pageable, long total) {
         super(content, pageable, total);
@@ -58,7 +61,7 @@ public class RestResponsePage<T extends Serializable> extends PageImpl<T> {
     }
 
     public PageImpl<T> pageImpl() {
-        return new PageImpl<>(getContent(), new PageRequest(getNumber(),
+        return new PageImpl<>(getContent(), PageRequest.of(getNumber(),
                 getSize(), getSort()), getTotalElements());
     }
 

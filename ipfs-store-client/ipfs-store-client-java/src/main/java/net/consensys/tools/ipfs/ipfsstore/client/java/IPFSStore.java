@@ -40,7 +40,7 @@ import net.consensys.tools.ipfs.ipfsstore.exception.NotFoundException;
 public class IPFSStore {
 
     private static final String ID_ATTRIBUTE = "_id";
-    private static final String HASH_ATTRIBUTE = "_hash";
+    private static final String HASH_ATTRIBUTE = "__hash";
 
     private final IPFSStoreWrapper wrapper;
 
@@ -335,7 +335,7 @@ public class IPFSStore {
     public Metadata getMetadataById(String indexName, String id) throws IPFSStoreException {
         Query query = Query.newQuery().equals(ID_ATTRIBUTE, id);
 
-        Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(0, 1));
+        Page<Metadata> searchResult = this.wrapper.search(indexName, query, PageRequest.of(0, 1));
         if (searchResult.getTotalElements() == 0) {
             throw new NotFoundException("Content [indexName: " + indexName + ", id: "+ id + "] not found in the index");
         }
@@ -354,7 +354,7 @@ public class IPFSStore {
     public Metadata getMetadataByHash(String indexName, String hash) throws IPFSStoreException {
         Query query = Query.newQuery().equals(HASH_ATTRIBUTE, hash);
 
-        Page<Metadata> searchResult = this.wrapper.search(indexName, query, new PageRequest(0, 1));
+        Page<Metadata> searchResult = this.wrapper.search(indexName, query, PageRequest.of(0, 1));
         if (searchResult.getTotalElements() == 0) {
             throw new NotFoundException("Content [indexName: " + indexName + ", hash: "+ hash + "] not found in the index");
         }
@@ -430,9 +430,9 @@ public class IPFSStore {
 
         PageRequest pagination;
         if (sortAttribute == null || sortAttribute.isEmpty()) {
-            pagination = new PageRequest(pageNo, pageSize);
+            pagination = PageRequest.of(pageNo, pageSize);
         } else {
-            pagination = new PageRequest(pageNo, pageSize, new Sort(sortDirection, sortAttribute));
+            pagination = PageRequest.of(pageNo, pageSize, new Sort(sortDirection, sortAttribute));
         }
 
         return this.search(indexName, query, pagination);
@@ -489,7 +489,7 @@ public class IPFSStore {
 
         // Apply the default pagination returned by the API if pagable is null
         pageable = Optional.ofNullable(pageable)
-                .orElseGet(() -> new PageRequest(search.getNumber(), search.getSize()));
+                .orElseGet(() -> PageRequest.of(search.getNumber(), search.getSize()));
         
         return new PageImpl<>(contentList, pageable, search.getTotalElements());
     }
@@ -526,9 +526,9 @@ public class IPFSStore {
 
         PageRequest pagination;
         if (sortAttribute == null || sortAttribute.isEmpty()) {
-            pagination = new PageRequest(pageNo, pageSize);
+            pagination = PageRequest.of(pageNo, pageSize);
         } else {
-            pagination = new PageRequest(pageNo, pageSize, new Sort(sortDirection, sortAttribute));
+            pagination = PageRequest.of(pageNo, pageSize, new Sort(sortDirection, sortAttribute));
         }
 
         return this.searchAndFetch(indexName, query, pagination);

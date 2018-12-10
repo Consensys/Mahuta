@@ -508,6 +508,127 @@ public class IPFSStoreTest {
 
 
 
+    /* ********************************************************************
+     * GET METADATA BY HASH
+     * ******************************************************************** */
+
+    @Test
+    public void getMetadataByHashTest() throws Exception {
+
+        String id = "ABC";
+        String contentType = "application/pdf";
+        String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
+        String author = "Greg";
+
+        // MOCK
+        String responseStore =
+                "{\n" +
+                        "    \"content\": [\n" +
+                        "        {\n" +
+                        "            \"index\": \"" + INDEX_NAME + "\",\n" +
+                        "            \"id\": \"" + id + "\",\n" +
+                        "            \"hash\": \"" + hash + "\",\n" +
+                        "            \"content_type\": \"" + contentType + "\",\n" +
+                        "            \"index_fields\": [\n" +
+                        "                {\n" +
+                        "                    \"name\": \"__content_type\",\n" +
+                        "                    \"value\": \"" + contentType + "\"\n" +
+                        "                },\n" +
+                        "                {\n" +
+                        "                    \"name\": \"date_created\",\n" +
+                        "                    \"value\": 1518700549\n" +
+                        "                },\n" +
+                        "                {\n" +
+                        "                    \"name\": \"author\",\n" +
+                        "                    \"value\": \"" + author + "\"\n" +
+                        "                },\n" +
+                        "                {\n" +
+                        "                    \"name\": \"__hash\",\n" +
+                        "                    \"value\": \"" + hash + "\"\n" +
+                        "                },\n" +
+                        "                {\n" +
+                        "                    \"name\": \"votes\",\n" +
+                        "                    \"value\": 4\n" +
+                        "                },\n" +
+                        "                {\n" +
+                        "                    \"name\": \"title\",\n" +
+                        "                    \"value\": \"Hello Doc\"\n" +
+                        "                }\n" +
+                        "            ]\n" +
+                        "        }\n" +
+                        "    ],\n" +
+                        "    \"numberOfElements\": 1,\n" +
+                        "    \"firstPage\": false,\n" +
+                        "    \"lastPage\": true,\n" +
+                        "    \"totalElements\": 1,\n" +
+                        "    \"sort\": null,\n" +
+                        "    \"totalPages\": 1,\n" +
+                        "    \"size\": 2,\n" +
+                        "    \"number\": 0\n" +
+                        "}";
+
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
+
+        // ###########################
+        Metadata metadata = this.undertest.getMetadataByHash(INDEX_NAME, hash);
+        // ###########################
+
+        assertEquals(INDEX_NAME, metadata.getIndex());
+        assertEquals(id, metadata.getDocumentId());
+        assertEquals(hash, metadata.getHash());
+        assertEquals(contentType, metadata.getContentType());
+        assertEquals(author, metadata.getIndexFieldValue("author"));
+    }
+
+
+    @Test(expected=NotFoundException.class)
+    public void getMetadataByHashNotFoundTest() throws Exception {
+
+        String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
+        
+        // MOCK
+        String responseStore =
+                "{\n" +
+                        "    \"content\": [],\n" +
+                        "    \"numberOfElements\": 0,\n" +
+                        "    \"firstPage\": false,\n" +
+                        "    \"lastPage\": true,\n" +
+                        "    \"totalElements\": 0,\n" +
+                        "    \"sort\": null,\n" +
+                        "    \"totalPages\": 1,\n" +
+                        "    \"size\": 2,\n" +
+                        "    \"number\": 0\n" +
+                        "}";
+
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseStore, MediaType.APPLICATION_JSON));
+
+        // ###########################
+       this.undertest.getMetadataByHash(INDEX_NAME, hash);
+        // ###########################
+    }
+
+    @Test(expected = IPFSStoreException.class)
+    public void getMetadataByHashTTest() throws Exception {
+
+        String hash = "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o";
+
+        // MOCK
+        mockServer.expect(requestTo(ENDPOINT + "/ipfs-store/query/search?index=documents&page=0&size=1"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withBadRequest());
+
+        // ###########################
+        this.undertest.getMetadataByHash(INDEX_NAME, hash);
+        // ###########################
+    }
+
+
+
+
 
     /* ********************************************************************
      * SEARCH
@@ -647,7 +768,7 @@ public class IPFSStoreTest {
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(0, 2));
+        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, PageRequest.of(0, 2));
         // ###########################
 
 
@@ -796,7 +917,7 @@ public class IPFSStoreTest {
                 .andRespond(withSuccess(responseIndex, MediaType.APPLICATION_JSON));
 
         // ###########################
-        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, new PageRequest(0, 2, Sort.Direction.DESC, "id"));
+        Page<Metadata> result = this.undertest.search(INDEX_NAME, null, PageRequest.of(0, 2, Sort.Direction.DESC, "id"));
         // ###########################
 
 

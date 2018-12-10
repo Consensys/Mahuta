@@ -3,16 +3,13 @@ package net.consensys.tools.ipfs.ipfsstore.client.springdata.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -162,7 +159,7 @@ public class IPFSStoreRepositoryTest {
         Mockito.when(client.getById(eq(index), eq(Factory.ID))).thenReturn(MetadataAndPayload.builder().metadata(metadata).payload(MAPPER.writeValueAsBytes(entity)).build());
 
         // #################################################
-        Entity entityFetched = underTest.findOne(Factory.ID);
+        Entity entityFetched = underTest.findById(Factory.ID).get();
         // #################################################
 
         LOGGER.debug(entityFetched.toString());
@@ -180,7 +177,7 @@ public class IPFSStoreRepositoryTest {
         Mockito.when(client.getById(eq(index), eq(Factory.ID))).thenThrow(new IPFSStoreException("error"));
 
         // #################################################
-        Entity entityFetched = underTest.findOne(Factory.ID);
+        Optional<Entity> entityFetched = underTest.findById(Factory.ID);
         // #################################################
     }
 
@@ -190,10 +187,10 @@ public class IPFSStoreRepositoryTest {
         Mockito.when(client.getById(eq(index), eq(Factory.ID))).thenThrow(new NotFoundException("error"));
 
         // #################################################
-        Entity entityFetched = underTest.findOne(Factory.ID);
+        Optional<Entity> entityFetched = underTest.findById(Factory.ID);
         // #################################################
 
-        assertNull("Entity should be null", entityFetched);
+        assertEquals("Entity should not be present", false, entityFetched.isPresent());
 
         Mockito.verify(client, Mockito.times(1)).getById(eq(index), eq(Factory.ID));
     }
@@ -202,7 +199,7 @@ public class IPFSStoreRepositoryTest {
     public void findAll() throws Exception {
         String hash = "hash";
         int total = 50;
-        Pageable pagination = new PageRequest(IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE);
+        Pageable pagination = PageRequest.of(IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<MetadataAndPayload> contentList = page.getContent().stream().map(e -> {
@@ -233,7 +230,7 @@ public class IPFSStoreRepositoryTest {
     public void findAllWithPagination() throws Exception {
         String hash = "h";
         int total = 10;
-        Pageable pagination = new PageRequest(0, 5);
+        Pageable pagination = PageRequest.of(0, 5);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<MetadataAndPayload> contentList = page.getContent().stream().map(e -> {
@@ -265,7 +262,7 @@ public class IPFSStoreRepositoryTest {
         String hash = "h";
         int total = 50;
         Sort sort = new Sort(Direction.ASC, "id");
-        Pageable pagination = new PageRequest(IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE, sort);
+        Pageable pagination = PageRequest.of(IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_NO, IPFSStoreCustomRepositoryImpl.DEFAULT_PAGE_SIZE, sort);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<MetadataAndPayload> contentList = page.getContent().stream().map(e -> {
@@ -295,9 +292,9 @@ public class IPFSStoreRepositoryTest {
 
     @Test
     public void findAllException() throws Exception {
-        Pageable pagination = new PageRequest(0, 5);
+        Pageable pagination = PageRequest.of(0, 5);
 
-        Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenThrow(new IPFSStoreException(new Exception("error")));
+        Mockito.when(client.searchAndFetch(eq(index), isNull(), eq(pagination))).thenThrow(new IPFSStoreException(new Exception("error")));
 
         // #################################################
         Page<Entity> result = underTest.findAll(pagination);
@@ -323,7 +320,7 @@ public class IPFSStoreRepositoryTest {
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenReturn(metadata);
 
         // #################################################
-        boolean exist = underTest.exists(Factory.ID);
+        boolean exist = underTest.existsById(Factory.ID);
         // #################################################
 
         assertEquals(true, exist);
@@ -339,7 +336,7 @@ public class IPFSStoreRepositoryTest {
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenReturn(null);
 
         // #################################################
-        boolean exist = underTest.exists(Factory.ID);
+        boolean exist = underTest.existsById(Factory.ID);
         // #################################################
 
         assertEquals(false, exist);
@@ -356,28 +353,28 @@ public class IPFSStoreRepositoryTest {
         Mockito.when(client.getMetadataById(eq(index), eq(Factory.ID))).thenThrow(new IPFSStoreException());
 
         // #################################################
-        underTest.exists(Factory.ID);
+        underTest.existsById(Factory.ID);
         // #################################################
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void saveIterable() throws Exception {
         // #################################################
-        underTest.save(Factory.getEntities(5));
+        underTest.saveAll(Factory.getEntities(5));
         // #################################################
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void delete() throws Exception {
         // #################################################
-        underTest.delete("123");
+        underTest.deleteById("123");
         // #################################################
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void deleteIterable() throws Exception {
         // #################################################
-        underTest.delete(Factory.getEntities(5));
+        underTest.deleteAll(Factory.getEntities(5));
         // #################################################
     }
 
@@ -399,7 +396,7 @@ public class IPFSStoreRepositoryTest {
     public void findAllIterable() throws Exception {
         List<String> ids = new ArrayList<>();
         // #################################################
-        underTest.findAll(ids);
+        underTest.findAllById(ids);
         // #################################################
     }
 
@@ -414,7 +411,7 @@ public class IPFSStoreRepositoryTest {
     public void findByfullTextSearch() throws Exception {
         String hash = "h";
         int total = 10;
-        Pageable pagination = new PageRequest(0, 5);
+        Pageable pagination = PageRequest.of(0, 5);
         Page<Entity> page = Factory.getEntities(total, pagination);
 
         List<MetadataAndPayload> contentList = page.getContent().stream().map(e -> {
@@ -443,7 +440,7 @@ public class IPFSStoreRepositoryTest {
 
     @Test
     public void findByfullTextSearchException() throws Exception {
-        Pageable pagination = new PageRequest(0, 5);
+        Pageable pagination = PageRequest.of(0, 5);
 
         Mockito.when(client.searchAndFetch(eq(index), any(Query.class), eq(pagination))).thenThrow(new IPFSStoreException("error", new Exception()));
 
