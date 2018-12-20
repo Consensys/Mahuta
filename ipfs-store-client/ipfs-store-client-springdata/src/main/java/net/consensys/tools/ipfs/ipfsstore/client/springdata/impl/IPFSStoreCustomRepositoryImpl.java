@@ -309,6 +309,8 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
             return node.asBoolean();
         } else if (node.isLong()) {
             return node.asLong();
+        } else if (node.isInt()) {
+            return node.asInt();
         } else if (node.isDouble()) {
             return node.asDouble();
         } else {
