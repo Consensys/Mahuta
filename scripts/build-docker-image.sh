@@ -8,8 +8,8 @@ if [[ "$GIT_COMMIT_DESC" != *"maven-release-plugin"* && "$CIRCLE_PR_NUMBER" == "
   set -e
 
   docker login -u ${DOCKER_HUB_USER_ID} -p ${DOCKER_HUB_PWD}
-  docker build -t gjeanmart/ipfs-store:${RELEASE_VERSION} -f ipfs-store-service/Dockerfile ipfs-store-service/.
-  docker build -t gjeanmart/ipfs-store:latest -f ipfs-store-service/Dockerfile ipfs-store-service/.
-  docker push gjeanmart/ipfs-store:${RELEASE_VERSION}
-  docker push gjeanmart/ipfs-store:latest
+  docker build -t gjeanmart/mahuta:${RELEASE_VERSION} -f mahuta-service/Dockerfile mahuta-service/.
+  docker build -t gjeanmart/mahuta:latest -f mahuta-service/Dockerfile mahuta-service/.
+  docker push gjeanmart/mahuta:${RELEASE_VERSION}
+  docker push gjeanmart/mahuta:latest
 fi
