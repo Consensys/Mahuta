@@ -55,6 +55,8 @@ public class RestMahutaWrapperImpl implements MahutaWrapper {
     private static final String SEARCH_API_PATH = "/query/search";
     private static final String STORE_INDEX_API_PATH = "/raw/store_index";
     private static final String CREATE_INDEX_API_PATH = "/config/index";
+    private static final String REMOVE_BY_ID_API_PATH = "/delete/id";
+    private static final String REMOVE_BY_HASH_API_PATH = "/delete/hash";
     private static final String DEFAULT_MIMETYPE = "application/octet-stream";
     private static final String MULTIPART_FILE = "file";
     private static final String MULTIPART_REQUEST = "request";
@@ -90,7 +92,6 @@ public class RestMahutaWrapperImpl implements MahutaWrapper {
         }
     }
     
-    @Override
     public void createIndex(String index) throws MahutaException {
         try {
             log.debug("createIndex [indexName={}]", index);
@@ -296,6 +297,49 @@ public class RestMahutaWrapperImpl implements MahutaWrapper {
             throw handleHTTPExceptiion(ex);
         }
     }
+    
+
+	public void removeById(String indexName, String id) throws MahutaException {
+		
+        try {
+            log.debug("removeById [indexName={}, id={}]", indexName, id);
+
+            HttpHeaders httpHeader = new HttpHeaders();
+            httpHeader.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<IndexerRequest> httpRequest = new HttpEntity<>(httpHeader);
+
+            restTemplate.delete(
+                    this.endpoint + BASE_API_PATH + REMOVE_BY_ID_API_PATH + "/" + id +  "?index=" + indexName,
+                    httpRequest);
+
+
+            log.debug("removeById [indexName={}, id={}] DONE", indexName, id);
+
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
+        }
+	}
+
+	public void removeByHash(String indexName, String hash) throws MahutaException {
+
+        try {
+            log.debug("removeByHash [indexName={}, hash={}]", indexName, hash);
+
+            HttpHeaders httpHeader = new HttpHeaders();
+            httpHeader.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<IndexerRequest> httpRequest = new HttpEntity<>(httpHeader);
+
+            restTemplate.delete(
+                    this.endpoint + BASE_API_PATH + REMOVE_BY_HASH_API_PATH + "/" + hash +  "?index=" + indexName,
+                    httpRequest);
+
+
+            log.debug("removeByHash [indexName={}, id={}] DONE", indexName, hash);
+
+        } catch (HttpClientErrorException ex) {
+            throw handleHTTPExceptiion(ex);
+        }
+	}
 
     public RestTemplate getClient() {
         return restTemplate;

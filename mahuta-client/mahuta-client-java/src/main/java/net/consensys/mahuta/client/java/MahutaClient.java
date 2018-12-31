@@ -543,6 +543,10 @@ public class MahutaClient {
     public void createIndex(String index) throws MahutaException {
         this.wrapper.createIndex(index);
     }
+    
+    public void remove(String index, String id) throws MahutaException {
+    	this.wrapper.removeById(index, id);
+    }
 
     /**
      * Return the wrapper

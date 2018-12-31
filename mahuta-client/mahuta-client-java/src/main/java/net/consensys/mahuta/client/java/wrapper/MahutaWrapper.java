@@ -74,6 +74,24 @@ public interface MahutaWrapper {
      * @throws MahutaException
      */
     void createIndex(String indexName) throws MahutaException;
+    
+    /**
+     * Remove by ID
+     *
+     * @param indexName
+     * @param id
+     * @throws MahutaException
+     */
+    void removeById(String indexName, String id) throws MahutaException;
+    
+    /**
+     * Remove by hash
+     *
+     * @param indexName
+     * @param hash
+     * @throws MahutaException
+     */
+    void removeByHash(String indexName, String hash) throws MahutaException;
 
     /**
      * get client

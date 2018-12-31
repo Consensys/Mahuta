@@ -70,3 +70,6 @@ mahuta:
         store: /json/store
         index: /json/index
         store_index: /json/store_index
+      delete:
+        id: /delete/id/{id}
+        hash: /delete/hash/{hash}

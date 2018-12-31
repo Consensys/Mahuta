@@ -14,6 +14,7 @@ import javax.annotation.PreDestroy;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -139,7 +140,7 @@ public class ElasticSearchIndexDao implements IndexDao {
 
         
         try {
-            String indexFormated = formatIndex(Optional.of(index));
+            String indexFormatted = formatIndex(Optional.of(index));
             
             DocWriteResponse response;
             Map<String, Object> source = new HashMap<>();
@@ -148,17 +149,17 @@ public class ElasticSearchIndexDao implements IndexDao {
             source.put(IndexDao.HASH_INDEX_KEY, hash);
             source.put(IndexDao.CONTENT_TYPE_INDEX_KEY, contentType);
             if (indexFields != null) {
-                source.putAll(convert(indexFormated, indexFields));
+                source.putAll(convert(indexFormatted, indexFields));
             }
 
             log.debug("source={}", source.toString());
-            if (!this.doesExist(indexFormated, documentId)) {
-                response = client.prepareIndex(indexFormated, indexFormated, documentId)
+            if (!this.doesExist(indexFormatted, documentId)) {
+                response = client.prepareIndex(indexFormatted, indexFormatted, documentId)
                         .setSource(convertObjectToJsonString(source), XContentType.JSON).get();
 
             } else {
                 response = client
-                        .prepareUpdate(indexFormated, indexFormated, documentId)
+                        .prepareUpdate(indexFormatted, indexFormatted, documentId)
                         .setDoc(convertObjectToJsonString(source), XContentType.JSON).get();
             }
 
@@ -166,7 +167,7 @@ public class ElasticSearchIndexDao implements IndexDao {
                     "Document indexed ElasticSearch [index: {}, documentId:{}, indexFields: {}]. Result ID= {} ",
                     index, documentId, indexFields, response.getId());
 
-            this.refreshIndex(indexFormated);
+            this.refreshIndex(indexFormatted);
 
             return response.getId();
 
@@ -178,6 +179,39 @@ public class ElasticSearchIndexDao implements IndexDao {
                     "Error while indexing document into ElasticSearch: " + ex.getMessage());
         }
     }
+    
+	@Override
+	public void deindex(String index, String documentId) {
+        log.debug("Remove document from ElasticSearch [index: {}, documentId:{}]", index, documentId);
+
+        // Validation
+        if (StringUtils.isEmpty(index))
+            throw new IllegalArgumentException("index " + ERROR_NOT_NULL_OR_EMPTY);
+        if (StringUtils.isEmpty(documentId))
+            throw new IllegalArgumentException("documentId " + ERROR_NOT_NULL_OR_EMPTY);
+        
+
+        try {
+            String indexFormatted = formatIndex(Optional.of(index));
+        	
+        	if (!this.doesExist(indexFormatted, documentId)) {
+                throw new NotFoundException(
+                        "Document [index: " + indexFormatted + ", ID: " + documentId + "] not found");
+        	}
+        	
+        	DeleteResponse response = client.prepareDelete(indexFormatted, indexFormatted, documentId).get();
+        			 
+            log.debug(
+                    "Document removed from ElasticSearch [index: {}, documentId:{}]. Result ID= {} ",
+                    index, documentId, response.getId());
+
+            this.refreshIndex(indexFormatted);
+        	
+        } catch (Exception ex) {
+            log.error("Error while removing document from ElasticSearch [index: {}, documentId:{}]", index, documentId,  ex);
+            throw new TechnicalException("Error while removing document from ElasticSearch: " + ex.getMessage());
+        }
+	}
 
     @Override
     public Metadata searchById(Optional<String> index, String id) throws NotFoundException {

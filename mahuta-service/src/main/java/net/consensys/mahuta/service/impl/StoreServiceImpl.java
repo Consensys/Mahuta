@@ -92,6 +92,24 @@ public class StoreServiceImpl implements StoreService {
         return new IndexerResponse(request.getIndex(), documentId, request.getHash());
     }
 
+	@Override
+	public void removeFileByHash(String index, String hash) throws NotFoundException {
+		
+		Metadata metadata = this.getFileMetadataByHash(Optional.of(index), hash);
+		this.removeFileById(index, metadata.getDocumentId());
+	}
+
+	@Override
+	public void removeFileById(String index, String id) throws NotFoundException {
+		
+		// Remove from index
+		Metadata metadata = this.getFileMetadataById(Optional.of(index), id);
+		indexDao.deindex(index, metadata.getDocumentId());
+		
+		// Unpin
+		pinningConfiguration.getPinningStrategies().forEach(pinStrategy -> pinStrategy.unpin(metadata.getHash()));
+	}
+
     @Override
     public IndexerResponse storeAndIndexFile(byte[] file, IndexerRequest request)
             throws ValidationException {

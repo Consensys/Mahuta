@@ -61,7 +61,8 @@ public class IPFSClusterPinningStrategy implements PinningStrategy {
             throw new IllegalArgumentException("hash " + ERROR_NOT_NULL_OR_EMPTY);
 
         try {
-            // TODO implement ipfs-cluster unpin
+            log.debug("call DELETE http://{}:{}/pins/{}", host, port, hash);
+            this.restTemplate.delete("http://" + host + ":" + port + "/pins/" + hash);
 
             log.debug("File unpinned in IPFS-cluster [hash={}]", hash);
 
