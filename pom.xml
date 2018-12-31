@@ -4,7 +4,7 @@
 
 	<groupId>net.consensys.mahuta</groupId>
 	<artifactId>mahuta-parent</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
+		<version>0.2.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -25,7 +25,7 @@
 
 
 	<modules>
-        	<module>mahuta-common</module>
+        <module>mahuta-common</module>
 		<module>mahuta-service</module>
 		<module>mahuta-client</module>
 	</modules>

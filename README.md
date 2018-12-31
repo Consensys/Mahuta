@@ -1,7 +1,10 @@
 Mahuta
 ======
 
+[![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master)
+
 **Mahuta** (formerly known as IPFS-Store) is a search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications requiring content discovery (conditional queries or full text search with fuzziness) in a set of IPFS files. This service also offers extra-features for you IPFS environment such as multi-pinning (replication), smart contract event listening (wip).
+
 
 Mahuta can be deployed as a simple, scalable and configurable API and comes with client libraries (Java, JavaScript) to easily integrate it in an application.
 
@@ -12,6 +15,7 @@ A request requires the following the information:
 
 
 [![Mahuta.jpg](https://api.beta.kauri.io:443/ipfs/QmPznCZDvzmEun5qstBQyyLEDfDFqbhuS24Pgsixy1eSnP)](https://postimg.cc/image/mziklo4b1/)
+
 
 ## Getting Started
 
