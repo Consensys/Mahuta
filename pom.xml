@@ -1,80 +1,160 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.consensys.mahuta</groupId>
-	<artifactId>mahuta-parent</artifactId>
-		<version>0.2.2-SNAPSHOT</version>
-	<packaging>pom</packaging>
+    <groupId>net.consensys.mahuta</groupId>
+    <artifactId>mahuta-parent</artifactId>
+    <version>0.2.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.0.RELEASE</version>
-	</parent>
+    <properties>
+        <java.version>1.8</java.version>
 
-	<properties>
-		<java.version>1.8</java.version>
-        	<java-ipfs.version>v1.2.2</java-ipfs.version>
-        	<elasticsearch.version>6.4.2</elasticsearch.version>
-        	<commonio.version>2.6</commonio.version>
-        	<powermock.version>2.0.0-RC.4</powermock.version>
-        	<commons-logging.version>1.1.3</commons-logging.version>
-        	<slf4j.version>1.7.25</slf4j.version>
-	</properties>
+        <java-ipfs.version>v1.2.2</java-ipfs.version>
+        <lombok.version>1.18.4</lombok.version>
+        <guava.version>27.0.1-jre</guava.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <common-io.version>2.6</common-io.version>
+        <testcontainers.version>1.10.4</testcontainers.version>
+        <jackson.version>2.9.8</jackson.version>
+        <powermock.version>2.0.0</powermock.version>
+        <mockneat.version>0.3.0</mockneat.version>
+
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
 
 
-	<modules>
-        <module>mahuta-common</module>
-		<module>mahuta-service</module>
-		<module>mahuta-client</module>
-	</modules>
+    <modules>
+        <module>mahuta-core</module>
+        <module>mahuta-indexer-elasticsearch</module>
+        <module>mahuta-http-api</module>
+        <module>mahuta-client</module>
+    </modules>
 
-	<repositories>
+
+    <dependencies>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
+
+        <!-- guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
+        <!-- jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Logs -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${common-io.version}</version>
+        </dependency>
+
+        <!-- testcontainers -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- powermock -->
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- mockneat -->
+        <dependency>
+            <groupId>net.andreinc.mockneat</groupId>
+            <artifactId>mockneat</artifactId>
+            <version>${mockneat.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <repositories>
         <repository>
-          	<id>central_repository</id>
-          	<url>http://repo1.maven.org/maven2</url>
+            <id>central_repository</id>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
-		<repository>
-			<id>spring-releases</id>
-			<url>https://repo.spring.io/libs-release</url>
-		</repository>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>spring-releases</id>
-			<url>https://repo.spring.io/libs-release</url>
-		</pluginRepository>
-	</pluginRepositories>
+        <repository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </pluginRepository>
+    </pluginRepositories>
 
-	<scm>
-		<connection>scm:git:git:@github.com:ConsenSys/IPFS-Store.git</connection>
-		<developerConnection>scm:git:git@github.com:ConsenSys/IPFS-Store.git</developerConnection>
-		<tag>HEAD</tag>
-	</scm>
+    <scm>
+        <connection>scm:git:git:@github.com:ConsenSys/IPFS-Store.git</connection>
+        <developerConnection>scm:git:git@github.com:ConsenSys/IPFS-Store.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
-	<distributionManagement>
-		<repository>
-			<id>bintray</id>
-			<url>https://api.bintray.com/maven/consensys/kauri/ipfs-store/;publish=1</url>
-		</repository>
-	</distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>bintray</id>
+            <url>https://api.bintray.com/maven/consensys/kauri/ipfs-store/;publish=1</url>
+        </repository>
+    </distributionManagement>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-				<configuration>
-						<tagNameFormat>v@{project.version}</tagNameFormat>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
