@@ -354,8 +354,7 @@ public class ElasticSearchService implements IndexingService {
             try {
                 switch (f.getOperation()) {
                 case FULL_TEXT:
-                    elasticSearchQuery
-                            .must(QueryBuilders.multiMatchQuery(value, f.getNames()).type(Type.PHRASE_PREFIX));
+                    elasticSearchQuery.must(QueryBuilders.multiMatchQuery(value, f.getNames()).type(Type.PHRASE_PREFIX));
                     break;
                 case EQUALS:
                     elasticSearchQuery.must(QueryBuilders.termQuery(f.getName(), value));

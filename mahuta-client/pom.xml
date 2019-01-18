@@ -15,9 +15,9 @@
 	</properties>
 
 	<modules>
-		<module>mahuta-client-java</module>
-		<module>mahuta-client-cli</module>
-		<module>mahuta-client-springdata</module>
+<!-- 		<module>mahuta-client-java</module> -->
+<!-- 		<module>mahuta-client-cli</module> -->
+<!-- 		<module>mahuta-client-springdata</module> -->
 	</modules>
 
 </project>
