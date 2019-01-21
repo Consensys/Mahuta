@@ -20,9 +20,9 @@ public class Query {
     @JsonProperty("query")
     private final @Getter List<Filter> filterClauses;
 
-    private Query() {
-        this.filterClauses = new ArrayList<>();
-    }
+    @JsonProperty("or")
+    private final @Getter List<Query> subFilterClauses;
+
 
     public static Query newQuery() {
         return new Query();
@@ -31,9 +31,18 @@ public class Query {
     public static Query newQuery(List<Filter> filterClauses) {
         return new Query(filterClauses);
     }
+    
+    private Query() {
+        this(new ArrayList<>(), new ArrayList<>());
+    }
+    
+    private Query(List<Filter> filterClauses) {
+        this(filterClauses, new ArrayList<>());
+    }
 
-    public Query(List<Filter> filterClauses) {
+    private Query(List<Filter> filterClauses, List<Query> subFilterClauses) {
         this.filterClauses = filterClauses;
+        this.subFilterClauses = subFilterClauses;
     }
 
     public Query filter(Filter filter) {
@@ -96,7 +105,12 @@ public class Query {
         return this;
     }
 
+    public Query or(Query query) {
+        this.subFilterClauses.add(query);
+        return this;
+    }
+
     public boolean isEmpty() {
-        return this.getFilterClauses().isEmpty();
+        return this.getFilterClauses().isEmpty() && this.getSubFilterClauses().isEmpty();
     }
 }

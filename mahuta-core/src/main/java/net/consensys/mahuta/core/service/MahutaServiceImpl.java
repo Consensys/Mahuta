@@ -17,7 +17,6 @@ import net.consensys.mahuta.core.domain.indexing.ByteArrayIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
-import net.consensys.mahuta.core.domain.indexing.JSONIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.domain.searching.Query;
 import net.consensys.mahuta.core.exception.NotFoundException;
@@ -77,10 +76,6 @@ public class MahutaServiceImpl implements MahutaService {
 
         } else if (request instanceof StringIndexingRequest) {
             byte[] content = ((StringIndexingRequest) request).getContent().getBytes();
-            contentId = storageService.write(content);
-
-        } else if (request instanceof JSONIndexingRequest) {
-            byte[] content = ((JSONIndexingRequest) request).getContent().toString().getBytes();
             contentId = storageService.write(content);
 
         } else {

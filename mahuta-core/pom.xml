@@ -21,7 +21,6 @@
             <artifactId>java-ipfs-api</artifactId>
             <version>${java-ipfs.version}</version>
         </dependency>
-
     </dependencies>
 
 

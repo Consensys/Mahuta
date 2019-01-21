@@ -140,5 +140,27 @@ public class QueryTest {
         assertEquals(QueryOperation.GTE, query.getFilterClauses().get(0).getOperation());
     }
     
+    @Test
+    public void or() {
+        /////////////////////////////////////////
+        Query query = Query.newQuery()
+                .or(Query.newQuery().equals(ATTRIBUTE_NAME1, "test1").equals(ATTRIBUTE_NAME2, "test1"))
+                .or(Query.newQuery().equals(ATTRIBUTE_NAME1, "test2").equals(ATTRIBUTE_NAME2, "test2"));
+        /////////////////////////////////////////
+        
+        assertEquals(ATTRIBUTE_NAME1, query.getSubFilterClauses().get(0).getFilterClauses().get(0).getName());
+        assertEquals("test1", query.getSubFilterClauses().get(0).getFilterClauses().get(0).getValue());
+        assertEquals(QueryOperation.EQUALS,  query.getSubFilterClauses().get(0).getFilterClauses().get(0).getOperation());
+        assertEquals(ATTRIBUTE_NAME2, query.getSubFilterClauses().get(0).getFilterClauses().get(1).getName());
+        assertEquals("test1", query.getSubFilterClauses().get(0).getFilterClauses().get(1).getValue());
+        assertEquals(QueryOperation.EQUALS,  query.getSubFilterClauses().get(0).getFilterClauses().get(1).getOperation());
+
+        assertEquals(ATTRIBUTE_NAME1, query.getSubFilterClauses().get(1).getFilterClauses().get(0).getName());
+        assertEquals("test2", query.getSubFilterClauses().get(1).getFilterClauses().get(0).getValue());
+        assertEquals(QueryOperation.EQUALS,  query.getSubFilterClauses().get(1).getFilterClauses().get(0).getOperation());
+        assertEquals(ATTRIBUTE_NAME2, query.getSubFilterClauses().get(1).getFilterClauses().get(1).getName());
+        assertEquals("test2", query.getSubFilterClauses().get(1).getFilterClauses().get(1).getValue());
+        assertEquals(QueryOperation.EQUALS,  query.getSubFilterClauses().get(1).getFilterClauses().get(1).getOperation());
+    }
     
 }

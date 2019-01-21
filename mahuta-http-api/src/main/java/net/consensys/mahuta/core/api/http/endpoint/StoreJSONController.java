@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.Metadata;
 import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
-import net.consensys.mahuta.core.domain.indexing.JSONIndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 
 @RestController
 public class StoreJSONController {
@@ -48,9 +48,9 @@ public class StoreJSONController {
      * @throws ValidationException
      */
     @PostMapping(value = "${mahuta.api-spec.persistence.json.store_index}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Metadata storeAndIndexFile(@RequestBody @Valid @NotNull JSONIndexingRequest request) {
+    public @ResponseBody Metadata storeAndIndexFile(@RequestBody @Valid @NotNull StringIndexingRequest request) {
 
-        return  mahuta.index(request);
+        return mahuta.index(request);
     }
 
 }

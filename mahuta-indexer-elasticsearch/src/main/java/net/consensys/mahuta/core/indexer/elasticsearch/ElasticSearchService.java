@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
-
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.DocWriteResponse;
@@ -345,8 +343,10 @@ public class ElasticSearchService implements IndexingService {
             return QueryBuilders.matchAllQuery();
         }
 
+        // Initialize query
         BoolQueryBuilder elasticSearchQuery = QueryBuilders.boolQuery();
 
+        // Filters
         query.getFilterClauses().forEach(f -> {
 
             Object value = transformValue(f.getValue());
@@ -396,7 +396,13 @@ public class ElasticSearchService implements IndexingService {
                 log.warn("Error while converting filter [" + f + "] - Ignore it!", e);
             }
         });
+        
+        // Sub queries (OR)
+        query.getSubFilterClauses().forEach(q -> {
+            elasticSearchQuery.should(this.buildQuery(q));
+        });
 
+        
         log.debug(elasticSearchQuery.toString());
 
         return elasticSearchQuery;
