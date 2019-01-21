@@ -13,8 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -303,7 +306,7 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
      */
     public static Object deserialize(JsonNode node) {
 
-        if (node == null || node.isMissingNode() || node.isNull() || node.asText().length() == 0) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
             return ""; //Because toMap doesn't accept null value ...
         } else if (node.isBoolean()) {
             return node.asBoolean();
@@ -313,6 +316,10 @@ public abstract class IPFSStoreCustomRepositoryImpl<E, I extends Serializable> i
             return node.asInt();
         } else if (node.isDouble()) {
             return node.asDouble();
+        } else if (node.isArray()) {
+            return StreamSupport.stream( Spliterators.spliteratorUnknownSize(node.elements(), Spliterator.ORDERED), false)
+                .map(IPFSStoreCustomRepositoryImpl::deserialize)
+                .collect(Collectors.toList());
         } else {
             return node.asText();
         }

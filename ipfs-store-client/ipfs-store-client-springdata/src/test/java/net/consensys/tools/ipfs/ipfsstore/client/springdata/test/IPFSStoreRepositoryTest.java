@@ -68,6 +68,7 @@ public class IPFSStoreRepositoryTest {
         indexFields.add("id");
         indexFields.add("name");
         indexFields.add("age");
+        indexFields.add("tags");
 
 //        externalIndexFields = new HashSet<String>();
 //        externalIndexFields.add("content");
@@ -93,7 +94,10 @@ public class IPFSStoreRepositoryTest {
         assertEquals("Entity Name should be " + entity.getName(), entity.getName(), entitySaved.getName());
         assertEquals("Entity Age should be " + entity.getAge(), entity.getAge(), entitySaved.getAge());
         assertNotNull("Entity ID shouldn't be null", entitySaved.getId());
-
+        assertEquals("Entity tags array should be of size" + 3, 3, entitySaved.getTags().size());
+        
+        
+        
         Mockito.verify(client, Mockito.times(1)).index(any(InputStream.class), eq(index), anyString(), eq(CONTENT_TYPE), any(Map.class));
     }
 
