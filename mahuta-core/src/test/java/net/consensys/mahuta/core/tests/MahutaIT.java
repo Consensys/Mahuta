@@ -1,46 +1,36 @@
 package net.consensys.mahuta.core.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import com.google.common.collect.ImmutableMap;
-
 import io.ipfs.api.IPFS;
-import io.ipfs.api.NamedStreamable;
-import net.consensys.mahuta.core.Mahuta;
-import net.consensys.mahuta.core.MahutaFactory;
-import net.consensys.mahuta.core.domain.Metadata;
-import net.consensys.mahuta.core.domain.MetadataAndPayload;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.common.PageRequest;
-import net.consensys.mahuta.core.domain.searching.Query;
-import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
-import net.consensys.mahuta.core.test.utils.ConstantUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
-import net.consensys.mahuta.core.utils.FileUtils;
 
 public class MahutaIT extends MahutaTestAbstract {
+
+    private static IndexingRequestUtils indexingRequestUtils;
     
     @BeforeClass
     public static void startContainers() throws IOException {
         ContainerUtils.startContainer("ipfs", ContainerType.IPFS);
+        indexingRequestUtils = new IndexingRequestUtils(new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     
     @AfterClass
@@ -56,69 +46,116 @@ public class MahutaIT extends MahutaTestAbstract {
     
     @Test
     public void indexInputStream() throws Exception {
-        indexDocId = mockNeat.strings().get();
-        when(indexingService.index(anyString(), anyString(), anyString(), anyString(), any(Map.class))).thenReturn(indexDocId);
-        super.indexInputStream();
+        
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
+        
+        when(indexingService.index(
+                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(requestAndMetadata.getRequest().getIndexDocId()), 
+                eq(requestAndMetadata.getMetadata().getContentId()), 
+                eq(requestAndMetadata.getRequest().getContentType()), 
+                eq(requestAndMetadata.getMetadata().getIndexFields())
+        )).thenReturn(requestAndMetadata.getMetadata().getIndexDocId());
+        
+        super.index(requestAndMetadata);
+    }
+    
+    @Test
+    public void indexByteArray() throws Exception {
+        
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomByteArrayIndexingRequest();
+        
+        when(indexingService.index(
+                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(requestAndMetadata.getRequest().getIndexDocId()), 
+                eq(requestAndMetadata.getMetadata().getContentId()), 
+                eq(requestAndMetadata.getRequest().getContentType()), 
+                eq(requestAndMetadata.getMetadata().getIndexFields())
+        )).thenReturn(requestAndMetadata.getMetadata().getIndexDocId());
+        
+        super.index(requestAndMetadata);
     }
     
     @Test
     public void indexString() throws Exception {
-        indexDocId = mockNeat.strings().get();
-        when(indexingService.index(anyString(), anyString(), anyString(), anyString(), any(Map.class))).thenReturn(indexDocId);
+
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomStringIndexingRequest();
         
-        super.indexString();
+        when(indexingService.index(
+                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(requestAndMetadata.getRequest().getIndexDocId()), 
+                eq(requestAndMetadata.getMetadata().getContentId()), 
+                eq(requestAndMetadata.getRequest().getContentType()), 
+                eq(requestAndMetadata.getMetadata().getIndexFields())))
+        .thenReturn(requestAndMetadata.getMetadata().getIndexDocId());
+        
+        super.index(requestAndMetadata);
     }
     
     @Test
     public void indexCid() throws Exception {
-        indexDocId = mockNeat.strings().get();
-        when(indexingService.index(anyString(), anyString(), anyString(), anyString(), any(Map.class))).thenReturn(indexDocId);
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
         
-        super.indexCid();
+        when(indexingService.index(
+                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(requestAndMetadata.getRequest().getIndexDocId()), 
+                eq(requestAndMetadata.getMetadata().getContentId()), 
+                eq(requestAndMetadata.getRequest().getContentType()), 
+                eq(requestAndMetadata.getMetadata().getIndexFields())))
+        .thenReturn(requestAndMetadata.getMetadata().getIndexDocId());
+        
+        super.index(requestAndMetadata);
     }
     
     @Test
     public void deindex() throws Exception {
-        indexName = mockNeat.strings().get();
-        indexDocId = mockNeat.strings().get();
-        contentId = ConstantUtils.TEXT_SAMPLE_HASH;
-        contentType = ConstantUtils.TEXT_SAMPLE_TYPE;
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
         
-        when(indexingService.index(anyString(), anyString(), anyString(), anyString(), any(Map.class))).thenReturn(indexDocId);
-        when(indexingService.getDocument(anyString(), eq(indexDocId))).thenReturn(Metadata.of(indexName, indexDocId, contentId, null, ImmutableMap.of()));
+        when(indexingService.index(
+                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(requestAndMetadata.getRequest().getIndexDocId()), 
+                eq(requestAndMetadata.getMetadata().getContentId()), 
+                eq(requestAndMetadata.getRequest().getContentType()), 
+                eq(requestAndMetadata.getMetadata().getIndexFields())))
+        .thenReturn(requestAndMetadata.getMetadata().getIndexDocId());
         
-        super.deindex();
+        when(indexingService.getDocument(
+                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(requestAndMetadata.getRequest().getIndexDocId())))
+        .thenReturn(requestAndMetadata.getMetadata());
+        
+        super.deindex(requestAndMetadata);
     }
-        
-    @Test
-    public void getById() {
-        String index = "test-index";
-        String id = "id";
-        String hash = FILE_HASH;
-        String type = FILE_TYPE;
-        Map<String, Object> fields = ImmutableMap.of("attribute1", "val1");
-
-        IndexingService indexing = Mockito.mock(IndexingService.class);
-        when(indexing.getDocument(eq(index), eq(id))).thenReturn(Metadata.of(index, id, hash, type, fields));
-
-        Mahuta mahuta = new MahutaFactory()
-                .configureStorage(IPFSService.connect(ipfsContainer1.getContainerIpAddress(), ipfsContainer1.getFirstMappedPort()))
-                .configureIndexer(indexing)
-                .build();
-
-        ////////////////////////
-        mahuta.index(FileUtils.readFileInputString(FILE_PATH), index, id, type, fields);
-        MetadataAndPayload result = mahuta.getById(index, id);
-        ///////////////////////
-        
-        assertEquals(index, result.getMetadata().getIndexName());
-        assertEquals(id, result.getMetadata().getIndexDocId());
-        assertEquals(hash, result.getMetadata().getContentId());
-        assertEquals(type, result.getMetadata().getContentType()); 
-        assertEquals(fields.get("attribute1"), result.getMetadata().getIndexFields().get("attribute1"));
-        assertEquals(FileUtils.readFile(FILE_PATH).length, ( (ByteArrayOutputStream) result.getPayload()).size());
-        
-    }
+//        
+//    @Test
+//    public void getById() {
+//        String index = "test-index";
+//        String id = "id";
+//        String hash = FILE_HASH;
+//        String type = FILE_TYPE;
+//        Map<String, Object> fields = ImmutableMap.of("attribute1", "val1");
+//
+//        IndexingService indexing = Mockito.mock(IndexingService.class);
+//        when(indexing.getDocument(eq(index), eq(id))).thenReturn(Metadata.of(index, id, hash, type, fields));
+//
+//        Mahuta mahuta = new MahutaFactory()
+//                .configureStorage(IPFSService.connect(ipfsContainer1.getContainerIpAddress(), ipfsContainer1.getFirstMappedPort()))
+//                .configureIndexer(indexing)
+//                .build();
+//
+//        ////////////////////////
+//        mahuta.index(FileUtils.readFileInputString(FILE_PATH), index, id, type, fields);
+//        MetadataAndPayload result = mahuta.getById(index, id);
+//        ///////////////////////
+//        
+//        assertEquals(index, result.getMetadata().getIndexName());
+//        assertEquals(id, result.getMetadata().getIndexDocId());
+//        assertEquals(hash, result.getMetadata().getContentId());
+//        assertEquals(type, result.getMetadata().getContentType()); 
+//        assertEquals(fields.get("attribute1"), result.getMetadata().getIndexFields().get("attribute1"));
+//        assertEquals(FileUtils.readFile(FILE_PATH).length, ( (ByteArrayOutputStream) result.getPayload()).size());
+//        
+//    }
 //    
 //    @Test
 //    public void getByHash() {

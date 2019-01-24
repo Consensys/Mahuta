@@ -63,7 +63,7 @@ public class MahutaServiceImpl implements MahutaService {
             InputStream content = ((InputStreamIndexingRequest) request).getContent();
             contentId = storageService.write(content);
             contentType = Optional.ofNullable(contentType)
-                    .orElseGet(Throwing.rethrowSupplier(() -> URLConnection.guessContentTypeFromStream(content)));
+                    .orElseGet(Throwing.rethrow(() -> URLConnection.guessContentTypeFromStream(content)));
 
         } else if (request instanceof ByteArrayIndexingRequest) {
             byte[] content = ((ByteArrayIndexingRequest) request).getContent();

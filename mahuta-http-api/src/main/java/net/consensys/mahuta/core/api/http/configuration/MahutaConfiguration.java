@@ -37,7 +37,7 @@ public class MahutaConfiguration {
 
         if (!ValidatorUtils.isEmpty(settings.getElasticSearch().getIndexConfigs())) {
             settings.getElasticSearch().getIndexConfigs()
-                    .forEach(config -> indexerService.withIndex(config.getName(), FileUtils.readFileInputString(config.getMap())));
+                    .forEach(config -> indexerService.withIndex(config.getName(), FileUtils.readFileInputStream(config.getMap())));
         }
         
         return new MahutaFactory()

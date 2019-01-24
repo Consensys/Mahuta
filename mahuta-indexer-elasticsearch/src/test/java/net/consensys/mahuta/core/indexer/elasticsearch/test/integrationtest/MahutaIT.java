@@ -3,95 +3,89 @@ package net.consensys.mahuta.core.indexer.elasticsearch.test.integrationtest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.stream.IntStream;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import io.ipfs.api.IPFS;
 import net.andreinc.mockneat.types.enums.StringType;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.Metadata;
 import net.consensys.mahuta.core.domain.common.Page;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
-import net.consensys.mahuta.core.indexer.elasticsearch.test.utils.IntegrationTestUtils;
+import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
+import net.consensys.mahuta.core.service.indexing.IndexingService;
+import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
+import net.consensys.mahuta.core.test.utils.ContainerUtils;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
+import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
+import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 import net.consensys.mahuta.core.utils.FileUtils;
 
-public class MahutaIT extends IntegrationTestUtils {
+public class MahutaIT extends MahutaTestAbstract {
     
-
-    @Test
-    public void build() throws Exception {
-        ////////////////////////
-        get();
-        ///////////////////////
+    private static IndexingRequestUtils indexingRequestUtils;
+    
+    @BeforeClass
+    public static void startContainers() throws IOException {
+        ContainerUtils.startContainer("ipfs", ContainerType.IPFS);
+        ContainerUtils.startContainer("elasticsearch", ContainerType.ELASTICSEARCH);
+        
+        indexingRequestUtils = new IndexingRequestUtils(new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
-
-    @Test
-    public void indexFile() throws Exception {
-        String indexName = mockNeat.strings().size(20).type(StringType.ALPHA_NUMERIC).get();
-        
-        Mahuta mahuta = get(indexName, FileUtils.readFileInputString("index_mapping.json"));
-        
-        IndexingRequest request = generateRandomInputStreamIndexingRequest(indexName, FILE);
-
-        ////////////////////////
-        Metadata metadata = mahuta.index(request);
-        ///////////////////////
-        
-        assertTrue(indexName.equalsIgnoreCase(metadata.getIndexName()));
-        assertEquals(request.getIndexDocId(), metadata.getIndexDocId());
-        assertEquals(FILE_HASH, metadata.getContentId());
-        assertEquals(FILE_TYPE, metadata.getContentType());
-        assertEquals(request.getIndexFields().get(AUTHOR_FIELD), metadata.getIndexFields().get(AUTHOR_FIELD));
-        assertEquals(request.getIndexFields().get(TITLE_FIELD), metadata.getIndexFields().get(TITLE_FIELD));
-        assertEquals(request.getIndexFields().get(IS_PUBLISHED_FIELD), metadata.getIndexFields().get(IS_PUBLISHED_FIELD));
-        assertEquals(request.getIndexFields().get(DATE_CREATED_FIELD), metadata.getIndexFields().get(DATE_CREATED_FIELD));
-        assertEquals(request.getIndexFields().get(VIEWS_FIELD), metadata.getIndexFields().get(VIEWS_FIELD));
+    
+    @AfterClass
+    public static void stopContainers() {
+        ContainerUtils.stopAll();
     }
-
+    
+    public MahutaIT () {
+        super(ElasticSearchService.connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name")), 
+              IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
+        );
+    }
+    
+    @Test
+    public void indexInputStream() throws Exception {
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
+        indexingService.createIndex(requestAndMetadata.getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+        super.index(requestAndMetadata);
+    }
+    
+    @Test
+    public void indexByteArray() throws Exception {
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomByteArrayIndexingRequest();
+        indexingService.createIndex(requestAndMetadata.getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+        super.index(requestAndMetadata);
+    }
+    
     @Test
     public void indexString() throws Exception {
-        String indexName = mockNeat.strings().size(20).type(StringType.ALPHA_NUMERIC).get();
-        
-        Mahuta mahuta = get(indexName, FileUtils.readFileInputString("index_mapping.json"));
-        
-        IndexingRequest request = generateRandomStringIndexingRequest(indexName);
-
-        ////////////////////////
-        Metadata metadata = mahuta.index(request);
-        ///////////////////////
-
-        assertTrue(indexName.equalsIgnoreCase(metadata.getIndexName()));
-        assertEquals(request.getIndexDocId(), metadata.getIndexDocId());
-        assertNotNull(metadata.getContentId());
-        assertEquals(TXT_TYPE, metadata.getContentType());
-        assertEquals(request.getIndexFields().get(AUTHOR_FIELD), metadata.getIndexFields().get(AUTHOR_FIELD));
-        assertEquals(request.getIndexFields().get(TITLE_FIELD), metadata.getIndexFields().get(TITLE_FIELD));
-        assertEquals(request.getIndexFields().get(IS_PUBLISHED_FIELD), metadata.getIndexFields().get(IS_PUBLISHED_FIELD));
-        assertEquals(request.getIndexFields().get(DATE_CREATED_FIELD), metadata.getIndexFields().get(DATE_CREATED_FIELD));
-        assertEquals(request.getIndexFields().get(VIEWS_FIELD), metadata.getIndexFields().get(VIEWS_FIELD));
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomStringIndexingRequest();
+        indexingService.createIndex(requestAndMetadata.getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+        super.index(requestAndMetadata);
     }
-
+    
     @Test
-    public void searchNoQuery() throws Exception {
-        Integer noDocs = 50;
-        Integer nbPages = 3;
-        String indexName = mockNeat.strings().size(20).type(StringType.ALPHA_NUMERIC).get();
-        
-        Mahuta mahuta = get(indexName, FileUtils.readFileInputString("index_mapping.json"));
-        
-        ////////////////////////
-        IntStream.range(0, noDocs).forEach(i-> {
-             mahuta.index(generateRandomStringIndexingRequest(indexName));
-        });
-        
-        Page<Metadata> result = mahuta.search(indexName);
-        ///////////////////////
-        
-        assertEquals(noDocs, result.getTotalElements());
-        assertEquals(nbPages, result.getTotalPages());
-        
-        
+    public void indexCid() throws Exception {
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        indexingService.createIndex(requestAndMetadata.getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+        super.index(requestAndMetadata);
+    }
+    
+    @Test
+    public void deindex() throws Exception {
+        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        indexingService.createIndex(requestAndMetadata.getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+        super.deindex(requestAndMetadata);
     }
 
 }

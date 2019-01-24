@@ -16,13 +16,19 @@ public class ContainerUtils {
     
     public static final Map<ContainerType, ContainerDefinition> containersRegistry = ImmutableMap.of(
                     ContainerType.IPFS, new ContainerDefinition(DOCKER_IMAGE_IPFS, 5001, 4001, 8080), 
-                    ContainerType.ELASTICSEARCH, new ContainerDefinition(DOCKER_IMAGE_ELASTICSEARCH, 9300));
+                    ContainerType.ELASTICSEARCH, new ContainerDefinition(DOCKER_IMAGE_ELASTICSEARCH, ImmutableMap.of("cluster-name", "docker-cluster"), 9300));
     
     private static final Map<String, GenericContainer<?>> containers = Maps.newHashMap();
     
     public static void startContainer(String name, ContainerType type) {
         GenericContainer<?> container = new GenericContainer<>(containersRegistry.get(type).image)
                 .withExposedPorts(containersRegistry.get(type).exposedPorts);
+        
+        if(containersRegistry.get(type).envVars != null) {
+            containersRegistry.get(type).envVars.forEach((key, value) -> {
+                container.addEnv(key, value);
+            });
+        }
         
         container.start();
         
@@ -40,13 +46,26 @@ public class ContainerUtils {
         return containers.get(name).getFirstMappedPort();
     }
     
+    public static String getConfig(String name, String key) {
+        return containers.get(name).getEnvMap().entrySet().stream()
+                .filter(e->e.getKey().contentEquals(key))
+                .findFirst()
+                .map(e->e.getValue())
+                .orElseThrow(() -> new RuntimeException("env variable '"+key+"' not set in container " + name));
+    }
+    
     static class ContainerDefinition {
         private String image;
         private Integer[] exposedPorts;
+        private Map<String, String> envVars;
         
         public ContainerDefinition(String image, Integer... exposedPorts) {
+            this(image, null, exposedPorts);
+        }
+        public ContainerDefinition(String image, Map<String, String> envVars, Integer... exposedPorts) {
             this.image = image;
             this.exposedPorts = exposedPorts;
+            this.envVars = envVars;
         }
     }
     

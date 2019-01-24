@@ -4,24 +4,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -136,7 +140,7 @@ public class ElasticSearchService implements IndexingService {
                         .prepareCreate(indexName);
                 
                 if (configuration != null) {
-                    request.setSource(IOUtils.toString(configuration, Charsets.UTF_8), XContentType.JSON);
+                    request.setSource(IOUtils.toString(configuration, StandardCharsets.UTF_8), XContentType.JSON);
                 } else {
                     request.addMapping(DEFAULT_TYPE, HASH_INDEX_KEY, "type=keyword", CONTENT_TYPE_INDEX_KEY, "type=keyword");
                 }
@@ -242,7 +246,7 @@ public class ElasticSearchService implements IndexingService {
                     "Document [indexName: " + indexName + ", indexDocId: " + indexDocId + "] not found");
         }
 
-        return convert(response.getIndex(), response.getId(), response.getSourceAsMap());
+        return convert(response.getIndex(), response.getId(), response.getSource());
     }
 
     @Override
@@ -315,7 +319,7 @@ public class ElasticSearchService implements IndexingService {
         this.client.admin().indices().prepareRefresh(indexName).get();
     }
 
-    private static Metadata convert(String indexName, String documentId, Map<String, Object> sourceMap) {
+    private Metadata convert(String indexName, String documentId, Map<String, Object> sourceMap) {
         String contentId = null;
         String contentType = null;
 
@@ -331,8 +335,25 @@ public class ElasticSearchService implements IndexingService {
                 contentType = sourceMap.get(CONTENT_TYPE_INDEX_KEY).toString();
                 sourceMap.remove(CONTENT_TYPE_INDEX_KEY);
             }
-        }
+            
+            // Cast from mapping
+            Map<String, String> mapping = this.getMapping(indexName);
+            log.debug("mapping={}", mapping);
+            sourceMap.forEach((key, value) -> {
+                if(mapping.containsKey(key)) {
+                    switch (mapping.get(key)) {
+                    case "date":
+                        sourceMap.put(key, new Date((Long) value));
+                        break;
 
+                    default:
+                        break;
+                    }
+                }
+            });
+        }
+        
+        
         return Metadata.of(indexName, documentId, contentId, contentType, sourceMap);
     }
 
@@ -406,5 +427,21 @@ public class ElasticSearchService implements IndexingService {
         log.debug(elasticSearchQuery.toString());
 
         return elasticSearchQuery;
+    }
+    
+    private Map<String, String> getMapping(String indexName) {
+        Map<String, String> mapping = new HashMap<>();
+
+        GetMappingsResponse response = this.client.admin().indices().prepareGetMappings(indexName).get();
+        log.debug("GetMappingsResponse={}", response);
+       
+        MappingMetaData mappingMetaData = response.getMappings().get(indexName).get(DEFAULT_TYPE).get();
+        LinkedHashMap<String, LinkedHashMap> map = (LinkedHashMap<String, LinkedHashMap>) mappingMetaData.getSourceAsMap().get("properties");
+        
+        map.forEach((key, value) -> {
+            mapping.put(key, (String) value.get("type"));
+        });
+        
+        return mapping;
     }
 }

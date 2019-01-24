@@ -14,7 +14,7 @@ public class FileUtils {
     private FileUtils() {
     }
 
-    public static InputStream readFileInputString(String path) {
+    public static InputStream readFileInputStream(String path) {
         
         if(ValidatorUtils.isEmpty(path)) {
             return null;
@@ -37,7 +37,7 @@ public class FileUtils {
             ClassLoader classLoader = FileUtils.class.getClassLoader();
             File file = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
 
-            FileInputStream fileInputStream = (FileInputStream) readFileInputString(path);
+            FileInputStream fileInputStream = (FileInputStream) readFileInputStream(path);
 
             long byteLength = file.length(); // bytecount of the file-content
 

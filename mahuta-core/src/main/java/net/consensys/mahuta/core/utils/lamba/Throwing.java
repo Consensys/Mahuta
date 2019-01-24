@@ -1,5 +1,6 @@
 package net.consensys.mahuta.core.utils.lamba;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -14,6 +15,10 @@ public final class Throwing {
     public static <T> Consumer<T> rethrow(@Nonnull final ThrowingConsumer<T> consumer) {
         return consumer;
     }
+    @Nonnull
+    public static <T1, T2> BiConsumer<T1, T2> rethrow(@Nonnull final ThrowingBiConsumer<T1, T2> consumer) {
+        return consumer;
+    }
 
     @Nonnull
     public static <T, R> Function<T, R> rethrowFunc(@Nonnull final ThrowingFunction<T, R> function) {
@@ -21,7 +26,7 @@ public final class Throwing {
     }
 
     @Nonnull
-    public static <T> Supplier<T> rethrowSupplier(@Nonnull final ThrowingSupplier<T> supplier) {
+    public static <T> Supplier<T> rethrow(@Nonnull final ThrowingSupplier<T> supplier) {
         return supplier;
     }
 
