@@ -4,8 +4,7 @@ Mahuta
 | Service | Master | Development |
 | -------- | -------- | -------- |
 | CI Status | [![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master) | [![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/development.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/development) |
-| Test Coverage | [![Coverage Status](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=master)
- | [![Coverage Status](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=development) |
+| Test Coverage | [![Coverage Status](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=development) |
 
 
 **Mahuta** (formerly known as IPFS-Store) is a search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications requiring content discovery (conditional queries or full text search with fuzziness) in a set of IPFS files. This service also offers extra-features for you IPFS environment such as multi-pinning (replication), smart contract event listening (wip).

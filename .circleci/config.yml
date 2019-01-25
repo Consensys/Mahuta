@@ -3,6 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2
+executorType: machine
 jobs:
   build-and-test:
     docker:
@@ -29,6 +30,9 @@ jobs:
       - run:
           name: Run tests
           command: mvn test
+      - run:
+          name: Coverall
+          command: mvn cobertura:cobertura coveralls:report -DrepoToken=${COVERALLS_REPOTOKEN}
 
   release-snapshot:
     docker:
