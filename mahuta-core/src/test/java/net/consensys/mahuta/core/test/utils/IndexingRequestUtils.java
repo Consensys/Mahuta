@@ -123,13 +123,13 @@ public class IndexingRequestUtils extends TestUtils{
     public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
-        return this.generateRandomStringIndexingRequest(indexName, indexDocId);
+        return this.generateRandomCIDIndexingRequest(indexName, indexDocId);
     }
     
     public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName, String indexDocId) {
         Map<String, Object> fields = generateRamdomFields();
         
-        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+        return this.generateRandomCIDIndexingRequest(indexName, indexDocId, fields);
     }
     
     public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
@@ -155,19 +155,19 @@ public class IndexingRequestUtils extends TestUtils{
     public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
         
-        return this.generateRandomStringIndexingRequest(indexName);
+        return this.generateRandomInputStreamIndexingRequest(indexName);
     }
     
     public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
-        return this.generateRandomStringIndexingRequest(indexName, indexDocId);
+        return this.generateRandomInputStreamIndexingRequest(indexName, indexDocId);
     }
     
     public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName, String indexDocId) {
         Map<String, Object> fields = generateRamdomFields();
         
-        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+        return this.generateRandomInputStreamIndexingRequest(indexName, indexDocId, fields);
     }
     
     public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
@@ -193,19 +193,19 @@ public class IndexingRequestUtils extends TestUtils{
     public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
         
-        return this.generateRandomStringIndexingRequest(indexName);
+        return this.generateRandomByteArrayIndexingRequest(indexName);
     }
     
     public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
-        return this.generateRandomStringIndexingRequest(indexName, indexDocId);
+        return this.generateRandomByteArrayIndexingRequest(indexName, indexDocId);
     }
     
     public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName, String indexDocId) {
         Map<String, Object> fields = generateRamdomFields();
         
-        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+        return this.generateRandomByteArrayIndexingRequest(indexName, indexDocId, fields);
     }
     
     public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {

@@ -39,16 +39,17 @@ public abstract class MahutaTestAbstract extends TestUtils {
     }
     
     protected void deindex(IndexingRequestAndMetadata requestAndMedata) throws Exception {
+        
         ////////////////////////
         Metadata metadata = mahuta.index(requestAndMedata.getRequest());
         mahuta.deindex(metadata.getIndexName(), metadata.getIndexDocId());
         ///////////////////////
-        
-        
+
         assertFalse(storageService.getPinned().stream().anyMatch(h -> h.equals(requestAndMedata.getMetadata().getContentId())));
     }
     
     protected void getById(IndexingRequestAndMetadata requestAndMedata) {
+        
         ////////////////////////
         Metadata metadata = mahuta.index(requestAndMedata.getRequest());
         MetadataAndPayload metadataAndPayload = mahuta.getById(requestAndMedata.getRequest().getIndexName(), requestAndMedata.getRequest().getIndexDocId());
@@ -60,6 +61,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
     }
     
     protected void getByHash(IndexingRequestAndMetadata requestAndMedata) {
+        
         ////////////////////////
         Metadata metadata = mahuta.index(requestAndMedata.getRequest());
         MetadataAndPayload metadataAndPayload = mahuta.getByHash(requestAndMedata.getRequest().getIndexName(), requestAndMedata.getMetadata().getContentId());
@@ -79,9 +81,9 @@ public abstract class MahutaTestAbstract extends TestUtils {
     }
     
     protected void search(List<IndexingRequestAndMetadata> requestAndMedata, Query query, Integer expectedNoResult, IndexingRequestAndMetadata expectedFirstResult) {
+        
         ////////////////////////
         requestAndMedata.forEach(i->mahuta.index(i.getRequest()));
-        
         Page<Metadata> result = mahuta.search(requestAndMedata.get(0).getRequest().getIndexName(), query);
         ////////////////////////
 

@@ -26,7 +26,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequest
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 import net.consensys.mahuta.core.utils.FileUtils;
 
-public class MahutaIT extends MahutaTestAbstract {
+public class MahutaTest extends MahutaTestAbstract {
     
     private static IndexingRequestUtils indexingRequestUtils;
     
@@ -45,7 +45,7 @@ public class MahutaIT extends MahutaTestAbstract {
     
     private String indexName;
     
-    public MahutaIT () {
+    public MahutaTest () {
         super(ElasticSearchService.connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name")), 
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
         );
@@ -133,7 +133,7 @@ public class MahutaIT extends MahutaTestAbstract {
         IndexingRequestAndMetadata requestAndMetadata3 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  AUTHOR_FIELD, "Aurelie Legay");
 
         super.search(Arrays.asList(requestAndMetadata1, requestAndMetadata2, requestAndMetadata3), 
-                Query.newQuery().fullText(AUTHOR_FIELD, "Jeanmart"), 2,  requestAndMetadata2);
+                Query.newQuery().fullText(AUTHOR_FIELD, "Jeanmart"), 2);
     }
     
     @Test

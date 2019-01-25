@@ -15,18 +15,15 @@ import lombok.ToString;
 public class Filter {
 
     @Getter
-    @Setter
     private String name;
 
     @Setter
     private String[] names;
 
     @Getter
-    @Setter
     private QueryOperation operation;
 
     @Getter
-    @Setter
     private Object value;
 
     public Filter(String name, QueryOperation operation, Object value) {

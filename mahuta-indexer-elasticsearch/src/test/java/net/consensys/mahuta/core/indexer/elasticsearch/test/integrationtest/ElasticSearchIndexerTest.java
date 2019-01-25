@@ -36,7 +36,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.Status;
 import net.consensys.mahuta.core.test.utils.TestUtils;
 import net.consensys.mahuta.core.utils.FileUtils;
 
-public class ElasticSearchIndexerIT extends TestUtils  {
+public class ElasticSearchIndexerTest extends TestUtils  {
 
     private static IndexingRequestUtils indexingRequestUtils;
     

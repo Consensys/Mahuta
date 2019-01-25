@@ -25,7 +25,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 
-public class MahutaIT extends MahutaTestAbstract {
+public class MahutaTest extends MahutaTestAbstract {
 
     private static IndexingRequestUtils indexingRequestUtils;
     
@@ -40,7 +40,7 @@ public class MahutaIT extends MahutaTestAbstract {
         ContainerUtils.stopAll();
     }
     
-    public MahutaIT () {
+    public MahutaTest () {
         super(Mockito.mock(IndexingService.class), 
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
         );

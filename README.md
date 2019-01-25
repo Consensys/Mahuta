@@ -1,7 +1,12 @@
 Mahuta
 ======
 
-[![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master)
+| Service | Master | Development |
+| -------- | -------- | -------- |
+| CI Status | [![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master) | [![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/development.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/development) |
+| Test Coverage | [![Coverage Status](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=master)
+ | [![Coverage Status](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=development) |
+
 
 **Mahuta** (formerly known as IPFS-Store) is a search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications requiring content discovery (conditional queries or full text search with fuzziness) in a set of IPFS files. This service also offers extra-features for you IPFS environment such as multi-pinning (replication), smart contract event listening (wip).
 
@@ -19,14 +24,14 @@ A request requires the following the information:
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 
 ### Docker
 
 #### Prerequisites
 
-Mahuta depends of two components: 
+Mahuta depends of two components:
 - an IPFS node ([go](https://github.com/ipfs/go-ipfs) or [js](https://github.com/ipfs/js-ipfs) implementation)
 - a search engine (currently only ElasticSearch is supported)
 
@@ -120,7 +125,7 @@ Enable to store any kind of content. The API uses HTTP multipart to sent the dat
 
 ###### JSON
 
-Enable to store JSON document. 
+Enable to store JSON document.
 
 | Operation | Description | Method | URI |
 | -------- | -------- | -------- | -------- |
@@ -153,13 +158,13 @@ Represents the configuration operations.
 
 #### [Persistent / Raw] Store content
 
-Store a content (any type) in IPFS 
+Store a content (any type) in IPFS
 
 -   **URL:** `/mahuta/raw/store`    
 -   **Method:** `POST`
 -   **Header:** `N/A`
 -   **URL Params:** `N/A`
--   **Data Params:** 
+-   **Data Params:**
     -   `file: [content]`
 
 -   **Sample Request:**
@@ -171,7 +176,7 @@ $ curl -X POST \
 
 -   **Success Response:**
     -   **Code:** 200  
-        **Content:** 
+        **Content:**
 ```
 {
     "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
@@ -188,7 +193,7 @@ Index IPFS content into the search engine
 -   **Method:** `POST`
 -   **Header:**  
 
-| Key | Value | 
+| Key | Value |
 | -------- | -------- |
 | content-type | application/json |
 
@@ -197,7 +202,7 @@ Index IPFS content into the search engine
 -   **Data Params**
 
     - `request:`
-    
+
 | Name | Type | Mandatory | Default | Description |
 | -------- | -------- | -------- | -------- | -------- |
 | index | String | yes |  | Index name |
@@ -209,7 +214,7 @@ Index IPFS content into the search engine
 
 ```
 {
-  "index": "documents", 
+  "index": "documents",
   "id": "hello_doc",
   "content_type": "application/pdf",
   "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
@@ -217,15 +222,15 @@ Index IPFS content into the search engine
     {
       "name": "title",
       "value": "Hello Doc"
-    }, 
+    },
     {
       "name": "author",
       "value": "Gregoire Jeanmart"
-    }, 
+    },
     {
       "name": "votes",
       "value": 10
-    }, 
+    },
     {
       "name": "date_created",
       "value": 1518700549
@@ -233,20 +238,20 @@ Index IPFS content into the search engine
   ]
 }
 ```
-   
+
 -   **Sample Request:**
-    
+
 ```
 curl -X POST \
     'http://localhost:8040/mahuta/raw/index' \
     -H 'content-type: application/json' \  
     -d '{"index":"documents","id":"hello_doc","content_type":"application/pdf","hash":"QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o","index_fields":[{"name":"title","value":"Hello Doc"},{"name":"author","value":"Gregoire Jeanmart"},{"name":"votes","value":10},{"name":"date_created","value":1518700549}]}'
-``` 
-   
+```
+
 -   **Success Response:**
-    
+
     -   **Code:** 200  
-        **Content:** 
+        **Content:**
 ```
 {
     "index": "documents",
@@ -267,7 +272,7 @@ Store content in IPFS and index it into the search engine
 -   **URL Params** `N/A`
 -   **Data Params**
 
-    
+
     -   `file: [content]`
     -   `request: `
 
@@ -281,22 +286,22 @@ Store content in IPFS and index it into the search engine
 
 ```
 {
-  "index": "documents", 
+  "index": "documents",
   "id": "hello_doc",
   "content_type": "application/pdf",
   "index_fields": [
     {
       "name": "title",
       "value": "Hello Doc"
-    }, 
+    },
     {
       "name": "author",
       "value": "Gregoire Jeanmart"
-    }, 
+    },
     {
       "name": "votes",
       "value": 10
-    }, 
+    },
     {
       "name": "date_created",
       "value": 1518700549
@@ -304,21 +309,21 @@ Store content in IPFS and index it into the search engine
   ]
 }
 ```
-   
+
 -   **Sample Request:**
-    
+
 ```
 curl -X POST \
   http://localhost:8040/mahuta/raw/store_index \
   -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
   -F file=@/home/gjeanmart/hello.pdf \
   -F 'request={"index":"documents","id":"hello_doc","content_type":"application/pdf","index_fields":[{"name":"title","value":"Hello Doc"},{"name":"author","value":"Gregoire Jeanmart"},{"name":"votes","value":10},{"name":"date_created","value":1518700549}]}'
-``` 
-   
+```
+
 -   **Success Response:**
-    
+
     -   **Code:** 200  
-        **Content:** 
+        **Content:**
 ```
 {
     "index": "documents",
@@ -331,13 +336,13 @@ curl -X POST \
 
 #### [Persistent / JSON] Store content
 
-Store a JSON document in IPFS 
+Store a JSON document in IPFS
 
 -   **URL:** `/mahuta/json/store`    
 -   **Method:** `POST`
--   **Header:** 
+-   **Header:**
 
-| Key | Value | 
+| Key | Value |
 | -------- | -------- |
 | content-type | application/json |
 
@@ -366,7 +371,7 @@ $ curl -X POST \
 
 -   **Success Response:**
     -   **Code:** 200  
-        **Content:** 
+        **Content:**
 ```
 {
     "hash": "QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD"
@@ -383,7 +388,7 @@ Index IPFS JSON document into the search engine
 -   **Method:** `POST`
 -   **Header:**  
 
-| Key | Value | 
+| Key | Value |
 | -------- | -------- |
 | content-type | application/json |
 
@@ -392,7 +397,7 @@ Index IPFS JSON document into the search engine
 -   **Data Params**
 
     - `request:`
-    
+
 | Name | Type | Mandatory | Default | Description |
 | -------- | -------- | -------- | -------- | -------- |
 | index | String | yes |  | Index name |
@@ -404,7 +409,7 @@ Index IPFS JSON document into the search engine
 
 ```
 {
-  "index": "json_documents", 
+  "index": "json_documents",
   "id": "json_doc",
   "content_type": "application/json",
   "hash": "QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD",
@@ -412,11 +417,11 @@ Index IPFS JSON document into the search engine
     {
       "name": "field1",
       "value": "val1"
-    }, 
+    },
     {
       "name": "external_field",
       "value": 10
-    }, 
+    },
     {
       "name": "date_created",
       "value": 1518700549
@@ -424,20 +429,20 @@ Index IPFS JSON document into the search engine
   ]
 }
 ```
-   
+
 -   **Sample Request:**
-    
+
 ```
 curl -X POST \
     'http://localhost:8040/mahuta/json/index' \
     -H 'content-type: application/json' \  
     -d '{"index":"json_documents","id":"json_doc","content_type":"application/json","hash":"QmdUNaxwiGT7fzdt6gVpMDFAmjf7dDxMwux16o4s1HyCnD","index_fields":[{"name":"field1","value":"val1"},{"name":"external_field","value":10},{"name":"date_created","value":1518700549}]}'
-``` 
-   
+```
+
 -   **Success Response:**
-    
+
     -   **Code:** 200  
-        **Content:** 
+        **Content:**
 ```
 {
     "index": "json_documents",
@@ -454,16 +459,16 @@ Store a JSON document in IPFS and index it into the search engine
 
 -   **URL** `/mahuta/json//store_index`
 -   **Method:** `POST`
--   **Header:** 
+-   **Header:**
 
-| Key | Value | 
+| Key | Value |
 | -------- | -------- |
 | content-type | application/json |
 
 -   **URL Params** `N/A`
 -   **Data Params**
 
-    
+
     -   `payload: {json}`
 
 | Name | Type | Mandatory | Default | Description |
@@ -506,9 +511,9 @@ Store a JSON document in IPFS and index it into the search engine
   ]
 }
 ```
-   
+
 -   **Sample Request:**
-    
+
 ```
 curl -X POST \
   http://localhost:8040/mahuta/jsonstore_index \
@@ -535,12 +540,12 @@ curl -X POST \
           }
       ]
   }'
-``` 
-   
+```
+
 -   **Success Response:**
-    
+
     -   **Code:** 200  
-        **Content:** 
+        **Content:**
 ```
 {
     "index": "json_documents",
@@ -559,17 +564,17 @@ Get content on IPFS by hash
 -   **Method:** `GET`
 -   **Header:**  `N/A`
 -   **URL Params** `N/A`
-    
+
 -   **Sample Request:**
-    
+
 ```
 $ curl \
     'http://localhost:8040/mahuta/query/fetch/QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o' \
-    -o hello_doc.pdf 
-``` 
-    
+    -o hello_doc.pdf
+```
+
 -   **Success Response:**
-    
+
     -   **Code:** 200  
         **Content:** (file)
 
@@ -580,14 +585,14 @@ $ curl \
 Search content accross an index using a dedicated query language
 
 -   **URL** `http://localhost:8040/mahuta/query/search`
--   **Method:** `GET` or `POST` 
+-   **Method:** `GET` or `POST`
 -   **Header:**  
 
-| Key | Value | 
+| Key | Value |
 | -------- | -------- |
 | content-type | application/json |
 
--   **URL Params** 
+-   **URL Params**
 
 | Name | Type | Mandatory | Default | Description |
 | -------- | -------- | -------- | -------- | -------- |
@@ -599,15 +604,15 @@ Search content accross an index using a dedicated query language
 | query | String | no |  | Query URL encoded (for GET call) |
 
 
--   **Data Params** 
+-   **Data Params**
 
-The `search` operation allows to run a multi-criteria search against an index. The body combines a list of filters : 
+The `search` operation allows to run a multi-criteria search against an index. The body combines a list of filters :
 
 | Name | Type | Description |
-| -------- | -------- | -------- | 
-| name | String | Index field to perform the search | 
+| -------- | -------- | -------- |
+| name | String | Index field to perform the search |
 | names | String[] | Index fields to perform the search |
-| operation | See below | Operation to run against the index field | 
+| operation | See below | Operation to run against the index field |
 | value | Any | Value to compare with |
 
 
@@ -616,13 +621,13 @@ The `search` operation allows to run a multi-criteria search against an index. T
 | -------- | -------- |
 | full_text | Full text search |
 | equals | Equals |
-| not_equals | Not equals | 
-| contains | Contains the word/phrase | 
-| in | in the following list | 
-| gt | Greater than | 
-| gte | Greater than or Equals | 
-| lt | Less than  | 
-| lte | Less than or Equals | 
+| not_equals | Not equals |
+| contains | Contains the word/phrase |
+| in | in the following list |
+| gt | Greater than |
+| gte | Greater than or Equals |
+| lt | Less than  |
+| lte | Less than or Equals |
 
 
 ```
@@ -648,27 +653,27 @@ The `search` operation allows to run a multi-criteria search against an index. T
 ```
 
 -   **Sample Request:**
-    
+
 ```
 curl -X POST \
     'http://localhost:8040/mahuta/query/search?index=documents' \
     -H 'content-type: application/json' \  
     -d '{"query":[{"name":"title","operation":"contains","value":"Hello"},{"name":"author","operation":"equals","value":"Gregoire Jeanmart"},{"name":"votes","operation":"lt","value":"5"}]}'
-``` 
-   
-    
+```
+
+
 ```
 curl -X GET \
   'http://localhost:8040/mahuta/query/search?index=documents&page=1&size=2&query=%7B%22query%22%3A%5B%7B%22name%22%3A%22votes%22%2C%22operation%22%3A%22lt%22%2C%22value%22%3A%225%22%7D%5D%7D' \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
-``` 
+```
 
 -   **Success Response:**
-    
+
     -   **Code:** 200  
-        **Content:** 
-        
+        **Content:**
+
 ```
 {
   "content": [
@@ -727,9 +732,9 @@ Create an index in ElasticSearch
 
 -   **URL:** `/mahuta/config/index/{index}`    
 -   **Method:** `POST`
--   **Header:** 
+-   **Header:**
 -   
-| Key | Value | 
+| Key | Value |
 | -------- | -------- |
 | content-type | application/json |
 
@@ -740,7 +745,7 @@ Create an index in ElasticSearch
 ```
 $ curl -X POST \
     'http://localhost:8040/mahuta/config/index/MyIndex' \
-    -H 'content-type: application/json' 
+    -H 'content-type: application/json'
 ```
 
 -   **Success Response:**

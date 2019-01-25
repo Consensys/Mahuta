@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
         <java-ipfs.version>v1.2.2</java-ipfs.version>
@@ -21,6 +22,11 @@
         <jackson.version>2.9.8</jackson.version>
         <powermock.version>2.0.0</powermock.version>
         <mockneat.version>0.3.0</mockneat.version>
+
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
+        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <repoToken></repoToken>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -77,7 +83,7 @@
             <artifactId>commons-io</artifactId>
             <version>${common-io.version}</version>
         </dependency>
-        
+
         <!-- testcontainers -->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -147,11 +153,43 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>${maven-release-plugin.version}</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls-maven-plugin.version}</version>
+
+                <configuration>
+                    <coberturaReports>
+                        <coberturaReport>
+                            ${basedir}/target/site/cobertura/coverage.xml
+                        </coberturaReport>
+                    </coberturaReports>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <repoToken>${repoToken}</repoToken>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura-maven-plugin.version}</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                    <maxmem>256m</maxmem>
+                    <aggregate>true</aggregate>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

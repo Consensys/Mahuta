@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import net.consensys.mahuta.core.domain.searching.Filter;
 import net.consensys.mahuta.core.domain.searching.Query;
 import net.consensys.mahuta.core.domain.searching.QueryOperation;
 
@@ -20,13 +21,50 @@ public class QueryTest {
     private static final List<String> ATTRIBUTE_NAMES = Arrays.asList(ATTRIBUTE_NAME1, ATTRIBUTE_NAME2);
     private static final List<String> ATTRIBUTE_VALUES = Arrays.asList(ATTRIBUTE_VALUE1, ATTRIBUTE_VALUE2);
 
+    
     @Test
-    public void build() {
+    public void build1() {
         /////////////////////////////////////////
         Query query = Query.newQuery().fullText(ATTRIBUTE_NAME1, ATTRIBUTE_VALUE1);
         /////////////////////////////////////////
         
         assertNotNull(query);
+        assertEquals(1, query.getFilterClauses().size());
+    }
+    
+    @Test
+    public void build2() {
+        /////////////////////////////////////////
+        Query query = Query.newQuery(Arrays.asList(new Filter(ATTRIBUTE_NAME1, QueryOperation.FULL_TEXT, ATTRIBUTE_VALUE1)));
+        /////////////////////////////////////////
+        
+        assertNotNull(query);
+        assertEquals(1, query.getFilterClauses().size());
+        assertEquals(ATTRIBUTE_NAME1, query.getFilterClauses().get(0).getName());
+        assertEquals(ATTRIBUTE_VALUE1, query.getFilterClauses().get(0).getValue());
+        assertEquals(QueryOperation.FULL_TEXT, query.getFilterClauses().get(0).getOperation());
+    }
+    
+    @Test
+    public void filter() {
+        /////////////////////////////////////////
+        Query query = Query.newQuery().filter(new Filter(ATTRIBUTE_NAME1, QueryOperation.FULL_TEXT, ATTRIBUTE_VALUE1));
+        /////////////////////////////////////////
+        
+        assertEquals(ATTRIBUTE_NAME1, query.getFilterClauses().get(0).getName());
+        assertEquals(ATTRIBUTE_VALUE1, query.getFilterClauses().get(0).getValue());
+        assertEquals(QueryOperation.FULL_TEXT, query.getFilterClauses().get(0).getOperation());
+    }
+    
+    @Test
+    public void filter2() {
+        /////////////////////////////////////////
+        Query query = Query.newQuery().filter(ATTRIBUTE_NAME1, QueryOperation.FULL_TEXT, ATTRIBUTE_VALUE1);
+        /////////////////////////////////////////
+        
+        assertEquals(ATTRIBUTE_NAME1, query.getFilterClauses().get(0).getName());
+        assertEquals(ATTRIBUTE_VALUE1, query.getFilterClauses().get(0).getValue());
+        assertEquals(QueryOperation.FULL_TEXT, query.getFilterClauses().get(0).getOperation());
     }
     
     @Test

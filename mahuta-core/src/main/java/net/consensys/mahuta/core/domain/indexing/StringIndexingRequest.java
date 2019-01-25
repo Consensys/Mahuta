@@ -15,24 +15,4 @@ public class StringIndexingRequest  extends AbstractIndexingRequest {
         this.setContent(content);
         return this;
     }
-//
-//    public StringIndexingRequest indexName(String indexName) {
-//        super.setIndexName(indexName);
-//        return this;
-//    }
-//
-//    public StringIndexingRequest indexDocId(String indexDocId) {
-//        super.setIndexDocId(indexDocId);
-//        return this;
-//    }
-//
-//    public StringIndexingRequest contentType(String contentType) {
-//        super.setContentType(contentType);
-//        return this;
-//    }
-//
-//    public StringIndexingRequest indexFields(Map<String, Object> indexFields) {
-//        super.setIndexFields(indexFields);
-//        return this;
-//    }  
 }

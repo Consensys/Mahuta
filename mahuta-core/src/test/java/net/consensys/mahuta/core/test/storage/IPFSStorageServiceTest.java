@@ -28,7 +28,7 @@ import net.consensys.mahuta.core.test.utils.TestUtils;
 import net.consensys.mahuta.core.utils.lamba.Throwing;
 
 @Slf4j
-public class IPFSStorageServiceIT extends TestUtils {
+public class IPFSStorageServiceTest extends TestUtils {
 
     @BeforeClass
     public static void startContainers() throws IOException, InterruptedException {
@@ -69,6 +69,13 @@ public class IPFSStorageServiceIT extends TestUtils {
     public void connectionException() throws Exception {
         //////////////////////////////
         IPFSService.connect("fdsfdsfdsf", ContainerUtils.getPort("ipfs2"));
+        //////////////////////////////
+    }
+
+    @Test(expected = ConnectionException.class)
+    public void connectionException2() throws Exception {
+        //////////////////////////////
+        IPFSService.connect();
         //////////////////////////////
     }
 
@@ -130,7 +137,6 @@ public class IPFSStorageServiceIT extends TestUtils {
 
         //////////////////////////////
         service.unpin(file.getCid());
-        Thread.sleep(1000);
         List<String> hashes = service.getPinned();
         //////////////////////////////
         

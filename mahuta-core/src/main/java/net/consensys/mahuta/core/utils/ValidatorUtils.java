@@ -19,7 +19,7 @@ public class ValidatorUtils {
         return isNull(input) || input.isEmpty();
     }
 
-    public static <T> boolean isEmpty(String... input) {
+    public static boolean isEmpty(String... input) {
         return isNull(input) || input.length == 0;
     }
 

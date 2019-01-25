@@ -214,7 +214,7 @@ public class IPFSService implements StorageService {
         } catch (InterruptedException ex) {
             log.error("Interrupted Exception while fetching file from IPFS [id: {}]", id);
             Thread.currentThread().interrupt();
-            throw new TechnicalException("Interrupted Exception while fetching file from IPFS [id: " + id + "]");
+            throw new TechnicalException("Interrupted Exception while fetching file from IPFS [id: " + id + "]", ex);
 
         } catch (ExecutionException ex) {
             log.error("Execution Exception while fetching file from IPFS [id: {}]", id, ex);
@@ -242,7 +242,7 @@ public class IPFSService implements StorageService {
                 return this.ipfs.cat(multihash);
             } catch (Exception ex) {
                 log.error("Exception while fetching file from IPFS [hash: {}]", multihash, ex);
-                throw new TechnicalException("Exception while fetching file from IPFS " + multihash + ex.getMessage());
+                throw new TechnicalException("Exception while fetching file from IPFS " + multihash, ex);
             }
         }
     }

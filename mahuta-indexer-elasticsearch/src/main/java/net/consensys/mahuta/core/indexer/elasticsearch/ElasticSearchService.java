@@ -427,9 +427,8 @@ public class ElasticSearchService implements IndexingService {
         });
         
         // Sub queries (OR)
-        query.getSubFilterClauses().forEach(q -> {
-            elasticSearchQuery.should(this.buildQuery(q));
-        });
+        query.getSubFilterClauses()
+            .forEach(q -> elasticSearchQuery.should(this.buildQuery(q)));
 
         
         log.debug(elasticSearchQuery.toString());
@@ -446,9 +445,7 @@ public class ElasticSearchService implements IndexingService {
         MappingMetaData mappingMetaData = response.getMappings().get(indexName).get(DEFAULT_TYPE).get();
         LinkedHashMap<String, LinkedHashMap> map = (LinkedHashMap<String, LinkedHashMap>) mappingMetaData.getSourceAsMap().get("properties");
         
-        map.forEach((key, value) -> {
-            mapping.put(key, (String) value.get("type"));
-        });
+        map.forEach((key, value) -> mapping.put(key, (String) value.get("type")));
         
         return mapping;
     }
