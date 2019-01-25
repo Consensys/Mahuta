@@ -128,7 +128,7 @@ public class MahutaServiceImpl implements MahutaService {
             throw new NotFoundException("No Document found for contentId=" + contentId + " in the index " + indexName);
         }
 
-        return result.getContent().get(0);
+        return result.getElements().get(0);
     }
 
     @Override
@@ -142,8 +142,9 @@ public class MahutaServiceImpl implements MahutaService {
 
         Page<Metadata> metadatas = search(indexName, query, pageRequest);
 
-        List<MetadataAndPayload> content = metadatas.getContent().stream()
-                .map(m -> MetadataAndPayload.of(m, storageService.read(m.getContentId()))).collect(Collectors.toList());
+        List<MetadataAndPayload> content = metadatas.getElements().stream()
+                .map(m -> MetadataAndPayload.of(m, storageService.read(m.getContentId())))
+                .collect(Collectors.toList());
 
         return Page.of(pageRequest, content, metadatas.getTotalElements());
     }

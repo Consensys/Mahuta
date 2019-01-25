@@ -1,12 +1,12 @@
 package net.consensys.mahuta.core.test.utils;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 
 import io.ipfs.api.IPFS;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.domain.Metadata;
 import net.consensys.mahuta.core.domain.indexing.ByteArrayIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
@@ -15,7 +15,6 @@ import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.test.utils.FileTestUtils.FileInfo;
 
-@Slf4j
 public class IndexingRequestUtils extends TestUtils{
 
     
@@ -33,71 +32,73 @@ public class IndexingRequestUtils extends TestUtils{
     }
         
     public static Map<String, Object> generateRamdomFields() {
-        return ImmutableMap.
-                of(AUTHOR_FIELD, mockNeat.names().full().get(),
-                   TITLE_FIELD, mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get(),
-                   IS_PUBLISHED_FIELD, mockNeat.bools().get(),
-                   DATE_CREATED_FIELD, mockNeat.localDates().toUtilDate().get(),
-                   VIEWS_FIELD, mockNeat.ints().range(100, 10000000).get()
-                );
+        
+        return generateFields(
+                mockNeat.names().full().get(), 
+                mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get(), 
+                mockNeat.bools().get(), 
+                mockNeat.localDates().toUtilDate().get(), 
+                mockNeat.ints().range(100, 10000000).get(), 
+                mockNeat.from(Status.class).get());
+    }    
+    
+    public static Map<String, Object> generateFields(String author, String title, boolean isPublished, Date dateCreaed, int views, Status status) {
+        
+        Map<String, Object> fields = new HashMap<>();
+        fields.put(AUTHOR_FIELD, author);
+        fields.put(TITLE_FIELD, title);
+        fields.put(IS_PUBLISHED_FIELD, isPublished);
+        fields.put(DATE_CREATED_FIELD, dateCreaed);
+        fields.put(VIEWS_FIELD, views);
+        fields.put(STATUS_FIELD, Optional.ofNullable(status).map(Object::toString).orElse(null)); //enum are complex to manage
+        
+        return fields;
     }
     
-    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest() {
-
-        String indexName = mockNeat.strings().size(20).get();
+    public static Map<String, Object> generateFields(String field, Object value) {
         
-        String indexDocId = mockNeat.strings().size(50).get();
-        FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        String contentId = file.getCid();
-        String contentType = file.getType();
-        Map<String, Object> fields = generateRamdomFields();
-
-        IndexingRequest request =  InputStreamIndexingRequest.build()
-                .content(file.getIs())
-                .indexName(indexName)
-                .indexDocId(indexDocId)
-                .contentType(contentType)
-                .indexFields(fields);
+        Map<String, Object> fields = new HashMap<>();
+        fields.put(AUTHOR_FIELD, (field != null && field.equals(AUTHOR_FIELD) ? value : mockNeat.names().full().get()));
+        fields.put(TITLE_FIELD, (field != null && field.equals(TITLE_FIELD) ? value : mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get()));
+        fields.put(IS_PUBLISHED_FIELD, (field != null && field.equals(IS_PUBLISHED_FIELD) ? value : mockNeat.bools().get()));
+        fields.put(DATE_CREATED_FIELD, (field != null && field.equals(DATE_CREATED_FIELD) ? value : mockNeat.localDates().toUtilDate().get()));
+        fields.put(VIEWS_FIELD, (field != null && field.equals(VIEWS_FIELD) ? value : mockNeat.ints().range(100, 10000000).get()));
+        fields.put(STATUS_FIELD, Optional.ofNullable((field != null && field.equals(STATUS_FIELD) ? value : mockNeat.from(Status.class).get())).map(Object::toString).orElse(null)); //enum are complex to manage
         
-        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
-        
-        return new IndexingRequestAndMetadata(request, metadata);
+        return fields;
     }
     
-    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest() {
-
-        String indexName = mockNeat.strings().size(20).get();
-        String indexDocId = mockNeat.strings().size(50).get();
-        FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        String contentId = file.getCid();
-        String contentType = file.getType();
-        Map<String, Object> fields = generateRamdomFields();
-        log.debug("contentId={}",contentId);
-        IndexingRequest request =  ByteArrayIndexingRequest.build()
-                .content(file.getBytearray())
-                .indexName(indexName)
-                .indexDocId(indexDocId)
-                .contentType(contentType)
-                .indexFields(fields);
-        
-        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
-        
-        return new IndexingRequestAndMetadata(request, metadata);
-    }
+    
     
     public IndexingRequestAndMetadata generateRandomStringIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
         return this.generateRandomStringIndexingRequest(indexName, indexDocId);
     }
     
     public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName, String indexDocId) {
+        Map<String, Object> fields = generateRamdomFields();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName, String indexDocId, String field, Object value) {
+        Map<String, Object> fields = generateFields(field, value);
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
         String contentType = file.getType();
-        Map<String, Object> fields = generateRamdomFields();
         
         IndexingRequest request =  StringIndexingRequest.build()
                 .content(new String(file.getBytearray()))
@@ -111,14 +112,31 @@ public class IndexingRequestUtils extends TestUtils{
         return new IndexingRequestAndMetadata(request, metadata);
     }
     
+    /////////////////////////////
+    
     public IndexingRequestAndMetadata generateRandomCIDIndexingRequest() {
-
         String indexName = mockNeat.strings().size(20).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName, String indexDocId) {
+        Map<String, Object> fields = generateRamdomFields();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
         String contentType = file.getType();
-        Map<String, Object> fields = generateRamdomFields();
         
         IndexingRequest request =  CIDIndexingRequest.build()
                 .content(contentId)
@@ -132,88 +150,89 @@ public class IndexingRequestUtils extends TestUtils{
         return new IndexingRequestAndMetadata(request, metadata);
     }
     
-//    
-//    
-//    protected static IndexingRequest generateRandomStringIndexingRequest(String indexName, String indexDocId) {
-//        String contentType = ConstantUtils.TEXT_SAMPLE_TYPE;
-//
-//        return generateRandomStringIndexingRequest(indexName, indexDocId, contentType);
-//    }
-//    
-//    protected static IndexingRequest generateRandomStringIndexingRequest(String indexName, String indexDocId, String contentType) {
-//
-//        return generateRandomStringIndexingRequest(indexName, indexDocId, contentType, 
-//                mockNeat.names().full().get(), 
-//                mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get(), 
-//                mockNeat.bools().get(), 
-//                mockNeat.localDates().toUtilDate().get(), 
-//                mockNeat.ints().range(100, 10000000).get(),
-//                mockNeat.from(Status.class).get());
-//    }
-//    
-//    protected static IndexingRequest generateRandomStringIndexingRequest(String indexName, String indexDocId, String contentType, String author, String title, boolean isPublished, Date dateCreated, int views, Status status) {
-//       
-//        Map<String, Object> indexFields = Maps.newHashMap();
-//        indexFields.put(AUTHOR_FIELD, author);
-//        indexFields.put(TITLE_FIELD, title);
-//        indexFields.put(IS_PUBLISHED_FIELD, isPublished);
-//        indexFields.put(DATE_CREATED_FIELD, dateCreated);
-//        indexFields.put(VIEWS_FIELD, views);
-//        indexFields.put(STATUS_FIELD, status);
-//        
-//        return StringIndexingRequest.build()
-//                .content(mockNeat.strings().size(10000).get())
-//                .indexName(indexName)
-//                .indexDocId(indexDocId)
-//                .contentType(contentType)
-//                .indexFields(indexFields);
-//    }
-//    
-//    protected static IndexingRequest generateRandomInputStreamIndexingRequest(String indexName, InputStream file) {
-//        
-//        return generateRandomInputStreamIndexingRequest(indexName, file, mockNeat.strings().size(50).get());
-//    }
-//    
-//    protected static IndexingRequest generateRandomInputStreamIndexingRequest(String indexName, InputStream file, String indexDocId) {
-//
-//        String contentType = ConstantUtils.FILE_TYPE;
-//        
-//        Map<String, Object> indexFields = ImmutableMap.
-//                of(AUTHOR_FIELD, mockNeat.names().full().get(),
-//                   TITLE_FIELD, mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get(),
-//                   IS_PUBLISHED_FIELD, mockNeat.bools().get(),
-//                   DATE_CREATED_FIELD, mockNeat.localDates().toUtilDate().get(),
-//                   VIEWS_FIELD, mockNeat.ints().range(100, 10000000).get()
-//                );
-//        
-//        return InputStreamIndexingRequest.build()
-//                .content(file)
-//                .indexName(indexName)
-//                .indexDocId(indexDocId)
-//                .contentType(contentType)
-//                .indexFields(indexFields);
-//    }
-//    
-//    protected static IndexingRequest generateRandomCIDIndexingRequest(String indexName, String cid, String indexDocId) {
-//
-//        String contentType = ConstantUtils.TEXT_SAMPLE_TYPE;
-//        
-//        Map<String, Object> indexFields = ImmutableMap.
-//                of(AUTHOR_FIELD, mockNeat.names().full().get(),
-//                   TITLE_FIELD, mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get(),
-//                   IS_PUBLISHED_FIELD, mockNeat.bools().get(),
-//                   DATE_CREATED_FIELD, mockNeat.localDates().toUtilDate().get(),
-//                   VIEWS_FIELD, mockNeat.ints().range(100, 10000000).get()
-//                );
-//        
-//        return CIDIndexingRequest.build()
-//                .content(cid)
-//                .indexName(indexName)
-//                .indexDocId(indexDocId)
-//                .contentType(contentType)
-//                .indexFields(indexFields);
-//    }
-//    
+    /////////////////////////////
+    
+    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest() {
+        String indexName = mockNeat.strings().size(20).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName) {
+        String indexDocId = mockNeat.strings().size(50).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName, String indexDocId) {
+        Map<String, Object> fields = generateRamdomFields();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+
+        FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
+        String contentId = file.getCid();
+        String contentType = file.getType();
+        
+        IndexingRequest request =  InputStreamIndexingRequest.build()
+                .content(file.getIs())
+                .indexName(indexName)
+                .indexDocId(indexDocId)
+                .contentType(contentType)
+                .indexFields(fields);
+        
+        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
+        
+        return new IndexingRequestAndMetadata(request, metadata);
+    }
+    
+    /////////////////////////////
+    
+    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest() {
+        String indexName = mockNeat.strings().size(20).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName) {
+        String indexDocId = mockNeat.strings().size(50).get();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName, String indexDocId) {
+        Map<String, Object> fields = generateRamdomFields();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
+    }
+    
+    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+
+        FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
+        String contentId = file.getCid();
+        String contentType = file.getType();
+        
+        IndexingRequest request =  ByteArrayIndexingRequest.build()
+                .content(file.getBytearray())
+                .indexName(indexName)
+                .indexDocId(indexDocId)
+                .contentType(contentType)
+                .indexFields(fields);
+        
+        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
+        
+        return new IndexingRequestAndMetadata(request, metadata);
+    }
+    
+    
+    
+    
+    
+    
+    
+      
     public static class IndexingRequestAndMetadata {
         private @Getter IndexingRequest request;
         private @Getter Metadata metadata;

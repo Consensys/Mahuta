@@ -184,7 +184,7 @@ public class ElasticSearchService implements IndexingService {
 
         // Create or Update the document
         DocWriteResponse response;
-        if (!this.documentExists(indexName, indexDocId)) {
+        if (indexDocId == null || !this.documentExists(indexName, indexDocId)) {
             response = client.prepareIndex(indexName, DEFAULT_TYPE, indexDocId)
                     .setSource(convertObjectToJsonString(source), XContentType.JSON).get();
 
@@ -288,14 +288,21 @@ public class ElasticSearchService implements IndexingService {
     private Map<String, Object> transformFields(Map<String, Object> indexFields) {
 
         return indexFields.entrySet().stream()
+                .filter(e -> settings.isIndexNullValue() || e.getValue() != null)
                 .collect(Collectors.toMap(Entry::getKey, e -> transformValue(e.getValue())));
     }
 
     private Object transformValue(Object value) {
+        
         // Manage null values
         if (settings.isIndexNullValue()
                 && (value == null || value instanceof String && ValidatorUtils.isEmpty((String) value))) {
             value = NULL;
+        }
+        
+        // Convert Date to Timestamp
+        if(value instanceof Date) {
+            value = ((Date) value).getTime();
         }
 
         return value;
@@ -389,7 +396,8 @@ public class ElasticSearchService implements IndexingService {
                 case IN:
                     if (value instanceof Collection<?>) {
                         Collection<?> values = (Collection<?>) value;
-                        Collection<String> terms = values.stream().map(o -> o.toString().toLowerCase())
+                        Collection<String> terms = values.stream()
+                                .map(Object::toString)
                                 .collect(Collectors.toList());
                         elasticSearchQuery.filter(QueryBuilders.termsQuery(f.getName(), terms));
                     } else {

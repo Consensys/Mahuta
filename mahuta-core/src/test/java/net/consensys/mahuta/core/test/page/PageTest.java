@@ -20,17 +20,17 @@ public class PageTest {
         Integer pageNo = 0;
         Integer size = 20;
         PageRequest pageRequest = PageRequest.of(pageNo, size);
-        List<Integer> content = IntStream.range(0, size).boxed().collect(Collectors.toList());
+        List<Integer> elements = IntStream.range(0, size).boxed().collect(Collectors.toList());
         Integer totalElements = 50;
 
         /////////////////////////////
-        Page<Integer> page = Page.of(pageRequest, content, totalElements);
+        Page<Integer> page = Page.of(pageRequest, elements, totalElements);
         log.debug("page: {}", page);
         /////////////////////////////
 
         assertEquals(size, page.getPageRequest().getSize());
         assertEquals(pageNo, page.getPageRequest().getPage());
-        assertEquals(content.size(), page.getContent().size());
+        assertEquals(elements.size(), page.getElements().size());
         assertEquals(totalElements, page.getTotalElements());
     }
 
@@ -39,11 +39,11 @@ public class PageTest {
         Integer pageNo = 0;
         Integer size = 20;
         PageRequest pageRequest = PageRequest.of(pageNo, size);
-        List<Integer> content = IntStream.range(0, size).boxed().collect(Collectors.toList());
+        List<Integer> elements = IntStream.range(0, size).boxed().collect(Collectors.toList());
         Integer totalElements = 50;
 
         /////////////////////////////
-        Page<Integer> page = Page.of(pageRequest, content, totalElements);
+        Page<Integer> page = Page.of(pageRequest, elements, totalElements);
         log.debug("page: {}", page);
         /////////////////////////////
 
@@ -56,11 +56,11 @@ public class PageTest {
         Integer size = 20;
 
         PageRequest pageRequest = PageRequest.of(pageNo, size);
-        List<Integer> content = IntStream.range(0, size).boxed().collect(Collectors.toList());
+        List<Integer> elements = IntStream.range(0, size).boxed().collect(Collectors.toList());
         Integer totalElements = 12;
 
         /////////////////////////////
-        Page<Integer> page = Page.of(pageRequest, content, totalElements);
+        Page<Integer> page = Page.of(pageRequest, elements, totalElements);
         log.debug("page: {}", page);
         /////////////////////////////
 
@@ -73,11 +73,11 @@ public class PageTest {
         Integer size = 20;
 
         PageRequest pageRequest = null;
-        List<Integer> content = IntStream.range(0, size).boxed().collect(Collectors.toList());
+        List<Integer> elements = IntStream.range(0, size).boxed().collect(Collectors.toList());
         Integer totalElements = 12;
 
         /////////////////////////////
-        Page.of(null, content, totalElements);
+        Page.of(null, elements, totalElements);
         /////////////////////////////
     }
     @Test(expected=IllegalArgumentException.class)
@@ -86,11 +86,11 @@ public class PageTest {
         Integer size = 20;
 
         PageRequest pageRequest = PageRequest.of(pageNo, size);
-        List<Integer> content = null;
+        List<Integer> elements = null;
         Integer totalElements = -12;
 
         /////////////////////////////
-        Page.of(pageRequest, content, totalElements);
+        Page.of(pageRequest, elements, totalElements);
         /////////////////////////////
     }
     @Test(expected=IllegalArgumentException.class)
@@ -99,11 +99,11 @@ public class PageTest {
         Integer size = 20;
 
         PageRequest pageRequest = PageRequest.of(pageNo, size);
-        List<Integer> content = IntStream.range(0, size).boxed().collect(Collectors.toList());
+        List<Integer> elements = IntStream.range(0, size).boxed().collect(Collectors.toList());
         Integer totalElements = -12;
 
         /////////////////////////////
-        Page.of(pageRequest, content, totalElements);
+        Page.of(pageRequest, elements, totalElements);
         /////////////////////////////
     }
 
