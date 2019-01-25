@@ -29,10 +29,7 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
       - run:
           name: Run tests
-          command: mvn test
-      - run:
-          name: Coverall
-          command: mvn cobertura:cobertura coveralls:report -DrepoToken=${COVERALLS_REPOTOKEN}
+          command: mvn test cobertura:cobertura coveralls:report -DrepoToken=${COVERALLS_REPOTOKEN}
 
   release-snapshot:
     docker:
