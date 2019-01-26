@@ -16,7 +16,7 @@
     <properties>
         <java.version>1.8</java.version>
 
-        <mahuta-core.version>0.2.2-SNAPSHOT</mahuta-core.version>
+        <mahuta-core.version>0.2.3-SNAPSHOT</mahuta-core.version>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
