@@ -23,8 +23,10 @@ public class ContainerUtils {
                             5001, 4001, 8080), 
                     ContainerType.ELASTICSEARCH, new ContainerDefinition(
                             DOCKER_IMAGE_ELASTICSEARCH, 
-                            ImmutableMap.of("cluster-name", "docker-cluster"), 
-                            Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(1800)), 9300));
+                            ImmutableMap.of(
+                                    "cluster-name", "docker-cluster",
+                                    "discovery.type", "single-node"), 
+                            Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(120)), 9300));
     
     private static final Map<String, GenericContainer<?>> containers = Maps.newHashMap();
     
