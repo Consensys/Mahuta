@@ -127,7 +127,6 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
 
     @Override
     public Page<E> findAll(Pageable pageable) {
-
         return this.search(null, pageable);
     }
 
@@ -143,10 +142,18 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
         }
     }
 
+    @Override
+    public void deleteById(Serializable id) {
+        try {
+            this.client.remove(indexName, id.toString());
+        } catch (MahutaException e) {
+            log.error("Error while removing the entity [id={}]", id, e);
+        }
+    }
+
     /*
      * NOT IMPLEMENTED METHODS
      */
-
     @Override
     public <S extends E> Iterable<S> saveAll(Iterable<S> entities) {
         throw new UnsupportedOperationException();
@@ -174,11 +181,6 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
 
     @Override
     public Iterable<E> findAllById(Iterable<I> ids) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void deleteById(Serializable id) {
         throw new UnsupportedOperationException();
     }
 

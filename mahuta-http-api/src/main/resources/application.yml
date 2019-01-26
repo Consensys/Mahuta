@@ -1,0 +1,59 @@
+app:
+  version: "@project.version@"
+  name: "@project.name@"
+  
+server:
+  port: 8040
+  servlet:
+    context-path: /mahuta
+
+logging:
+  level:
+    net.consensys.mahuta: ${LOG_LEVEL:TRACE}
+
+mahuta:
+
+  ipfs:
+    host: localhost
+    port: 5001
+#    multiaddress: 
+    timeout: 5000
+    threadPool: 10
+    
+  elasticsearch:
+    host: localhost
+    port: 9300
+    clusterName: docker-cluster
+    indexNullValue: "true"
+    indexConfigs:
+    - name: test
+#      map:
+    - name: test2
+#      map:
+    
+    
+  security:
+    cors:
+      origins: "*"
+      methods: "GET,POST"
+      headers: "Origin,Content-Type,Accept"
+      credentials: "false"
+
+  api-spec:
+    query:
+      fetch: /query/fetch/{hash}
+      search: /query/search
+    config:
+      index: /config/index/{index}
+    persistence:
+      raw:
+        store: /raw/store
+        index: /raw/index
+        store_index: /raw/store_index
+      json:
+        store: /json/store
+        index: /json/index
+        store_index: /json/store_index
+      delete:
+        id: /delete/id/{id}
+        hash: /delete/hash/{hash}

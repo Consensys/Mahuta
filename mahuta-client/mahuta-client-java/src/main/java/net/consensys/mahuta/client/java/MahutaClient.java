@@ -11,25 +11,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.mahuta.client.java.model.IdAndHash;
-import net.consensys.mahuta.client.java.model.MetadataAndPayload;
-import net.consensys.mahuta.client.java.wrapper.MahutaWrapper;
-import net.consensys.mahuta.client.java.wrapper.impl.RestMahutaWrapperImpl;
-import net.consensys.mahuta.dto.IndexField;
-import net.consensys.mahuta.dto.IndexerRequest;
-import net.consensys.mahuta.dto.IndexerResponse;
-import net.consensys.mahuta.dto.Metadata;
-import net.consensys.mahuta.dto.query.Query;
-import net.consensys.mahuta.exception.MahutaException;
-import net.consensys.mahuta.exception.NotFoundException;
+import net.consensys.mahuta.core.Mahuta;
+import net.consensys.mahuta.core.exception.MahutaException;
+
 
 /**
  * Mahuta Java Client
@@ -42,32 +28,14 @@ public class MahutaClient {
     private static final String ID_ATTRIBUTE = "_id";
     private static final String HASH_ATTRIBUTE = "__hash";
 
-    private final MahutaWrapper wrapper;
+    private final Mahuta mahuta;
 
 
     /* *********************************************
      * Constructor
      * *********************************************/
 
-    /**
-     * Constructor: takes the MahutaClient service endpoint and instantiate the wrapper
-     *
-     * @param endpoint: MahutaClient service endpoint
-     */
-    public MahutaClient(String endpoint, String... indexes) {
-        this.wrapper = new RestMahutaWrapperImpl(endpoint);
-        this.initIndexes(indexes);
-    }
 
-    /**
-     * Constructor: takes the MahutaClient service wrapper object
-     *
-     * @param wrapper
-     */
-    public MahutaClient(MahutaWrapper wrapper, String... indexes) {
-        this.wrapper = wrapper;
-        this.initIndexes(indexes);
-    }
 
 
     /* *********************************************
@@ -100,7 +68,7 @@ public class MahutaClient {
      */
     public String store(InputStream is) throws MahutaException {
         try {
-            return this.wrapper.store(IOUtils.toByteArray(is));
+            return mahuta.index
 
         } catch (IOException e) {
             throw new MahutaException(e);
@@ -542,6 +510,10 @@ public class MahutaClient {
      */
     public void createIndex(String index) throws MahutaException {
         this.wrapper.createIndex(index);
+    }
+    
+    public void remove(String index, String id) throws MahutaException {
+    	this.wrapper.removeById(index, id);
     }
 
     /**

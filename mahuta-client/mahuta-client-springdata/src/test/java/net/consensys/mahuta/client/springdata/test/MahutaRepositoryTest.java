@@ -369,10 +369,12 @@ public class MahutaRepositoryTest {
         // #################################################
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void delete() throws Exception {
+    	String id = "123";
+        
         // #################################################
-        underTest.deleteById("123");
+        underTest.deleteById(id);
         // #################################################
     }
 

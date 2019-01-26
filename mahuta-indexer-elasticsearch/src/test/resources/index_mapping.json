@@ -1,0 +1,32 @@
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "__hash": {
+          "type": "keyword"
+        },
+        "__content_type": {
+          "type": "keyword"
+        },
+        "title": {
+          "type": "text"
+        },
+        "author": {
+          "type": "text"
+        },
+        "isPublished": {
+          "type": "boolean"
+        },
+        "dateCreated": {
+          "type": "date"
+        },
+        "views": {
+          "type": "long"
+        },
+        "status": {
+            "type": "keyword"
+        }
+      }
+    }
+  }
+}
