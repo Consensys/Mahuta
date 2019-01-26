@@ -4,8 +4,8 @@
 
 	<parent>
 		<groupId>net.consensys.mahuta</groupId>
-		<artifactId>mahuta-parent</artifactId>
-		<version>0.2.2-SNAPSHOT</version>
+        <artifactId>mahuta-client</artifactId>
+		<version>0.2.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>mahuta-client-springdata</artifactId>
 
