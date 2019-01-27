@@ -9,29 +9,25 @@ server:
 
 logging:
   level:
-    net.consensys.mahuta: ${LOG_LEVEL:INFO}
+    net.consensys.mahuta: TRACE
 
 mahuta:
-
   ipfs:
-    host: localhost
-    port: 5001
+    host: ${MAHUTA_IPFS_HOST}
+    port: ${MAHUTA_IPFS_PORT}
 #    multiaddress: 
     timeout: 5000
     threadPool: 10
     
   elasticsearch:
-    host: localhost
-    port: 9300
-    clusterName: docker-cluster
+    host: ${MAHUTA_ELASTICSEARCH_HOST}
+    port: ${MAHUTA_ELASTICSEARCH_PORT}
+    clusterName: ${MAHUTA_ELASTICSEARCH_CLUSTERNAME}
     indexNullValue: "true"
     indexConfigs:
     - name: test
-#      map:
-    - name: test2
-#      map:
-    
-    
+      map: index_mapping.json
+
   security:
     cors:
       origins: "*"

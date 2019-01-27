@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http.configuration;
+package net.consensys.mahuta.api.http.configuration;
 
 import java.util.List;
 

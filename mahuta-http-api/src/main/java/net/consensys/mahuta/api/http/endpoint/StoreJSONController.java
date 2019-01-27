@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http.endpoint;
+package net.consensys.mahuta.api.http.endpoint;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -33,7 +33,7 @@ public class StoreJSONController {
      * @return Response containing the tuple (index, ID, hash)
      * @throws ValidationException
      */
-    @PostMapping(value = "${mahuta.api-spec.persistence.json.index}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "${mahuta.api-spec.v1.persistence.json.index}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Metadata indexFile(@RequestBody @Valid @NotNull CIDIndexingRequest request) {
 
         return mahuta.index(request);
@@ -47,7 +47,7 @@ public class StoreJSONController {
      * @return Response containing the tuple (index, ID, hash)
      * @throws ValidationException
      */
-    @PostMapping(value = "${mahuta.api-spec.persistence.json.store_index}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "${mahuta.api-spec.v1.persistence.json.store_index}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Metadata storeAndIndexFile(@RequestBody @Valid @NotNull StringIndexingRequest request) {
 
         return mahuta.index(request);

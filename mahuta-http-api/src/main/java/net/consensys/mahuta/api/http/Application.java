@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http;
+package net.consensys.mahuta.api.http;
 
 import java.util.Arrays;
 import java.util.stream.StreamSupport;

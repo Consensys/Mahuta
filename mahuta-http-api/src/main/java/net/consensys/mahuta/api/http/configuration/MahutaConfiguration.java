@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http.configuration;
+package net.consensys.mahuta.api.http.configuration;
 
 import java.util.Optional;
 
@@ -27,7 +27,7 @@ public class MahutaConfiguration {
     public Mahuta mahuta() {
         
         IPFSService storageService = Optional.ofNullable(settings.getIpfs().getMultiaddress())
-                .map((multiaddress) -> IPFSService.connect(multiaddress))
+                .map(IPFSService::connect)
                 .orElseGet(() -> IPFSService.connect(settings.getIpfs().getHost(), settings.getIpfs().getPort()))
                 .configureThreadPool(settings.getIpfs().getThreadPool())
                 .configureTimeout(settings.getIpfs().getTimeout());

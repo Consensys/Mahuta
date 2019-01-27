@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http.endpoint;
+package net.consensys.mahuta.api.http.endpoint;
 
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public class StoreRawController {
      * @return Response containing the tuple (index, ID, hash)
      * @throws ValidationException
      */
-    @PostMapping(value = "${mahuta.api-spec.persistence.raw.index}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "${mahuta.api-spec.v1.persistence.raw.index}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Metadata indexFile(@RequestBody @Valid CIDIndexingRequest request) {
 
         return mahuta.index(request);
@@ -58,7 +58,7 @@ public class StoreRawController {
      * @return Response containing the tuple (index, ID, hash)
      * @throws ValidationException
      */
-    @PostMapping(value = "${mahuta.api-spec.persistence.raw.store_index}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "${mahuta.api-spec.v1.persistence.raw.store_index}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Metadata storeAndIndexFile(@RequestPart(name = "request") @Valid @NotNull String requestStr,
             @RequestPart(name = "file") @Valid @NotNull MultipartFile file) {
 

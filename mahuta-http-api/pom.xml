@@ -17,18 +17,20 @@
         <java.version>1.8</java.version>
 
         <mahuta-core.version>${project.version}</mahuta-core.version>
+        <mockneat.version>0.3.0</mockneat.version>
 
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <repoToken></repoToken>
-        
+
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencies>
 
+        <!-- Mahuta -->
         <dependency>
             <groupId>net.consensys.mahuta</groupId>
             <artifactId>mahuta-indexer-elasticsearch</artifactId>
@@ -42,6 +44,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring-Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -70,6 +73,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- mockneat -->
+        <dependency>
+            <groupId>net.andreinc.mockneat</groupId>
+            <artifactId>mockneat</artifactId>
+            <version>${mockneat.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <scm>
@@ -85,8 +96,53 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>central_repository</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
+        <finalName>mahuta-http-api</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <reuseForks>false</reuseForks>
+                    <forkCount>1</forkCount>
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>

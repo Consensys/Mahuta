@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http.endpoint;
+package net.consensys.mahuta.api.http.endpoint;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
@@ -56,7 +56,7 @@ public class QueryController {
      * @return File content
      * @throws TimeoutException
      */
-    @GetMapping(value = "${mahuta.api-spec.query.fetch}")
+    @GetMapping(value = "${mahuta.api-spec.v1.query.fetch}")
     public @ResponseBody ResponseEntity<byte[]> getFile(@PathVariable(value = "hash") @NotNull String hash,
             @RequestParam(value = "index", required = false) String indexName, HttpServletResponse response) {
 
@@ -89,7 +89,7 @@ public class QueryController {
      * @param query         Query
      * @return List of result
      */
-    @PostMapping(value = "${mahuta.api-spec.query.search}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "${mahuta.api-spec.v1.query.search}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Page<Metadata> searchContentsByPost(
             @RequestParam(value = "index", required = false) String indexName,
             @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO) int pageNo,
@@ -112,7 +112,7 @@ public class QueryController {
      * @param queryStr      Query
      * @return List of result
      */
-    @GetMapping(value = "${mahuta.api-spec.query.search}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "${mahuta.api-spec.v1.query.search}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Page<Metadata> searchContentsByGet(
             @RequestParam(value = "index", required = false) String indexName,
             @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO) int pageNo,

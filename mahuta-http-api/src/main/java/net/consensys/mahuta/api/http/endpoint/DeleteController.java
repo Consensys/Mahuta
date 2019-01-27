@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.api.http.endpoint;
+package net.consensys.mahuta.api.http.endpoint;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,7 +27,7 @@ public class DeleteController {
      * @param index
      * @throws NotFoundException
      */
-    @DeleteMapping("${mahuta.api-spec.persistence.delete.id}")
+    @DeleteMapping("${mahuta.api-spec.v1.persistence.delete.id}")
     public void deleteById(
             @PathVariable(value = "id") @NotNull String id,
             @RequestParam(value = "index", required = true) String indexName) {
