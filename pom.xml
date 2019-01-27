@@ -114,6 +114,26 @@
         </dependency>
     </dependencies>
 
+
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.sourceforge.cobertura</groupId>
+                <artifactId>cobertura</artifactId>
+                <version>2.1.1</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <repositories>
         <repository>
             <id>central_repository</id>
@@ -147,6 +167,8 @@
             <url>https://api.bintray.com/maven/consensys/kauri/ipfs-store/;publish=1</url>
         </repository>
     </distributionManagement>
+
+
 
     <build>
         <plugins>

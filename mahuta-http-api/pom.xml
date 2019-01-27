@@ -42,16 +42,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
-            <!-- <exclusions> -->
-            <!-- <exclusion> -->
-            <!-- <artifactId>logback-classic</artifactId> -->
-            <!-- <groupId>ch.qos.logback</groupId> -->
-            <!-- </exclusion> -->
-            <!-- <exclusion> -->
-            <!-- <artifactId>log4j-over-slf4j</artifactId> -->
-            <!-- <groupId>org.slf4j</groupId> -->
-            <!-- </exclusion> -->
-            <!-- </exclusions> -->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -101,24 +91,6 @@
         </pluginRepository>
     </pluginRepositories>
 
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.sourceforge.cobertura</groupId>
-                <artifactId>cobertura</artifactId>
-                <version>2.1.1</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-classic</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <build>
         <finalName>mahuta-http-api</finalName>
         <plugins>
@@ -127,7 +99,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
                         <configuration>
                             <classifier>exec</classifier>
                         </configuration>

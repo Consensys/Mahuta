@@ -12,9 +12,9 @@ services:
       - elasticsearch
     environment:
       LOG_LEVEL: TRACE
-      ELASTIC_HOST: elasticsearch
-      ELASTIC_PORT: 9300
-      IPFS_HOST: ipfs
+      MAHUTA_ELASTICSEARCH_HOST: elasticsearch
+      MAHUTA_ELASTICSEARCH_PORT: 9300
+      MAHUTA_IPFS_HOST: ipfs
     networks:
       - default
 
@@ -23,8 +23,6 @@ services:
     ports:
           - "9200:9200"
           - "9300:9300"
-    volumes:
-      - .elasticsearch-docker:/data/elasticsearch
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -45,7 +43,4 @@ services:
           - "4001:4001"
           - "5001:5001"
           - "8081:8080"
-    volumes:
-      - .ipfs-docker-data:/data/ipfs/
-      - .ipfs-docker-staging:/export
 
