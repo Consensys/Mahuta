@@ -37,7 +37,7 @@ public class IndexingRequestUtils extends TestUtils{
                 mockNeat.names().full().get(), 
                 mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get(), 
                 mockNeat.bools().get(), 
-                mockNeat.localDates().toUtilDate().get(), 
+                mockNeat.localDates().thisYear().toUtilDate().get(), 
                 mockNeat.ints().range(100, 10000000).get(), 
                 mockNeat.from(Status.class).get());
     }    
@@ -61,7 +61,7 @@ public class IndexingRequestUtils extends TestUtils{
         fields.put(AUTHOR_FIELD, (field != null && field.equals(AUTHOR_FIELD) ? value : mockNeat.names().full().get()));
         fields.put(TITLE_FIELD, (field != null && field.equals(TITLE_FIELD) ? value : mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get()));
         fields.put(IS_PUBLISHED_FIELD, (field != null && field.equals(IS_PUBLISHED_FIELD) ? value : mockNeat.bools().get()));
-        fields.put(DATE_CREATED_FIELD, (field != null && field.equals(DATE_CREATED_FIELD) ? value : mockNeat.localDates().toUtilDate().get()));
+        fields.put(DATE_CREATED_FIELD, (field != null && field.equals(DATE_CREATED_FIELD) ? value : mockNeat.localDates().thisYear().toUtilDate().get()));
         fields.put(VIEWS_FIELD, (field != null && field.equals(VIEWS_FIELD) ? value : mockNeat.ints().range(100, 10000000).get()));
         fields.put(STATUS_FIELD, Optional.ofNullable((field != null && field.equals(STATUS_FIELD) ? value : mockNeat.from(Status.class).get())).map(Object::toString).orElse(null)); //enum are complex to manage
         
