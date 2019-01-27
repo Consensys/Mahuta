@@ -60,6 +60,12 @@ public class MahutaTest extends MahutaTestAbstract {
     }
     
     @Test
+    public void createIndex() throws Exception {
+        indexName = mockNeat.strings().size(20).get();
+        super.creatIndex(indexName);
+    }
+    
+    @Test
     public void indexInputStream() throws Exception {
         IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomInputStreamIndexingRequest(indexName);
         super.index(requestAndMetadata);

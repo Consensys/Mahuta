@@ -47,6 +47,14 @@ public class MahutaTest extends MahutaTestAbstract {
     }
     
     @Test
+    public void createIndex() throws Exception {
+        String indexName = mockNeat.strings().get();
+        mockGetIndexes(indexName);
+        
+        super.creatIndex(indexName);
+    }
+    
+    @Test
     public void indexInputStream() throws Exception {
         
         IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
@@ -138,6 +146,11 @@ public class MahutaTest extends MahutaTestAbstract {
     
     /////////////////////////////////////////
 
+    private void mockGetIndexes(String indexName) {
+        when(indexingService.getIndexes())
+        .thenReturn(Arrays.asList(mockNeat.strings().get(), mockNeat.strings().get(), indexName));
+    } 
+    
     private void mockIndex(IndexingRequestAndMetadata requestAndMetadata) {
         when(indexingService.index(
                 eq(requestAndMetadata.getRequest().getIndexName()), 

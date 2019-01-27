@@ -1,6 +1,7 @@
 package net.consensys.mahuta.core.service.indexing;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import net.consensys.mahuta.core.domain.Metadata;
@@ -16,6 +17,8 @@ public interface IndexingService {
     void createIndex(String indexName);
     
     void createIndex(String indexName, InputStream configuration);
+    
+    List<String> getIndexes();
     
     String index(String indexName, String indexDocId, String contentId, String contentType, Map<String, Object> indexFields);
     

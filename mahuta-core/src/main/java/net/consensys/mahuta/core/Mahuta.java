@@ -1,6 +1,7 @@
 package net.consensys.mahuta.core;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -41,6 +42,10 @@ public class Mahuta {
     
     public void createIndex(String indexName, InputStream configuration) {
         this.service.createIndex(indexName, configuration);
+    }
+    
+    public List<String> getIndexes() {
+        return this.service.getIndexes();
     }
 
     public Metadata index(InputStream inputSteam, String indexName) {

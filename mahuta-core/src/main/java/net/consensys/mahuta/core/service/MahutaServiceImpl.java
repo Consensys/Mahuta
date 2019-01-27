@@ -49,6 +49,11 @@ public class MahutaServiceImpl implements MahutaService {
         indexingService.createIndex(indexName, configuration);
     }
 
+    @Override
+    public List<String> getIndexes() {
+       return indexingService.getIndexes();
+    }
+
     public Metadata index(IndexingRequest request) {
 
         ValidatorUtils.rejectIfNull("request", request);

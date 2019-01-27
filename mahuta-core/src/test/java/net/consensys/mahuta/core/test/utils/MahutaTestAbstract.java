@@ -29,6 +29,16 @@ public abstract class MahutaTestAbstract extends TestUtils {
         this.mahuta = new MahutaFactory().configureStorage(storageService).configureIndexer(indexingService).build();
     }
     
+    protected void creatIndex(String indexName) throws Exception {
+        
+        ////////////////////////
+        mahuta.createIndex(indexName);
+        List<String> indexes = mahuta.getIndexes();
+        ///////////////////////
+        
+        assertTrue(indexes.stream().filter(i->i.equalsIgnoreCase(indexName)).findFirst().isPresent());
+    }
+    
     protected void index(IndexingRequestAndMetadata requestAndMedata) throws Exception {
         
         ////////////////////////

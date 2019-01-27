@@ -158,6 +158,20 @@ public class ElasticSearchService implements IndexingService {
             throw new TechnicalException("Error whist reading configuration InputStream", ex);
         }
     }
+    
+
+
+    @Override
+    public List<String> getIndexes() {
+        
+        log.debug("Get indices in ElasticSearch []");
+
+        String[] response = client.admin().indices().prepareGetIndex().setFeatures().get().getIndices();
+        
+        log.debug("Get indices in ElasticSearch []: {}", Arrays.asList(response));
+
+        return Arrays.asList(response);
+    }
 
     @Override
     public String index(String indexName, String indexDocId, String contentId, String contentType,
