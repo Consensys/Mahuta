@@ -105,7 +105,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         }
     }
     
-    private void validateMetadata(IndexingRequestAndMetadata requestAndMedata, Metadata metadata) {
+    public static void validateMetadata(IndexingRequestAndMetadata requestAndMedata, Metadata metadata) {
         assertTrue(requestAndMedata.getMetadata().getIndexName().equalsIgnoreCase(metadata.getIndexName()));
         
         if(requestAndMedata.getRequest().getIndexDocId() != null) {

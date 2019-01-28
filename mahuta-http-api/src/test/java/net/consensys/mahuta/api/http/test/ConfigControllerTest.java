@@ -15,12 +15,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import net.consensys.mahuta.core.utils.FileUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -39,6 +42,26 @@ public class ConfigControllerTest extends WebTestUtils {
         
         // Create Index
         mockMvc.perform(post("/config/index/" + indexName))
+            .andExpect(status().isOk())
+            .andDo(print());
+        
+        // Get all Indexes
+        MvcResult response = mockMvc.perform(get("/config/index"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        
+        // Validate
+        List<String> result = mapper.readValue(response.getResponse().getContentAsString(), new TypeReference<List<String>>() {});
+        assertTrue(result.stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
+    }
+    
+    @Test
+    public void createIndexWithConfig() throws Exception {
+        String indexName = mockNeat.strings().size(20).get();
+        
+        // Create Index 
+        mockMvc.perform(post("/config/index/" + indexName).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
         

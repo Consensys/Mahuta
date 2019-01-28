@@ -27,11 +27,17 @@ public class IndexingRequestUtils extends TestUtils{
     public static final String STATUS_FIELD = "status";
     
     private final IPFS ipfs;
+    private final boolean dateTimestamp;
+    
     public IndexingRequestUtils(IPFS ipfs) {
+        this(ipfs, false);
+    }
+    public IndexingRequestUtils(IPFS ipfs, boolean dateTimestamp) {
         this.ipfs = ipfs;
+        this.dateTimestamp = dateTimestamp;
     }
         
-    public static Map<String, Object> generateRamdomFields() {
+    public Map<String, Object> generateRamdomFields() {
         
         return generateFields(
                 mockNeat.names().full().get(), 
@@ -42,32 +48,36 @@ public class IndexingRequestUtils extends TestUtils{
                 mockNeat.from(Status.class).get());
     }    
     
-    public static Map<String, Object> generateFields(String author, String title, boolean isPublished, Date dateCreaed, int views, Status status) {
+    public Map<String, Object> generateFields(String author, String title, boolean isPublished, Date dateCreaed, int views, Status status) {
         
         Map<String, Object> fields = new HashMap<>();
         fields.put(AUTHOR_FIELD, author);
         fields.put(TITLE_FIELD, title);
         fields.put(IS_PUBLISHED_FIELD, isPublished);
-        fields.put(DATE_CREATED_FIELD, dateCreaed);
+        fields.put(DATE_CREATED_FIELD, date(dateCreaed));
         fields.put(VIEWS_FIELD, views);
         fields.put(STATUS_FIELD, Optional.ofNullable(status).map(Object::toString).orElse(null)); //enum are complex to manage
         
         return fields;
     }
     
-    public static Map<String, Object> generateFields(String field, Object value) {
+    public Map<String, Object> generateFields(String field, Object value) {
         
-        Map<String, Object> fields = new HashMap<>();
-        fields.put(AUTHOR_FIELD, (field != null && field.equals(AUTHOR_FIELD) ? value : mockNeat.names().full().get()));
-        fields.put(TITLE_FIELD, (field != null && field.equals(TITLE_FIELD) ? value : mockNeat.strings().size(mockNeat.ints().range(10, 100).get()).get()));
-        fields.put(IS_PUBLISHED_FIELD, (field != null && field.equals(IS_PUBLISHED_FIELD) ? value : mockNeat.bools().get()));
-        fields.put(DATE_CREATED_FIELD, (field != null && field.equals(DATE_CREATED_FIELD) ? value : mockNeat.localDates().thisYear().toUtilDate().get()));
-        fields.put(VIEWS_FIELD, (field != null && field.equals(VIEWS_FIELD) ? value : mockNeat.ints().range(100, 10000000).get()));
-        fields.put(STATUS_FIELD, Optional.ofNullable((field != null && field.equals(STATUS_FIELD) ? value : mockNeat.from(Status.class).get())).map(Object::toString).orElse(null)); //enum are complex to manage
+        Map<String, Object> fields = generateRamdomFields();
         
+        if(fields.containsKey(field)) {
+            fields.put(field, date(value));
+        }
+
         return fields;
     }
     
+    public Object date(Object value) {
+        if(value instanceof Date && dateTimestamp) {
+            return ((Date) value).getTime();
+        }
+        return value;
+    }
     
     
     public IndexingRequestAndMetadata generateRandomStringIndexingRequest() {
@@ -117,7 +127,7 @@ public class IndexingRequestUtils extends TestUtils{
     public IndexingRequestAndMetadata generateRandomCIDIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
         
-        return this.generateRandomStringIndexingRequest(indexName);
+        return this.generateRandomCIDIndexingRequest(indexName);
     }
     
     public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName) {
