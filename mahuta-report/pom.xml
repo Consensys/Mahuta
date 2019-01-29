@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.consensys.mahuta</groupId>
+        <artifactId>mahuta-parent</artifactId>
+        <version>0.2.3-SNAPSHOT</version>
+    </parent>
+    <artifactId>mahuta-report</artifactId>
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.consensys.mahuta</groupId>
+            <artifactId>mahuta-core</artifactId>
+            <version>0.2.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.consensys.mahuta</groupId>
+            <artifactId>mahuta-indexer-elasticsearch</artifactId>
+            <version>0.2.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.consensys.mahuta</groupId>
+            <artifactId>mahuta-http-api</artifactId>
+            <version>0.2.3-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -26,6 +26,9 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+        
+        <jacoco.reportPath>${basedir}/mahuta-report/target/site/jacoco-aggregate/jacoco.xml</jacoco.reportPath>
         <repoToken></repoToken>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -38,6 +41,7 @@
         <module>mahuta-indexer-elasticsearch</module>
         <module>mahuta-http-api</module>
         <module>mahuta-client</module>
+        <module>mahuta-report</module>
     </modules>
 
 
@@ -188,29 +192,46 @@
                 <version>${coveralls-maven-plugin.version}</version>
 
                 <configuration>
-                    <coberturaReports>
-                        <coberturaReport>
-                            ${basedir}/target/site/cobertura/coverage.xml
-                        </coberturaReport>
-                    </coberturaReports>
+                    <jacocoReports>
+                        <jacocoReport>
+                            ${jacoco.reportPath}
+                        </jacocoReport>
+                    </jacocoReports>
                     <sourceEncoding>UTF-8</sourceEncoding>
                     <repoToken>${repoToken}</repoToken>
                 </configuration>
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>${cobertura-maven-plugin.version}</version>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                    <maxmem>256m</maxmem>
-                    <aggregate>true</aggregate>
-                </configuration>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
+<!--             <plugin> -->
+<!--                 <groupId>org.codehaus.mojo</groupId> -->
+<!--                 <artifactId>cobertura-maven-plugin</artifactId> -->
+<!--                 <version>${cobertura-maven-plugin.version}</version> -->
+<!--                 <configuration> -->
+<!--                     <formats> -->
+<!--                         <format>html</format> -->
+<!--                         <format>xml</format> -->
+<!--                     </formats> -->
+<!--                     <maxmem>256m</maxmem> -->
+<!--                     <aggregate>true</aggregate> -->
+<!--                 </configuration> -->
+<!--             </plugin> -->
 
         </plugins>
     </build>

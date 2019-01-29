@@ -1,6 +1,5 @@
 package net.consensys.mahuta.api.http.endpoint;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.consensys.mahuta.core.Mahuta;
-import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.utils.lamba.Throwing;
 
 /**
