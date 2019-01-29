@@ -3,7 +3,7 @@ Mahuta
 
 | Service | Master | Development |
 | -------- | -------- | -------- |
-| CI Status | [![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/master) | [![CircleCI](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/development.svg?style=svg)](https://circleci.com/gh/ConsenSys/IPFS-Store/tree/development) |
+| CI Status | ![](https://img.shields.io/circleci/project/github/ConsenSys/IPFS-Store/master.svg) | ![](https://img.shields.io/circleci/project/github/ConsenSys/IPFS-Store/development.svg) |
 | Test Coverage | [![Coverage](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=master) | [![Coverage](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=development) |
 | Bintray | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/ipfs-store/images/download.svg?version=0.2.2) ](https://bintray.com/consensys/kauri/ipfs-store/0.2.2/link) | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/ipfs-store/images/download.svg) ](https://bintray.com/consensys/kauri/ipfs-store/_latestVersion) |
 
