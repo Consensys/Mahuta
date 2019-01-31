@@ -49,14 +49,10 @@ mahuta:
           create: /config/index/{index}
           list: /config/index
       persistence:
-        raw:
-          store: /raw/store
-          index: /raw/index
-          store_index: /raw/store_index
-        json:
-          store: /json/store
-          index: /json/index
-          store_index: /json/store_index
+        index:
+          simple: /index
+          cid: /index/cid
+          file: /index/file
         delete:
           id: /delete/id/{id}
           hash: /delete/hash/{hash}

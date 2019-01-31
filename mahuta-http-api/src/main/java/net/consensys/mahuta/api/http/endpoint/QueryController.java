@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,6 +30,7 @@ import net.consensys.mahuta.core.domain.common.Page;
 import net.consensys.mahuta.core.domain.common.PageRequest;
 import net.consensys.mahuta.core.domain.common.PageRequest.SortDirection;
 import net.consensys.mahuta.core.domain.searching.Query;
+import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.exception.TimeoutException;
 import net.consensys.mahuta.core.utils.lamba.Throwing;
 
@@ -61,11 +63,16 @@ public class QueryController {
             @RequestParam(value = "index", required = false) String indexName, HttpServletResponse response) {
 
         // Find and get content by hash
-        MetadataAndPayload metadataAndPayload = mahuta.getByHash(indexName, hash);
-
+        MetadataAndPayload metadataAndPayload;
+        try {
+            metadataAndPayload = mahuta.getByHash(indexName, hash);
+        } catch (NotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage(), ex);
+        }
+        
         // Attach content-type to the header
         response.setContentType(Optional.ofNullable(metadataAndPayload.getMetadata().getContentType())
-                .orElseGet(() -> "application/octet-stream1"));
+                .orElseGet(() -> "application/octet-stream"));
         log.info("response.getContentType()={}", response.getContentType());
 
         final HttpHeaders httpHeaders = new HttpHeaders();
