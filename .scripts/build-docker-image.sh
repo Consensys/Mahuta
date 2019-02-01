@@ -2,6 +2,9 @@
 TYPE=$1
 echo Release type: $TYPE
 
+PATH=$2
+echo Path: $PATH
+
 GIT_COMMIT_DESC=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
 echo Git commit message: $GIT_COMMIT_DESC
 echo Git PR Number: $CIRCLE_PR_NUMBER
@@ -20,8 +23,8 @@ if [[ -v VERSION ]]; then
     echo building docker with version: ${VERSION}
     set -e
 
-    docker build -t gjeanmart/mahuta:${VERSION} -f mahuta-service/Dockerfile mahuta-service/.
-    docker build -t gjeanmart/mahuta:${TYPE} -f mahuta-service/Dockerfile mahuta-service/.
+    docker build -t gjeanmart/mahuta:${VERSION} -f mahuta-service/mahuta-http-api/Dockerfile mahuta-service/mahuta-http-api/.
+    docker build -t gjeanmart/mahuta:${TYPE} -f mahuta-service/mahuta-http-api/Dockerfile mahuta-service/mahuta-http-api/.
     docker push gjeanmart/mahuta:${VERSION}
     docker push gjeanmart/mahuta:${TYPE}
 fi
