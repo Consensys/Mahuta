@@ -61,10 +61,10 @@ jobs:
       - checkout
       - run:
           name: maven install
-          command: mvn clean install -DskipTests snapshot
+          command: mvn clean install -DskipTests
       - run:
           name: Release docker image
-          command: ./.scripts/build-docker-image.sh
+          command: ./.scripts/build-docker-image.sh snapshot
 
   release:
     docker:
