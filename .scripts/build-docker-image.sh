@@ -20,8 +20,8 @@ if [[ -v VERSION ]]; then
     echo building docker with version: ${VERSION}
     set -e
 
-    docker build -t gjeanmart/mahuta:${VERSION} -f mahuta-service/mahuta-http-api/Dockerfile mahuta-service/mahuta-http-api/
-    docker build -t gjeanmart/mahuta:${TYPE} -f mahuta-service/mahuta-http-api/Dockerfile mahuta-service/mahuta-http-api/
+    docker build -t gjeanmart/mahuta:${VERSION} -f mahuta-http-api/Dockerfile mahuta-http-api/.
+    docker build -t gjeanmart/mahuta:${TYPE} -f mahuta-http-api/Dockerfile mahuta-http-api/.
     docker push gjeanmart/mahuta:${VERSION}
     docker push gjeanmart/mahuta:${TYPE}
 fi
