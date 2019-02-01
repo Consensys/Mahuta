@@ -2,9 +2,6 @@
 TYPE=$1
 echo Release type: $TYPE
 
-PATH=$2
-echo Path: $PATH
-
 GIT_COMMIT_DESC=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
 echo Git commit message: $GIT_COMMIT_DESC
 echo Git PR Number: $CIRCLE_PR_NUMBER
