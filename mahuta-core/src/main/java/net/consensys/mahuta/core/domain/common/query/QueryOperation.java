@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.domain.searching;
+package net.consensys.mahuta.core.domain.common.query;
 
 /**
  * Query operation allowed for filtering search in the index

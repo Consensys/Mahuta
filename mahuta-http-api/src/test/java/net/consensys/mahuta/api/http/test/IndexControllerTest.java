@@ -23,14 +23,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import io.ipfs.api.IPFS;
-import net.consensys.mahuta.core.domain.Metadata;
 import net.consensys.mahuta.core.domain.indexing.AbstractIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
-import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 import net.consensys.mahuta.core.utils.FileUtils;
 
@@ -49,14 +50,14 @@ public class IndexControllerTest extends WebTestUtils {
     
     @BeforeClass
     public static void init() throws IOException, InterruptedException {
-        indexingRequestUtils = new IndexingRequestUtils(new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")), true);
+        indexingRequestUtils = new IndexingRequestUtils(null, new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")), true);
     }
     
     @Test
     public void indexFile() throws Exception {
         
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
-        InputStreamIndexingRequest request = (InputStreamIndexingRequest) requestAndMetadata.getRequest();
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
+        InputStreamIndexingRequest request = (InputStreamIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
@@ -75,15 +76,15 @@ public class IndexControllerTest extends WebTestUtils {
                 .andReturn();
         
         // Validate
-        Metadata result = mapper.readValue(response.getResponse().getContentAsString(), Metadata.class);
-        MahutaTestAbstract.validateMetadata(requestAndMetadata, result);
+        IndexingResponse result = mapper.readValue(response.getResponse().getContentAsString(), IndexingResponse.class);
+        MahutaTestAbstract.validateMetadata(builderAndResponse, result);
     }
     
     @Test
     public void indexCid() throws Exception {
         
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
-        CIDIndexingRequest request = (CIDIndexingRequest) requestAndMetadata.getRequest();
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        CIDIndexingRequest request = (CIDIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
@@ -96,16 +97,16 @@ public class IndexControllerTest extends WebTestUtils {
                 .andReturn();
         
         // Validate
-        Metadata result = mapper.readValue(response.getResponse().getContentAsString(), Metadata.class);
-        MahutaTestAbstract.validateMetadata(requestAndMetadata, result);
+        IndexingResponse result = mapper.readValue(response.getResponse().getContentAsString(), IndexingResponse.class);
+        MahutaTestAbstract.validateMetadata(builderAndResponse, result);
     }
     
 
     @Test
     public void indexString() throws Exception {
         
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomStringIndexingRequest();
-        StringIndexingRequest request = (StringIndexingRequest) requestAndMetadata.getRequest();
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest();
+        StringIndexingRequest request = (StringIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
@@ -118,7 +119,7 @@ public class IndexControllerTest extends WebTestUtils {
                 .andReturn();
         
         // Validate
-        Metadata result = mapper.readValue(response.getResponse().getContentAsString(), Metadata.class);
-        MahutaTestAbstract.validateMetadata(requestAndMetadata, result);
+        IndexingResponse result = mapper.readValue(response.getResponse().getContentAsString(), IndexingResponse.class);
+        MahutaTestAbstract.validateMetadata(builderAndResponse, result);
     }
 }

@@ -4,10 +4,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import net.consensys.mahuta.core.domain.Metadata;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.common.PageRequest;
-import net.consensys.mahuta.core.domain.searching.Query;
+import net.consensys.mahuta.core.domain.common.Metadata;
+import net.consensys.mahuta.core.domain.common.pagination.Page;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
+import net.consensys.mahuta.core.domain.common.query.Query;
 
 public interface IndexingService {
 

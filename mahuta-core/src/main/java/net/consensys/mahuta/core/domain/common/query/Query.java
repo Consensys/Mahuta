@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.domain.searching;
+package net.consensys.mahuta.core.domain.common.query;
 
 import java.util.ArrayList;
 import java.util.Collection;

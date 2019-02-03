@@ -1,10 +1,10 @@
-package net.consensys.mahuta.core.domain.common;
+package net.consensys.mahuta.core.domain.common.pagination;
 
 import lombok.Getter;
 import lombok.ToString;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 
-@ToString
+@Getter @ToString
 public class PageRequest {
 
     public static final int DEFAULT_SIZE = 20;
@@ -13,10 +13,10 @@ public class PageRequest {
         ASC, DESC
     }
 
-    private final @Getter Integer page;
-    private final @Getter Integer size;
-    private final @Getter String sort;
-    private final @Getter SortDirection direction;
+    private final Integer page;
+    private final Integer size;
+    private final String sort;
+    private final SortDirection direction;
 
     private PageRequest(Integer page, Integer size, String sort, SortDirection direction) {
         ValidatorUtils.rejectIfNegative("page", page);

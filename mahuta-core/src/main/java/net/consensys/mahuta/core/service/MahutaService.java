@@ -1,31 +1,29 @@
 package net.consensys.mahuta.core.service;
 
-import java.io.InputStream;
-import java.util.List;
-
-import net.consensys.mahuta.core.domain.Metadata;
-import net.consensys.mahuta.core.domain.MetadataAndPayload;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.common.PageRequest;
+import net.consensys.mahuta.core.domain.createindex.CreateIndexRequest;
+import net.consensys.mahuta.core.domain.createindex.CreateIndexResponse;
 import net.consensys.mahuta.core.domain.deindexing.DeindexingRequest;
+import net.consensys.mahuta.core.domain.deindexing.DeindexingResponse;
+import net.consensys.mahuta.core.domain.get.GetRequest;
+import net.consensys.mahuta.core.domain.get.GetResponse;
+import net.consensys.mahuta.core.domain.getindexes.GetIndexesRequest;
+import net.consensys.mahuta.core.domain.getindexes.GetIndexesResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
-import net.consensys.mahuta.core.domain.searching.Query;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
+import net.consensys.mahuta.core.domain.search.SearchRequest;
+import net.consensys.mahuta.core.domain.search.SearchResponse;
 
 public interface MahutaService {
     
-    void createIndex(String indexName, InputStream configuration);
+    CreateIndexResponse createIndex(CreateIndexRequest request);
 
-    List<String> getIndexes();
+    GetIndexesResponse getIndexes(GetIndexesRequest request);
+
+    IndexingResponse index(IndexingRequest request);
     
-    Metadata index(IndexingRequest request);
+    DeindexingResponse deindex(DeindexingRequest request);
     
-    void deindex(DeindexingRequest request);
+    GetResponse get(GetRequest request);
     
-    MetadataAndPayload getByIndexDocId(String index, String indexDocId);
-    
-    MetadataAndPayload getByContentId(String index, String contentId);
-    
-    Page<Metadata> search(String index, Query query, PageRequest pageRequest);
-    
-    Page<MetadataAndPayload> searchAndFetch(String index, Query query, PageRequest pageRequest);
+    SearchResponse search(SearchRequest request);
 }

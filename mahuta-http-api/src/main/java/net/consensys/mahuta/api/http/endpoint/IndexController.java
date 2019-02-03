@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.Mahuta;
-import net.consensys.mahuta.core.domain.Metadata;
 import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.exception.TechnicalException;
@@ -34,25 +34,25 @@ public class IndexController {
     }
 
     @PostMapping(value = "${mahuta.api-spec.v1.persistence.index.simple}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Metadata indexFile(@RequestBody @NotNull StringIndexingRequest request) {
+    public @ResponseBody IndexingResponse indexFile(@RequestBody @NotNull StringIndexingRequest request) {
 
-        return mahuta.index(request);
+        return mahuta.prepareStringIndexing(request).execute();
     }
 
     @PostMapping(value = "${mahuta.api-spec.v1.persistence.index.cid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Metadata indexFile(@RequestBody @NotNull CIDIndexingRequest request) {
+    public @ResponseBody IndexingResponse indexFile(@RequestBody @NotNull CIDIndexingRequest request) {
 
-        return mahuta.index(request);
+        return mahuta.prepareCIDndexing(request).execute();
     }
 
     @PostMapping(value = "${mahuta.api-spec.v1.persistence.index.file}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Metadata storeAndIndexFile(
+    public @ResponseBody IndexingResponse storeAndIndexFile(
             @RequestPart(name = "request")  @NotNull InputStreamIndexingRequest request,
             @RequestPart(name = "file") @Valid @NotNull MultipartFile file) {
 
         try {
             request.setContent(file.getInputStream());
-            return mahuta.index(request);
+            return mahuta.prepareInputStreamIndexing(request).execute();
 
         } catch (IOException ex) {
             log.error("Error reading the request or the multipart", ex);

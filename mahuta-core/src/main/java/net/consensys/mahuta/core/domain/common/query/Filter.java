@@ -1,8 +1,7 @@
-package net.consensys.mahuta.core.domain.searching;
+package net.consensys.mahuta.core.domain.common.query;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -11,19 +10,12 @@ import lombok.ToString;
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  */
 @NoArgsConstructor
-@ToString
+@Getter @ToString
 public class Filter {
 
-    @Getter
     private String name;
-
-    @Setter
     private String[] names;
-
-    @Getter
     private QueryOperation operation;
-
-    @Getter
     private Object value;
 
     public Filter(String name, QueryOperation operation, Object value) {

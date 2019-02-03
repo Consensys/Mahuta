@@ -14,15 +14,18 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import io.ipfs.api.IPFS;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.common.PageRequest;
-import net.consensys.mahuta.core.domain.searching.Query;
+import net.consensys.mahuta.core.domain.common.pagination.Page;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
+import net.consensys.mahuta.core.domain.common.query.Query;
+import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
+import net.consensys.mahuta.core.service.MahutaServiceImpl;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
-import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 
 public class MahutaTest extends MahutaTestAbstract {
@@ -32,7 +35,6 @@ public class MahutaTest extends MahutaTestAbstract {
     @BeforeClass
     public static void startContainers() throws IOException {
         ContainerUtils.startContainer("ipfs", ContainerType.IPFS);
-        indexingRequestUtils = new IndexingRequestUtils(new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     
     @AfterClass
@@ -44,6 +46,8 @@ public class MahutaTest extends MahutaTestAbstract {
         super(Mockito.mock(IndexingService.class), 
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
         );
+        indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
+                new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     
     @Test
@@ -57,90 +61,77 @@ public class MahutaTest extends MahutaTestAbstract {
     @Test
     public void indexInputStream() throws Exception {
         
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
-        mockIndex(requestAndMetadata);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomInputStreamIndexingRequest();
+        mockIndex(builderAndResponse);
         
-        super.index(requestAndMetadata);
-    }
-    
-    @Test
-    public void indexByteArray() throws Exception {
-        
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomByteArrayIndexingRequest();
-        mockIndex(requestAndMetadata);
-        
-        super.index(requestAndMetadata);
+        super.index(builderAndResponse);
     }
     
     @Test
     public void indexString() throws Exception {
 
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomStringIndexingRequest();
-        mockIndex(requestAndMetadata);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest();
+        mockIndex(builderAndResponse);
         
-        super.index(requestAndMetadata);
+        super.index(builderAndResponse);
     }
     
     @Test
     public void indexCid() throws Exception {
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
-        mockIndex(requestAndMetadata);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        mockIndex(builderAndResponse);
         
-        super.index(requestAndMetadata);
+        super.index(builderAndResponse);
     }
     
     @Test
     public void deindex() throws Exception {
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest();
 
-        mockIndex(requestAndMetadata);
+        mockIndex(builderAndResponse);
+        mockGetDocument(builderAndResponse);
         
-        when(indexingService.getDocument(
-                eq(requestAndMetadata.getRequest().getIndexName()), 
-                eq(requestAndMetadata.getRequest().getIndexDocId())))
-        .thenReturn(requestAndMetadata.getMetadata());
-        
-        super.deindex(requestAndMetadata);
+        super.deindex(builderAndResponse);
     }
     
     @Test
     public void getById() throws Exception {
         
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
-        mockIndex(requestAndMetadata);
-        mockGetDocument(requestAndMetadata);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        mockIndex(builderAndResponse);
+        mockGetDocument(builderAndResponse);
         
-        super.getById(requestAndMetadata);
+        super.getById(builderAndResponse);
     }
     
     @Test
     public void getByHash() throws Exception {
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomCIDIndexingRequest();
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest();
 
-        mockIndex(requestAndMetadata);
+        mockIndex(builderAndResponse);
         
         when(indexingService.searchDocuments(
-                eq(requestAndMetadata.getRequest().getIndexName()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
                 any(Query.class),
                 any(PageRequest.class)))
-        .thenReturn(Page.of(requestAndMetadata.getMetadata()));
+        .thenReturn(Page.of(builderAndResponse.getResponse()));
         
-        super.getByHash(requestAndMetadata);
+        super.getByHash(builderAndResponse);
     }
     
     @Test
     public void searchAll() throws Exception {
         String indexName = mockNeat.strings().size(20).get();
-        IndexingRequestAndMetadata requestAndMetadata1 = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
-        IndexingRequestAndMetadata requestAndMetadata2 = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
-        IndexingRequestAndMetadata requestAndMetadata3 = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse2 = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse3 = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
 
-        mockIndex(requestAndMetadata1);
-        mockIndex(requestAndMetadata2);
-        mockIndex(requestAndMetadata3);
-        mockSearchDocuments(indexName, 3, null, requestAndMetadata1, requestAndMetadata2, requestAndMetadata3);
+        mockIndex(builderAndResponse1);
+        mockIndex(builderAndResponse2);
+        mockIndex(builderAndResponse3);
+        mockSearchDocuments(indexName, 3, null, builderAndResponse1, builderAndResponse2, builderAndResponse3);
         
-        super.searchAll(Arrays.asList(requestAndMetadata1, requestAndMetadata2, requestAndMetadata3), 3);
+        super.searchAll(Arrays.asList(builderAndResponse1, builderAndResponse2, builderAndResponse3), 3);
     }
     
     
@@ -151,31 +142,31 @@ public class MahutaTest extends MahutaTestAbstract {
         .thenReturn(Arrays.asList(mockNeat.strings().get(), mockNeat.strings().get(), indexName));
     } 
     
-    private void mockIndex(IndexingRequestAndMetadata requestAndMetadata) {
+    private void mockIndex(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
         when(indexingService.index(
-                eq(requestAndMetadata.getRequest().getIndexName()), 
-                eq(requestAndMetadata.getRequest().getIndexDocId()), 
-                eq(requestAndMetadata.getMetadata().getContentId()), 
-                eq(requestAndMetadata.getRequest().getContentType()), 
-                eq(requestAndMetadata.getMetadata().getIndexFields())))
-        .thenReturn(requestAndMetadata.getMetadata().getIndexDocId());
+                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
+                eq(builderAndResponse.getResponse().getContentId()), 
+                eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
+        .thenReturn(builderAndResponse.getResponse().getIndexDocId());
     }  
     
-    private void mockGetDocument(IndexingRequestAndMetadata requestAndMetadata) {
+    private void mockGetDocument(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
         when(indexingService.getDocument(
-                eq(requestAndMetadata.getRequest().getIndexName()), 
-                eq(requestAndMetadata.getRequest().getIndexDocId())))
-        .thenReturn(requestAndMetadata.getMetadata());
+                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexDocId())))
+        .thenReturn(builderAndResponse.getResponse());
     } 
     
-    private void mockSearchDocuments(String indexName, Integer totalNo, Query query,  IndexingRequestAndMetadata... requestAndMetadatas) {
+    private void mockSearchDocuments(String indexName, Integer totalNo, Query query,  BuilderAndResponse<IndexingRequest, IndexingResponse>... builderAndResponses) {
         when(indexingService.searchDocuments(
                 eq(indexName), 
                 eq(query),
                 any(PageRequest.class)))
         .thenReturn(Page.of(
                 PageRequest.of(), 
-                Arrays.asList(requestAndMetadatas).stream().map(r->r.getMetadata()).collect(Collectors.toList()), 
+                Arrays.asList(builderAndResponses).stream().map(b->b.getResponse()).collect(Collectors.toList()), 
                 totalNo));
     }
     

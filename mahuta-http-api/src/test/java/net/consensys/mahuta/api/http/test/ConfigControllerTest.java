@@ -7,8 +7,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
+import net.consensys.mahuta.core.domain.getindexes.GetIndexesResponse;
 import net.consensys.mahuta.core.utils.FileUtils;
 
 @RunWith(SpringRunner.class)
@@ -52,8 +49,8 @@ public class ConfigControllerTest extends WebTestUtils {
                 .andReturn();
         
         // Validate
-        List<String> result = mapper.readValue(response.getResponse().getContentAsString(), new TypeReference<List<String>>() {});
-        assertTrue(result.stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
+        GetIndexesResponse result = mapper.readValue(response.getResponse().getContentAsString(), GetIndexesResponse.class);
+        assertTrue(result.getIndexes().stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
     }
     
     @Test
@@ -72,8 +69,8 @@ public class ConfigControllerTest extends WebTestUtils {
                 .andReturn();
         
         // Validate
-        List<String> result = mapper.readValue(response.getResponse().getContentAsString(), new TypeReference<List<String>>() {});
-        assertTrue(result.stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
+        GetIndexesResponse result = mapper.readValue(response.getResponse().getContentAsString(), GetIndexesResponse.class);
+        assertTrue(result.getIndexes().stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
     }
     
     @Test
@@ -87,7 +84,7 @@ public class ConfigControllerTest extends WebTestUtils {
                 .andReturn();
         
         // Validate
-        List<String> result = mapper.readValue(response.getResponse().getContentAsString(), new TypeReference<List<String>>() {});
-        assertFalse(result.stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
+        GetIndexesResponse result = mapper.readValue(response.getResponse().getContentAsString(), GetIndexesResponse.class);
+        assertFalse(result.getIndexes().stream().filter(i->i.equalsIgnoreCase(indexName)).findAny().isPresent());
     }
 }

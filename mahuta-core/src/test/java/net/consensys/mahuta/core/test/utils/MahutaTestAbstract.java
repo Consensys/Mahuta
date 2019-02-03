@@ -9,13 +9,20 @@ import java.util.List;
 
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.MahutaFactory;
-import net.consensys.mahuta.core.domain.Metadata;
-import net.consensys.mahuta.core.domain.MetadataAndPayload;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.searching.Query;
+import net.consensys.mahuta.core.domain.Response.ResponseStatus;
+import net.consensys.mahuta.core.domain.common.Metadata;
+import net.consensys.mahuta.core.domain.common.MetadataAndPayload;
+import net.consensys.mahuta.core.domain.common.pagination.Page;
+import net.consensys.mahuta.core.domain.common.query.Query;
+import net.consensys.mahuta.core.domain.createindex.CreateIndexResponse;
+import net.consensys.mahuta.core.domain.deindexing.DeindexingResponse;
+import net.consensys.mahuta.core.domain.get.GetResponse;
+import net.consensys.mahuta.core.domain.getindexes.GetIndexesResponse;
+import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
-import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 
 public abstract class MahutaTestAbstract extends TestUtils {
 
@@ -30,98 +37,124 @@ public abstract class MahutaTestAbstract extends TestUtils {
     }
     
     protected void creatIndex(String indexName) throws Exception {
+
+        ////////////////////////
+        CreateIndexResponse createIndexResponse = mahuta.prepareCreateIndex(indexName).execute();
+        ///////////////////////
+        assertEquals(ResponseStatus.SUCCESS, createIndexResponse.getStatus());
+        
+        GetIndexesResponse getIndexesResponse = mahuta.prepareGetIndexes().execute();
+        assertEquals(ResponseStatus.SUCCESS, getIndexesResponse.getStatus());
+        assertTrue(getIndexesResponse.getIndexes().stream().filter(i->i.equalsIgnoreCase(indexName)).findFirst().isPresent());
+    }
+    
+    protected void index(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse) throws Exception {
         
         ////////////////////////
-        mahuta.createIndex(indexName);
-        List<String> indexes = mahuta.getIndexes();
+        IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
+        assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
         ///////////////////////
         
-        assertTrue(indexes.stream().filter(i->i.equalsIgnoreCase(indexName)).findFirst().isPresent());
+        validateMetadata(builderAndResponse, indexingResponse);
     }
     
-    protected void index(IndexingRequestAndMetadata requestAndMedata) throws Exception {
+    protected void deindex(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse) throws Exception {
         
         ////////////////////////
-        Metadata metadata = mahuta.index(requestAndMedata.getRequest());
-        ///////////////////////
+        IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
+        assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
         
-        validateMetadata(requestAndMedata, metadata);
-    }
-    
-    protected void deindex(IndexingRequestAndMetadata requestAndMedata) throws Exception {
-        
-        ////////////////////////
-        Metadata metadata = mahuta.index(requestAndMedata.getRequest());
-        mahuta.deindex(metadata.getIndexName(), metadata.getIndexDocId());
+        DeindexingResponse deindexingResponse = mahuta.prepareDeindexing(
+            builderAndResponse.getBuilder().getRequest().getIndexName(),
+            builderAndResponse.getBuilder().getRequest().getIndexDocId())
+            .execute();
+        assertEquals(ResponseStatus.SUCCESS, deindexingResponse.getStatus());
         ///////////////////////
 
-        assertFalse(storageService.getPinned().stream().anyMatch(h -> h.equals(requestAndMedata.getMetadata().getContentId())));
+        assertFalse(storageService.getPinned().stream().anyMatch(h -> h.equals(builderAndResponse.getResponse().getContentId())));
     }
     
-    protected void getById(IndexingRequestAndMetadata requestAndMedata) {
+    protected void getById(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse) {
         
         ////////////////////////
-        Metadata metadata = mahuta.index(requestAndMedata.getRequest());
-        MetadataAndPayload metadataAndPayload = mahuta.getById(requestAndMedata.getRequest().getIndexName(), requestAndMedata.getRequest().getIndexDocId());
+        IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
+        assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
+        
+        GetResponse getResponse = mahuta.prepareGet()
+                .indexName(builderAndResponse.getBuilder().getRequest().getIndexName())
+                .indexDocId(builderAndResponse.getBuilder().getRequest().getIndexDocId())
+                .loadFile(true)
+                .execute();
+        assertEquals(ResponseStatus.SUCCESS, getResponse.getStatus());
         ////////////////////////
 
-        assertNotNull(metadataAndPayload.getPayload());
-        validateMetadata(requestAndMedata, metadata);
-        validateMetadata(requestAndMedata, metadataAndPayload.getMetadata());
+        validateMetadata(builderAndResponse, indexingResponse);
+        validateMetadata(builderAndResponse, getResponse.getMetadata());
+        assertNotNull(getResponse.getPayload());
     }
     
-    protected void getByHash(IndexingRequestAndMetadata requestAndMedata) {
+    protected void getByHash(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse) {
         
         ////////////////////////
-        Metadata metadata = mahuta.index(requestAndMedata.getRequest());
-        MetadataAndPayload metadataAndPayload = mahuta.getByHash(requestAndMedata.getRequest().getIndexName(), requestAndMedata.getMetadata().getContentId());
+        IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
+        assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
+        
+        GetResponse getResponse = mahuta.prepareGet()
+                .indexName(builderAndResponse.getBuilder().getRequest().getIndexName())
+                .contentId(builderAndResponse.getResponse().getContentId())
+                .loadFile(true)
+                .execute();
         ////////////////////////
-
-        assertNotNull(metadataAndPayload.getPayload());
-        validateMetadata(requestAndMedata, metadata);
-        validateMetadata(requestAndMedata, metadataAndPayload.getMetadata());
+        
+        validateMetadata(builderAndResponse, indexingResponse);
+        validateMetadata(builderAndResponse, getResponse.getMetadata());
+        assertNotNull(getResponse.getPayload());
     }
 
-    protected void searchAll(List<IndexingRequestAndMetadata> requestAndMedata, Integer expectedNoResult) {
-        this.search(requestAndMedata, null, expectedNoResult); 
+    protected void searchAll(List<BuilderAndResponse<IndexingRequest,IndexingResponse>> builderAndResponse, Integer expectedNoResult) {
+        this.search(builderAndResponse, null, expectedNoResult); 
     }
 
-    protected void search(List<IndexingRequestAndMetadata> requestAndMedata, Query query, Integer expectedNoResult) {
-        this.search(requestAndMedata, query, expectedNoResult, null); 
+    protected void search(List<BuilderAndResponse<IndexingRequest,IndexingResponse>> builderAndResponse, Query query, Integer expectedNoResult) {
+        this.search(builderAndResponse, query, expectedNoResult, null); 
     }
     
-    protected void search(List<IndexingRequestAndMetadata> requestAndMedata, Query query, Integer expectedNoResult, IndexingRequestAndMetadata expectedFirstResult) {
+    protected void search(List<BuilderAndResponse<IndexingRequest,IndexingResponse>> builderAndResponse, Query query, Integer expectedNoResult, BuilderAndResponse<IndexingRequest,IndexingResponse> expectedFirstResult) {
         
         ////////////////////////
-        requestAndMedata.forEach(i->mahuta.index(i.getRequest()));
-        Page<Metadata> result = mahuta.search(requestAndMedata.get(0).getRequest().getIndexName(), query);
+        builderAndResponse.forEach(r -> r.getBuilder().execute());
+        Page<MetadataAndPayload> result = mahuta.prepareSearch()
+                .indexName(builderAndResponse.get(0).getBuilder().getRequest().getIndexName())
+                .query(query)
+                .execute()
+                .getPage();
         ////////////////////////
 
         assertEquals(expectedNoResult, result.getTotalElements());
         
         if(expectedFirstResult != null) {
-            validateMetadata(expectedFirstResult, result.getElements().get(0));
+            validateMetadata(expectedFirstResult, result.getElements().get(0).getMetadata());
             
         }
     }
     
-    public static void validateMetadata(IndexingRequestAndMetadata requestAndMedata, Metadata metadata) {
-        assertTrue(requestAndMedata.getMetadata().getIndexName().equalsIgnoreCase(metadata.getIndexName()));
+    public static void validateMetadata(BuilderAndResponse<IndexingRequest, IndexingResponse> builder, Metadata metadata) {
+        assertTrue(builder.getResponse().getIndexName().equalsIgnoreCase(metadata.getIndexName()));
         
-        if(requestAndMedata.getRequest().getIndexDocId() != null) {
-            assertEquals(requestAndMedata.getMetadata().getIndexDocId(), metadata.getIndexDocId());
+        if(builder.getBuilder().getRequest().getIndexDocId() != null) {
+            assertEquals(builder.getResponse().getIndexDocId(), metadata.getIndexDocId());
         } else {
             assertNotNull(metadata.getIndexDocId());
         }
         
-        assertEquals(requestAndMedata.getMetadata().getContentId(), metadata.getContentId());
-        assertEquals(requestAndMedata.getMetadata().getContentType(), metadata.getContentType());
-        assertEquals(requestAndMedata.getMetadata().getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD));
-        assertEquals(requestAndMedata.getMetadata().getIndexFields().get(IndexingRequestUtils.TITLE_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.TITLE_FIELD));
-        assertEquals(requestAndMedata.getMetadata().getIndexFields().get(IndexingRequestUtils.IS_PUBLISHED_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.IS_PUBLISHED_FIELD));
-        assertEquals(requestAndMedata.getMetadata().getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD));
-        assertEquals(requestAndMedata.getMetadata().getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD));
-        assertEquals(requestAndMedata.getMetadata().getIndexFields().get(IndexingRequestUtils.STATUS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.STATUS_FIELD));
+        assertEquals(builder.getResponse().getContentId(), metadata.getContentId());
+        assertEquals(builder.getResponse().getContentType(), metadata.getContentType());
+        assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD));
+        assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.TITLE_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.TITLE_FIELD));
+        assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.IS_PUBLISHED_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.IS_PUBLISHED_FIELD));
+        assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD));
+        assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD));
+        assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.STATUS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.STATUS_FIELD));
         
     }
 

@@ -41,10 +41,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.mahuta.core.domain.Metadata;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.common.PageRequest;
-import net.consensys.mahuta.core.domain.searching.Query;
+import net.consensys.mahuta.core.domain.common.Metadata;
+import net.consensys.mahuta.core.domain.common.pagination.Page;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
+import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.exception.ConnectionException;
 import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.exception.TechnicalException;

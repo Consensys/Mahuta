@@ -23,10 +23,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import io.ipfs.api.IPFS;
+import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
-import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IndexingRequestAndMetadata;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.utils.FileUtils;
 
 @RunWith(SpringRunner.class)
@@ -44,13 +46,13 @@ public class QueryControllerTest extends WebTestUtils {
     
     @BeforeClass
     public static void init() throws IOException, InterruptedException {
-        indexingRequestUtils = new IndexingRequestUtils(new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")), true);
+        indexingRequestUtils = new IndexingRequestUtils(null, new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")), true);
     }
     
     @Test
     public void fetch() throws Exception {
-        IndexingRequestAndMetadata requestAndMetadata = indexingRequestUtils.generateRandomStringIndexingRequest();
-        StringIndexingRequest request = (StringIndexingRequest) requestAndMetadata.getRequest();
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest();
+        StringIndexingRequest request = (StringIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName())
@@ -64,10 +66,10 @@ public class QueryControllerTest extends WebTestUtils {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        MvcResult response = mockMvc.perform(get("/query/fetch/"+requestAndMetadata.getMetadata().getContentId()))
+        MvcResult response = mockMvc.perform(get("/query/fetch/"+builderAndResponse.getResponse().getContentId()))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(requestAndMetadata.getRequest().getContentType()))
+                .andExpect(content().contentType(builderAndResponse.getBuilder().getRequest().getContentType()))
                 .andReturn();
         
         assertEquals(request.getContent(), response.getResponse().getContentAsString());

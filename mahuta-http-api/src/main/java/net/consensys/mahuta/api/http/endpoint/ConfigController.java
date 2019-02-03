@@ -1,6 +1,5 @@
 package net.consensys.mahuta.api.http.endpoint;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.consensys.mahuta.core.Mahuta;
+import net.consensys.mahuta.core.domain.createindex.CreateIndexResponse;
+import net.consensys.mahuta.core.domain.getindexes.GetIndexesResponse;
 import net.consensys.mahuta.core.utils.lamba.Throwing;
 
 /**
@@ -37,9 +38,8 @@ public class ConfigController {
      * @return List of Indexes
      */
     @GetMapping(value = "${mahuta.api-spec.v1.config.index.list}")
-    public List<String> getIndexes() {
-        
-        return mahuta.getIndexes();
+    public GetIndexesResponse getIndexes() {
+        return mahuta.prepareGetIndexes().execute();
     }
 
     /**
@@ -49,11 +49,13 @@ public class ConfigController {
      * @param configuration Optional configuration to associate with the index (mapping file)
      */
     @PostMapping(value = "${mahuta.api-spec.v1.config.index.create}")
-    public void createIndex(
+    public CreateIndexResponse createIndex(
             @PathVariable(value = "index") String indexName,
             @RequestBody(required=false) Optional<String> configuration) {
 
-        mahuta.createIndex(indexName, configuration.map(Throwing.rethrowFunc(c -> IOUtils.toInputStream(c, "UTF-8"))).orElse(null));
+        return mahuta.prepareCreateIndex(indexName)
+            .configuration(configuration.map(Throwing.rethrowFunc(c -> IOUtils.toInputStream(c, "UTF-8"))).orElse(null))
+            .execute();
     }
     
 }

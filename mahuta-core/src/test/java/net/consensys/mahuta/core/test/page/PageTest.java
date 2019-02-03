@@ -9,8 +9,8 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.mahuta.core.domain.common.Page;
-import net.consensys.mahuta.core.domain.common.PageRequest;
+import net.consensys.mahuta.core.domain.common.pagination.Page;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
 
 @Slf4j
 public class PageTest {

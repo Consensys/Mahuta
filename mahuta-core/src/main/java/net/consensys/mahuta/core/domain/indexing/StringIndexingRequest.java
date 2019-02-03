@@ -1,18 +1,14 @@
 package net.consensys.mahuta.core.domain.indexing;
 
 import lombok.Getter;
+
 import lombok.Setter;
+import lombok.ToString;
+import net.consensys.mahuta.core.domain.Request;
 
-public class StringIndexingRequest  extends AbstractIndexingRequest {
+@Getter @Setter @ToString
+public class StringIndexingRequest  extends AbstractIndexingRequest implements Request {
     
-    private @Getter @Setter String content;
-    
-    public static StringIndexingRequest build() {
-        return new StringIndexingRequest();
-    }
+    private String content;
 
-    public StringIndexingRequest content(String content) {
-        this.setContent(content);
-        return this;
-    }
 }

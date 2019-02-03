@@ -7,12 +7,15 @@ import java.util.Optional;
 
 import io.ipfs.api.IPFS;
 import lombok.Getter;
-import net.consensys.mahuta.core.domain.Metadata;
-import net.consensys.mahuta.core.domain.indexing.ByteArrayIndexingRequest;
-import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
+import net.consensys.mahuta.core.domain.Builder;
+import net.consensys.mahuta.core.domain.Request;
+import net.consensys.mahuta.core.domain.Response;
+import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequestBuilder;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
-import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
-import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
+import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequestBuilder;
+import net.consensys.mahuta.core.domain.indexing.StringIndexingRequestBuilder;
+import net.consensys.mahuta.core.service.MahutaService;
 import net.consensys.mahuta.core.test.utils.FileTestUtils.FileInfo;
 
 public class IndexingRequestUtils extends TestUtils{
@@ -25,14 +28,19 @@ public class IndexingRequestUtils extends TestUtils{
     public static final String DATE_CREATED_FIELD = "dateCreated";
     public static final String VIEWS_FIELD = "views";
     public static final String STATUS_FIELD = "status";
-    
+
+    private final MahutaService service;
     private final IPFS ipfs;
     private final boolean dateTimestamp;
-    
+
     public IndexingRequestUtils(IPFS ipfs) {
-        this(ipfs, false);
+        this(null, ipfs);
     }
-    public IndexingRequestUtils(IPFS ipfs, boolean dateTimestamp) {
+    public IndexingRequestUtils(MahutaService service, IPFS ipfs) {
+        this(service, ipfs, false);
+    }
+    public IndexingRequestUtils(MahutaService service, IPFS ipfs, boolean dateTimestamp) {
+        this.service = service;
         this.ipfs = ipfs;
         this.dateTimestamp = dateTimestamp;
     }
@@ -80,176 +88,132 @@ public class IndexingRequestUtils extends TestUtils{
     }
     
     
-    public IndexingRequestAndMetadata generateRandomStringIndexingRequest() {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
         
         return this.generateRandomStringIndexingRequest(indexName);
     }
     
-    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
         return this.generateRandomStringIndexingRequest(indexName, indexDocId);
     }
     
-    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName, String indexDocId) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName, String indexDocId) {
         Map<String, Object> fields = generateRamdomFields();
         
         return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
     }
     
-    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName, String indexDocId, String field, Object value) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName, String indexDocId, String field, Object value) {
         Map<String, Object> fields = generateFields(field, value);
         
         return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields);
     }
     
-    public IndexingRequestAndMetadata generateRandomStringIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
         String contentType = file.getType();
         
-        IndexingRequest request =  StringIndexingRequest.build()
+        Builder<IndexingRequest, IndexingResponse> builder = new StringIndexingRequestBuilder(service)
                 .content(new String(file.getBytearray()))
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)
                 .indexFields(fields);
         
-        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
         
-        return new IndexingRequestAndMetadata(request, metadata);
+        return new BuilderAndResponse<>(builder, response);
     }
     
     /////////////////////////////
     
-    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest() {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomCIDIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
         
         return this.generateRandomCIDIndexingRequest(indexName);
     }
     
-    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomCIDIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
         return this.generateRandomCIDIndexingRequest(indexName, indexDocId);
     }
     
-    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName, String indexDocId) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomCIDIndexingRequest(String indexName, String indexDocId) {
         Map<String, Object> fields = generateRamdomFields();
         
         return this.generateRandomCIDIndexingRequest(indexName, indexDocId, fields);
     }
     
-    public IndexingRequestAndMetadata generateRandomCIDIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomCIDIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
         String contentType = file.getType();
         
-        IndexingRequest request =  CIDIndexingRequest.build()
-                .content(contentId)
+        Builder<IndexingRequest, IndexingResponse> builder = new CIDIndexingRequestBuilder(service)
+                .content(file.getCid())
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)
                 .indexFields(fields);
         
-        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
         
-        return new IndexingRequestAndMetadata(request, metadata);
+        return new BuilderAndResponse<>(builder, response);
     }
     
     /////////////////////////////
     
-    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest() {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomInputStreamIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
         
         return this.generateRandomInputStreamIndexingRequest(indexName);
     }
     
-    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomInputStreamIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
         return this.generateRandomInputStreamIndexingRequest(indexName, indexDocId);
     }
     
-    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName, String indexDocId) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomInputStreamIndexingRequest(String indexName, String indexDocId) {
         Map<String, Object> fields = generateRamdomFields();
         
         return this.generateRandomInputStreamIndexingRequest(indexName, indexDocId, fields);
     }
     
-    public IndexingRequestAndMetadata generateRandomInputStreamIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomInputStreamIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
         String contentType = file.getType();
         
-        IndexingRequest request =  InputStreamIndexingRequest.build()
+        Builder<IndexingRequest, IndexingResponse> builder = new InputStreamIndexingRequestBuilder(service)
                 .content(file.getIs())
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)
                 .indexFields(fields);
         
-        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
         
-        return new IndexingRequestAndMetadata(request, metadata);
+        return new BuilderAndResponse<>(builder, response);
     }
-    
-    /////////////////////////////
-    
-    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest() {
-        String indexName = mockNeat.strings().size(20).get();
-        
-        return this.generateRandomByteArrayIndexingRequest(indexName);
-    }
-    
-    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName) {
-        String indexDocId = mockNeat.strings().size(50).get();
-        
-        return this.generateRandomByteArrayIndexingRequest(indexName, indexDocId);
-    }
-    
-    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName, String indexDocId) {
-        Map<String, Object> fields = generateRamdomFields();
-        
-        return this.generateRandomByteArrayIndexingRequest(indexName, indexDocId, fields);
-    }
-    
-    public IndexingRequestAndMetadata generateRandomByteArrayIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
 
-        FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
-        String contentId = file.getCid();
-        String contentType = file.getType();
-        
-        IndexingRequest request =  ByteArrayIndexingRequest.build()
-                .content(file.getBytearray())
-                .indexName(indexName)
-                .indexDocId(indexDocId)
-                .contentType(contentType)
-                .indexFields(fields);
-        
-        Metadata metadata = Metadata.of(indexName, indexDocId, contentId, contentType, fields);
-        
-        return new IndexingRequestAndMetadata(request, metadata);
-    }
-    
-    
-    
-    
-    
-    
-    
       
-    public static class IndexingRequestAndMetadata {
-        private @Getter IndexingRequest request;
-        private @Getter Metadata metadata;
+    public static class BuilderAndResponse<R extends Request, S extends Response> {
+        private @Getter Builder<R, S> builder;
+        private @Getter S response;
         
-        public IndexingRequestAndMetadata(IndexingRequest request, Metadata metadata) {
-            this.request = request;
-            this.metadata = metadata;
+        public BuilderAndResponse(Builder<R, S> builder, S response) {
+            this.builder = builder;
+            this.response = response;
         }
     }
     

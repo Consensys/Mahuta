@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.consensys.mahuta.core.Mahuta;
+import net.consensys.mahuta.core.domain.deindexing.DeindexingResponse;
 
 @RestController
 public class DeleteController {
@@ -28,11 +29,12 @@ public class DeleteController {
      * @throws NotFoundException
      */
     @DeleteMapping("${mahuta.api-spec.v1.persistence.delete.id}")
-    public void deleteById(
+    public DeindexingResponse deleteById(
             @PathVariable(value = "id") @NotNull String id,
             @RequestParam(value = "index", required = true) String indexName) {
 
-        mahuta.deindex(indexName, id);
+        return mahuta.prepareDeindexing(indexName, id)
+            .execute();
     }
 
 }

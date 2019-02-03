@@ -13,8 +13,7 @@ import net.consensys.mahuta.core.exception.TechnicalException;
 
 public class FileUtils {
 
-    private FileUtils() {
-    }
+    private FileUtils() { }
 
     public static InputStream readFileInputStream(String path) {
         

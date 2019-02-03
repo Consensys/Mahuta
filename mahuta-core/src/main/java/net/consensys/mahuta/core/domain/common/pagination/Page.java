@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.domain.common;
+package net.consensys.mahuta.core.domain.common.pagination;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,13 +7,13 @@ import lombok.Getter;
 import lombok.ToString;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 
-@ToString
+@Getter @ToString
 public class Page<T> {
 
-    private final @Getter PageRequest pageRequest;
-    private final @Getter List<T> elements;
-    private final @Getter Integer totalElements;
-    private final @Getter Integer totalPages;
+    private final PageRequest pageRequest;
+    private final List<T> elements;
+    private final Integer totalElements;
+    private final Integer totalPages;
     
     private Page(PageRequest pageRequest, List<T> elements, Integer totalElements) {
         ValidatorUtils.rejectIfNull("pageRequest", pageRequest);

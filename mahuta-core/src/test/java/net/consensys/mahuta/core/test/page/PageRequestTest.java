@@ -7,8 +7,8 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.mahuta.core.domain.common.PageRequest;
-import net.consensys.mahuta.core.domain.common.PageRequest.SortDirection;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest.SortDirection;
 
 @Slf4j
 public class PageRequestTest {

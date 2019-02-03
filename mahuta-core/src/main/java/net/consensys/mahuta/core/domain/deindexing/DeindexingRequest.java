@@ -2,19 +2,13 @@ package net.consensys.mahuta.core.domain.deindexing;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import net.consensys.mahuta.core.domain.Request;
 
-public class DeindexingRequest {
+@Getter @Setter @ToString
+public class DeindexingRequest implements Request {
     
-    private @Getter @Setter String indexName;
+    private String indexName;
+    private String indexDocId;
 
-    private @Getter @Setter String id;
-    
-    private DeindexingRequest(String indexName, String id) {
-        this.indexName = indexName;
-        this.id = id;
-    }
-    
-    public static DeindexingRequest of(String indexName, String id) {
-        return new DeindexingRequest(indexName, id);
-    }
 }

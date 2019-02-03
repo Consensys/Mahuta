@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.consensys.mahuta.core.domain.searching.Filter;
-import net.consensys.mahuta.core.domain.searching.Query;
-import net.consensys.mahuta.core.domain.searching.QueryOperation;
+import net.consensys.mahuta.core.domain.common.query.Filter;
+import net.consensys.mahuta.core.domain.common.query.Query;
+import net.consensys.mahuta.core.domain.common.query.QueryOperation;
 
 public class QueryTest {
 
