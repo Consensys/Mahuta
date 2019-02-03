@@ -1,4 +1,4 @@
-package net.consensys.mahuta.client.springdata.impl;
+package net.consensys.mahuta.springdata.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -29,15 +30,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.mahuta.client.springdata.MahutaCustomRepository;
-import net.consensys.mahuta.client.springdata.utils.MahutaSpringDataUtils;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
-import net.consensys.mahuta.core.exception.MahutaException;
+import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
+import net.consensys.mahuta.springdata.MahutaCustomRepository;
+import net.consensys.mahuta.springdata.exception.MahutaSpringDataException;
+import net.consensys.mahuta.springdata.utils.MahutaSpringDataUtils;
 
 @Slf4j
 public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepository<E> {
@@ -108,7 +110,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
     }
 
     @Override
-    public E findByHash(String hash) {
+    public Optional<E> findByHash(String hash) {
 
         try {
             log.debug("Find By Hash [hash: {}]", hash);
@@ -119,49 +121,38 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
 
             log.debug("Find By Hash [hash: {}]: {}", hash, entity);
 
-            return entity;
+            return Optional.of(entity);
 
-        } catch (MahutaException e) {
-            log.error("Find By Hash [hash: {}]", hash, e);
-            return null;
+        } catch (NotFoundException e) {
+            log.warn("File [hash: {}] not found", hash, e);
+            return Optional.empty();
         }
     }
 
     @Override
     public String saveNoIndexation(E entity) {
-        try {
-            log.debug("Saving entity (no indexation) [entity: {}]", entity);
+        
+        log.debug("Saving entity (no indexation) [entity: {}]", entity);
 
-            IndexingResponse response = mahuta.prepareStorage(serialize(entity)).execute();
+        IndexingResponse response = mahuta.prepareStorage(serialize(entity)).execute();
 
-            log.debug("Entity {} saved. {}", entity, response.getContentId());
+        log.debug("Entity {} saved. {}", entity, response.getContentId());
 
-            return response.getContentId();
-
-        } catch (MahutaException e) {
-            log.error("Error while saving the entity {}", entity, e);
-            return null;
-        }
+        return response.getContentId();
     }
 
     protected Page<E> search(Query query, Pageable pageable) {
+        
+        log.debug("Find all [query: {}, pagination: {}]", query, pageable);
 
-        try {
-            log.debug("Find all [query: {}, pagination: {}]", query, pageable);
+        SearchResponse response = mahuta.prepareSearch().query(query).indexName(indexName)
+                .pageRequest(MahutaSpringDataUtils.convertPageable(pageable)).loadFile(true).execute();
 
-            SearchResponse response = mahuta.prepareSearch().query(query).indexName(indexName)
-                    .pageRequest(MahutaSpringDataUtils.convertPageable(pageable)).loadFile(true).execute();
+        List<E> result = response.getPage().getElements().stream()
+                .map(mp -> deserialize(mp.getPayload(), mp.getMetadata().getContentId()))
+                .collect(Collectors.toList());
 
-            List<E> result = response.getPage().getElements().stream()
-                    .map(mp -> deserialize(mp.getPayload(), mp.getMetadata().getContentId()))
-                    .collect(Collectors.toList());
-
-            return new PageImpl<>(result, pageable, response.getPage().getTotalElements());
-
-        } catch (MahutaException e) {
-            log.error("Find all [query: {}, pagination: {}]", query, pageable, e);
-            return null;
-        }
+        return new PageImpl<>(result, pageable, response.getPage().getTotalElements());
     }
 
     protected E deserialize(OutputStream content, String hash) {
@@ -173,7 +164,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
             entity = this.mapper.readValue(((ByteArrayOutputStream) content).toByteArray(), entityClazz);
         } catch (IOException ex) {
             log.error("Error while parsing json", ex);
-            return null;
+            throw new MahutaSpringDataException("Error while parsing json", ex);
         }
 
         try {
@@ -187,7 +178,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
 
         } catch (IllegalAccessException | InvocationTargetException ex) {
             log.error("Error while invoking set{}", attributeHash, ex);
-            return null;
+            throw new MahutaSpringDataException("Error while invoking set" + attributeHash, ex);
         }
     }
 
@@ -197,7 +188,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
             return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
         } catch (JsonProcessingException ex) {
             log.error("Error while serialising the entity [entity={}]", e, ex);
-            return null;
+            throw new MahutaSpringDataException("Error while serialising the entity [entity="+e+"]", ex);
         }
     }
 

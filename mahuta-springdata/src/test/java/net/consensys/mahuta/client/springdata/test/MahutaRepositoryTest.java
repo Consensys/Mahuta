@@ -19,12 +19,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
 import io.ipfs.api.IPFS;
 import lombok.extern.slf4j.Slf4j;
 import net.andreinc.mockneat.MockNeat;
-import net.consensys.mahuta.client.springdata.MahutaRepository;
 import net.consensys.mahuta.client.springdata.test.sample.Entity;
 import net.consensys.mahuta.client.springdata.test.sample.Factory;
 import net.consensys.mahuta.client.springdata.test.sample.TestRepository;
@@ -41,6 +41,7 @@ import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
+import net.consensys.mahuta.springdata.MahutaRepository;
 
 @Slf4j
 public class MahutaRepositoryTest {
@@ -110,6 +111,27 @@ public class MahutaRepositoryTest {
         assertEquals(id, entitySaved.getId());
         assertEquals(builderAndResponse.getResponse().getContentId(), entitySaved.getHash());
     }
+
+
+    @Test
+    public void saveNoId() throws Exception {
+        Entity entity = Factory.getEntity();
+        
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateStringIndexingRequest(
+                entity.toJSON(), indexName, null, entity.toMap());
+        
+        // #################################################
+        Entity entitySaved = underTest.save(entity);
+        // #################################################
+
+        log.debug(entitySaved.toString());
+
+        assertEquals(entity.getName(), entitySaved.getName());
+        assertEquals(entity.getAge(), entitySaved.getAge());        
+        assertEquals(entity.getTags().size(), entitySaved.getTags().size());
+        assertNotNull(entitySaved.getId());
+        //assertEquals(builderAndResponse.getResponse().getContentId(), entitySaved.getHash());
+    }
     
     @Test
     public void saveWithoutAutosetup() throws Exception {
@@ -173,6 +195,24 @@ public class MahutaRepositoryTest {
         assertEquals(20, result.getContent().size());
         assertEquals(no, result.getTotalElements());
         assertEquals(3, result.getTotalPages());
+    }
+    
+    @Test
+    public void findAllSort() throws Exception {
+        final int no = 3;
+
+        IntStream.range(0, no).forEach(i -> {
+            Entity entity = Factory.getEntity(mockNeat.strings().size(50).get());
+            underTest.save(entity);
+        });
+
+        // #################################################
+        Page<Entity> result = (Page<Entity>) underTest.findAll(Sort.by(Direction.ASC, "name"));
+        // #################################################
+
+        assertEquals(3, result.getContent().size());
+        assertEquals(no, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
     }
 
     @Test
@@ -335,10 +375,10 @@ public class MahutaRepositoryTest {
         
         // #################################################
         underTest.save(entity);
-        Entity result = underTest.findByHash(builderAndResponse.getResponse().getContentId());
+        Optional<Entity> result = underTest.findByHash(builderAndResponse.getResponse().getContentId());
         // #################################################
  
-        assertNotNull(result);
-        assertEquals(id, result.getId());
+        assertTrue(result.isPresent());
+        assertEquals(id, result.get().getId());
     }
 }

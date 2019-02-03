@@ -1,4 +1,4 @@
-package net.consensys.mahuta.client.springdata;
+package net.consensys.mahuta.springdata;
 
 import java.io.Serializable;
 import java.util.Map;

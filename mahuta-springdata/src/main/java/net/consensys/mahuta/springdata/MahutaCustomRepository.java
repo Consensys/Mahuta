@@ -1,4 +1,6 @@
-package net.consensys.mahuta.client.springdata;
+package net.consensys.mahuta.springdata;
+
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +29,7 @@ public interface MahutaCustomRepository<E> {
      * @param hash
      * @return
      */
-    E findByHash(String hash);
+    Optional<E> findByHash(String hash);
 
     /**
      * Save a document without attributing an ID and a Hash to the object (no reflection)

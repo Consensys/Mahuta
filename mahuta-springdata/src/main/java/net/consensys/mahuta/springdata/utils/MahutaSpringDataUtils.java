@@ -1,4 +1,4 @@
-package net.consensys.mahuta.client.springdata.utils;
+package net.consensys.mahuta.springdata.utils;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;

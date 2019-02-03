@@ -55,12 +55,20 @@ You will need to run those two components first. [see wiki page - run IPFS and E
 2. Configure Mahuta to connect to an IPFS node and an indexer
 
 ```
-
     Mahuta mahuta = new MahutaFactory()
         .configureStorage(IPFSService.connect("localhost", 5001))
         .configureIndexer(ElasticSearchService.connect("localhost", 9300, "cluster-name"))
         .build();
 ```
+
+For the full documentation, [see wiki page - Mahuta Java API]
+
+### Spring-Data
+
+TO COMPLETE
+
+[see wiki page - Mahuta Spring-Data]
+
 
 ### HTTP API
 
@@ -70,7 +78,6 @@ You will need to run those two components first. [see wiki page - run IPFS and E
 
 - Java 8
 - Maven
-- For elasticsearch, set [vm.max_map_count](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode) to at least 262144 on the host
 
 ##### Steps
 
@@ -98,7 +105,6 @@ $ export MAHUTA_ELASTICSEARCH_CLUSTERNAME=cluster_name
 $ java -jar target/mahuta-http-api-exec.jar
 ```
 
-
 #### Docker
 
 
@@ -122,6 +128,8 @@ $ docker run -it --name mahuta \
 
 [see wiki page - docker-compose]
 
+
+For the full documentation including configuration and details of each method , [see wiki page - Mahuta HTTP API]
 
 
 -------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-package net.consensys.mahuta.client.springdata.impl;
+package net.consensys.mahuta.springdata.impl;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -14,11 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.mahuta.client.springdata.MahutaRepository;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
+import net.consensys.mahuta.springdata.MahutaRepository;
 
 @Slf4j
 public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCustomRepositoryImpl<E>
