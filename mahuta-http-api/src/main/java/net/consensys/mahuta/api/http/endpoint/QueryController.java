@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
@@ -30,7 +28,6 @@ import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
-import net.consensys.mahuta.core.utils.lamba.Throwing;
 
 @RestController
 @Slf4j
@@ -38,14 +35,11 @@ public class QueryController {
 
     private static final String DEFAULT_PAGE_SIZE = "20";
     private static final String DEFAULT_PAGE_NO = "0";
-
-    private final ObjectMapper mapper;
     private final Mahuta mahuta;
 
     @Autowired
     public QueryController(Mahuta mahuta) {
         this.mahuta = mahuta;
-        this.mapper = new ObjectMapper();
     }
 
     @GetMapping(value = "${mahuta.api-spec.v1.query.fetch}")
@@ -83,26 +77,6 @@ public class QueryController {
             @RequestParam(value = "sort", required = false) Optional<String> sortAttribute,
             @RequestParam(value = "dir", required = false, defaultValue = "ASC") SortDirection sortDirection,
             @RequestBody Query query) {
-
-        return executeSearch(indexName, pageNo, pageSize, sortAttribute, sortDirection, query);
-    }
-
-    @GetMapping(value = "${mahuta.api-spec.v1.query.search}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody SearchResponse searchContentsByGet(
-            @RequestParam(value = "index", required = false) String indexName,
-            @RequestParam(value = "page", required = false, defaultValue = DEFAULT_PAGE_NO) int pageNo,
-            @RequestParam(value = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(value = "sort", required = false) Optional<String> sortAttribute,
-            @RequestParam(value = "dir", required = false, defaultValue = "ASC") SortDirection sortDirection,
-            @RequestParam(value = "query", required = false) Optional<String> queryStr) {
-
-        Query query = queryStr.map(Throwing.rethrowFunc(q -> this.mapper.readValue(q, Query.class))).orElse(null);
-
-        return executeSearch(indexName, pageNo, pageSize, sortAttribute, sortDirection, query);
-    }
-
-    private SearchResponse executeSearch(String indexName, int pageNo, int pageSize, Optional<String> sortAttribute,
-            SortDirection sortDirection, Query query) {
 
         PageRequest pageRequest = sortAttribute
                 .map(s -> PageRequest.of(pageNo, pageSize, sortAttribute.get(), sortDirection))

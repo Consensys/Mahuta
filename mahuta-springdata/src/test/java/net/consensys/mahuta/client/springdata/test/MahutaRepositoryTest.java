@@ -3,10 +3,12 @@ package net.consensys.mahuta.client.springdata.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -116,9 +118,6 @@ public class MahutaRepositoryTest {
     @Test
     public void saveNoId() throws Exception {
         Entity entity = Factory.getEntity();
-        
-        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateStringIndexingRequest(
-                entity.toJSON(), indexName, null, entity.toMap());
         
         // #################################################
         Entity entitySaved = underTest.save(entity);
@@ -281,7 +280,7 @@ public class MahutaRepositoryTest {
     @Test(expected = UnsupportedOperationException.class)
     public void saveIterable() throws Exception {
         // #################################################
-        underTest.saveAll(Factory.getEntities(5));
+        underTest.saveAll(Arrays.asList(Factory.getEntity()));
         // #################################################
     }
 
@@ -308,7 +307,7 @@ public class MahutaRepositoryTest {
     @Test(expected = UnsupportedOperationException.class)
     public void deleteIterable() throws Exception {
         // #################################################
-        underTest.deleteAll(Factory.getEntities(5));
+        underTest.deleteAll(Arrays.asList(Factory.getEntity()));
         // #################################################
     }
 
@@ -366,6 +365,28 @@ public class MahutaRepositoryTest {
     }
 
     @Test
+    public void findByfullTextSearchNull() throws Exception {
+        
+        String id1 = mockNeat.strings().size(50).get();
+        Entity entity1 = Factory.getEntity(id1, "Gregoire Jeanmart", 31);
+        underTest.save(entity1);
+        
+        String id2 = mockNeat.strings().size(50).get();
+        Entity entity2 = Factory.getEntity(id2, "Isabelle Jeanmart", 30);
+        underTest.save(entity2);
+        
+        String id3 = mockNeat.strings().size(50).get();
+        Entity entity3 = Factory.getEntity(id3, "Bob Dylan", 30);
+        underTest.save(entity3);
+        
+        // #################################################
+        Page<Entity> result = underTest.findByfullTextSearch(null, PageRequest.of(0, 5, Direction.ASC, "name"));
+        // #################################################
+
+        assertNull(result);
+    }
+
+    @Test
     public void findByHash() throws Exception {
         String id = mockNeat.strings().size(50).get();
         Entity entity = Factory.getEntity(id);
@@ -380,5 +401,14 @@ public class MahutaRepositoryTest {
  
         assertTrue(result.isPresent());
         assertEquals(id, result.get().getId());
+    }
+
+    @Test
+    public void findByHashNotFound() throws Exception {
+        // #################################################
+        Optional<Entity> result = underTest.findByHash("ddfdf");
+        // #################################################
+ 
+        assertFalse(result.isPresent());
     }
 }

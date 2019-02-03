@@ -94,7 +94,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
 
         log.debug("Find all [criteria: {}, pagination: {}]", fullTextCriteria, pagination);
 
-        if (fullTextFields.isEmpty()) {
+        if (ValidatorUtils.isEmpty(fullTextCriteria)) {
             log.warn("Can't perform a full text search. no fields configured [fullTextFields]");
             return null;
         }

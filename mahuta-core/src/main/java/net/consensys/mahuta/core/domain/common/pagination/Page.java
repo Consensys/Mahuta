@@ -3,17 +3,21 @@ package net.consensys.mahuta.core.domain.common.pagination;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 
 @Getter @ToString
+@NoArgsConstructor
 public class Page<T> {
 
-    private final PageRequest pageRequest;
-    private final List<T> elements;
-    private final Integer totalElements;
-    private final Integer totalPages;
+    private PageRequest pageRequest;
+    private List<T> elements;
+    private Integer totalElements;
+    private Integer totalPages;
     
     private Page(PageRequest pageRequest, List<T> elements, Integer totalElements) {
         ValidatorUtils.rejectIfNull("pageRequest", pageRequest);
@@ -33,7 +37,8 @@ public class Page<T> {
     public static <T> Page<T> of(T element) {
         return new Page<>(PageRequest.singleElementPage(), Arrays.asList(element), 1);
     }
-    
+
+    @JsonIgnore
     public boolean isEmpty() {
         return totalElements == 0;
     }

@@ -1,22 +1,26 @@
 package net.consensys.mahuta.core.domain.common.pagination;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 
 @Getter @ToString
+@NoArgsConstructor
 public class PageRequest {
-
+    public static final int FIRST_PAGE = 0;
     public static final int DEFAULT_SIZE = 20;
 
     public enum SortDirection {
         ASC, DESC
     }
 
-    private final Integer page;
-    private final Integer size;
-    private final String sort;
-    private final SortDirection direction;
+    private Integer page;
+    private Integer size;
+    private String sort;
+    private SortDirection direction;
 
     private PageRequest(Integer page, Integer size, String sort, SortDirection direction) {
         ValidatorUtils.rejectIfNegative("page", page);
@@ -29,7 +33,7 @@ public class PageRequest {
     }
 
     public static PageRequest of() {
-        return new PageRequest(0, DEFAULT_SIZE, null, SortDirection.ASC);
+        return new PageRequest(FIRST_PAGE, DEFAULT_SIZE, null, SortDirection.ASC);
     }
 
     public static PageRequest of(final int page, final int size) {
@@ -41,9 +45,10 @@ public class PageRequest {
     }
     
     public static PageRequest singleElementPage() {
-        return PageRequest.of(0, 1);
+        return PageRequest.of(FIRST_PAGE, 1);
     }
     
+    @JsonIgnore
     public boolean isAscending() {
         return direction.equals(SortDirection.ASC);
     }

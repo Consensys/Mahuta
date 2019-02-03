@@ -1,12 +1,5 @@
 package net.consensys.mahuta.client.springdata.test.sample;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import com.google.common.collect.Sets;
 
@@ -42,18 +35,4 @@ public final class Factory {
         return entity;
     }
 
-    public static List<Entity> getEntities(int total) {
-        List<Entity> entities = new ArrayList<Entity>();
-        for (int i = 0; i < total; i++) entities.add(getEntity());
-
-        return entities;
-    }
-
-    public static Page<Entity> getEntities(int total, int pageNo, int pageSize) {
-        return getEntities(total, PageRequest.of(pageNo, pageNo));
-    }
-
-    public static Page<Entity> getEntities(int total, Pageable pageable) {
-        return new PageImpl<Entity>(getEntities(pageable.getPageSize()), pageable, total);
-    }
 }
