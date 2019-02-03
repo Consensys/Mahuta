@@ -15,7 +15,6 @@
 
         <mahuta-core.version>${project.version}</mahuta-core.version>
         <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
-        <mockneat.version>0.3.0</mockneat.version>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -57,14 +56,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring-boot.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- mockneat -->
-        <dependency>
-            <groupId>net.andreinc.mockneat</groupId>
-            <artifactId>mockneat</artifactId>
-            <version>${mockneat.version}</version>
             <scope>test</scope>
         </dependency>
 

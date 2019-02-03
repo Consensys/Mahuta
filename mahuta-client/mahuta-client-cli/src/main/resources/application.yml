@@ -1,3 +1,0 @@
-logging:
-  level:
-    net.consensys: ${LOG_LEVEL:ERROR}

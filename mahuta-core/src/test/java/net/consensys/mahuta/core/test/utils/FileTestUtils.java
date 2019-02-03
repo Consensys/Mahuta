@@ -22,10 +22,11 @@ public class FileTestUtils extends TestUtils {
     );
     
     public static FileInfo newRandomPlainText(IPFS ipfs) {
-        
+        return newPlainText(ipfs, mockNeat.strings().size(500).get());
+    }
+    public static FileInfo newPlainText(IPFS ipfs, String text) {
         try {
-            String content = mockNeat.strings().size(500).get();
-            return new FileInfo(ipfs, content);
+            return new FileInfo(ipfs, text);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

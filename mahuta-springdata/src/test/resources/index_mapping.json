@@ -1,0 +1,24 @@
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "__hash": {
+          "type": "keyword"
+        },
+        "__content_type": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "text",
+          "fielddata": true
+        },
+        "age": {
+          "type": "long"
+        },
+        "tags": {
+            "type": "keyword"
+        }
+      }
+    }
+  }
+}

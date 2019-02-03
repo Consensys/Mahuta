@@ -40,7 +40,7 @@
         <module>mahuta-core</module>
         <module>mahuta-indexer-elasticsearch</module>
         <module>mahuta-http-api</module>
-        <module>mahuta-client</module>
+        <module>mahuta-springdata</module>
         <module>mahuta-report</module>
     </modules>
 

@@ -30,6 +30,14 @@ public class IndexingResponse extends Metadata implements Response {
         return response;
     }
     
+    public static IndexingResponse of(String contentId) {
+
+        IndexingResponse response = new IndexingResponse(ResponseStatus.SUCCESS);
+        response.setContentId(contentId);
+
+        return response;
+    }
+    
     
     
 }

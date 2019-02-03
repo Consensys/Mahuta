@@ -24,6 +24,7 @@ import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
+import net.consensys.mahuta.core.domain.indexing.OnylStoreIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.domain.search.SearchRequest;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
@@ -91,6 +92,12 @@ public class MahutaServiceImpl implements MahutaService {
         } else if (request instanceof StringIndexingRequest) {
             byte[] content = ((StringIndexingRequest) request).getContent().getBytes();
             contentId = storageService.write(content);
+
+        } else if (request instanceof OnylStoreIndexingRequest) {
+            InputStream content = ((OnylStoreIndexingRequest) request).getContent();
+            contentId = storageService.write(content);
+            
+            return IndexingResponse.of(contentId);
 
         } else {
             throw new UnsupportedOperationException(request.getClass().getName() + " isn't supported yet");

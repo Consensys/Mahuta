@@ -137,6 +137,7 @@ public class IPFSStorageServiceTest extends TestUtils {
 
         //////////////////////////////
         service.unpin(file.getCid());
+        Thread.sleep(2000); // pause
         List<String> hashes = service.getPinned();
         //////////////////////////////
         

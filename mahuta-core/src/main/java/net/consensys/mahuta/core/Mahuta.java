@@ -1,5 +1,6 @@
 package net.consensys.mahuta.core;
 
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -12,6 +13,7 @@ import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequestBuilder;
 import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.InputStreamIndexingRequestBuilder;
+import net.consensys.mahuta.core.domain.indexing.OnlyStoreIndexingRequestBuilder;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequestBuilder;
 import net.consensys.mahuta.core.domain.search.SearchRequestBuilder;
@@ -55,9 +57,15 @@ public class Mahuta {
         return prepare(GetIndexesRequestBuilder.class);
     }
     
-    public StringIndexingRequestBuilder prepareStringIndexing(String indexName) {
+    public StringIndexingRequestBuilder prepareStringIndexing(String indexName, String content) {
         StringIndexingRequestBuilder builder =  prepare(StringIndexingRequestBuilder.class);
-        return builder.indexName(indexName);
+        return builder.indexName(indexName).content(content);
+    }
+    
+    public OnlyStoreIndexingRequestBuilder prepareStorage(InputStream content) {
+        OnlyStoreIndexingRequestBuilder builder =  prepare(OnlyStoreIndexingRequestBuilder.class);
+        return builder.content(content);
+        
     }
     
     public StringIndexingRequestBuilder prepareStringIndexing(StringIndexingRequest request) {
@@ -65,9 +73,9 @@ public class Mahuta {
         return builder.request(request);
     }
     
-    public CIDIndexingRequestBuilder prepareCIDndexing(String indexName) {
+    public CIDIndexingRequestBuilder prepareCIDndexing(String indexName, String cid) {
         CIDIndexingRequestBuilder builder =  prepare(CIDIndexingRequestBuilder.class);
-        return builder.indexName(indexName);
+        return builder.indexName(indexName).cid(cid);
     }
     
     public CIDIndexingRequestBuilder prepareCIDndexing(CIDIndexingRequest request) {
@@ -75,9 +83,9 @@ public class Mahuta {
         return builder.request(request);
     }
     
-    public InputStreamIndexingRequestBuilder prepareInputStreamIndexing(String indexName) {
+    public InputStreamIndexingRequestBuilder prepareInputStreamIndexing(String indexName, InputStream content) {
         InputStreamIndexingRequestBuilder builder =  prepare(InputStreamIndexingRequestBuilder.class);
-        return builder.indexName(indexName);
+        return builder.indexName(indexName).content(content);
     }
     
     public InputStreamIndexingRequestBuilder prepareInputStreamIndexing(InputStreamIndexingRequest request) {

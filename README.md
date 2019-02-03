@@ -10,26 +10,21 @@ Mahuta
 
 
 
-**Mahuta** (formerly known as IPFS-Store) is a search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications requiring content discovery (conditional queries or full text search with fuzziness) in a set of IPFS files. This service also offers extra-features for you IPFS environment such as multi-pinning (replication), smart contract event listening (wip).
+**Mahuta** (formerly known as IPFS-Store) is a adaptable search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications storing data on IPFS which require content discovery (complex queries or full text search with fuzziness).
 
+This can be deployed as a simple embedded Java library for your Java application or a simple, scalable and configurable API.
 
-Mahuta can be deployed as a simple, scalable and configurable API and comes with client libraries (Java, JavaScript) to easily integrate it in an application.
-
-A request requires the following the information:
-
-- a payload (JSON or multipart file) - stored on IPFS
-- some metadata (index fields) - indexed on a search engine alongside the payload IPFS hash
-
+This service also offers extra-features for you IPFS environment such as multi-pinning (replication), smart contract event listening (wip).
 
 [![Mahuta.jpg](https://api.beta.kauri.io:443/ipfs/QmPznCZDvzmEun5qstBQyyLEDfDFqbhuS24Pgsixy1eSnP)](https://postimg.cc/image/mziklo4b1/)
+
+
+-------------------------------------------------------------------------
 
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-
-### Docker
 
 #### Prerequisites
 
@@ -37,56 +32,52 @@ Mahuta depends of two components:
 - an IPFS node ([go](https://github.com/ipfs/go-ipfs) or [js](https://github.com/ipfs/js-ipfs) implementation)
 - a search engine (currently only ElasticSearch is supported)
 
-##### Create a virtual network
+You will need to run those two components first. [see wiki page - run IPFS and ElasticSearch]
 
-Let's create a private Docker network to make our containers able to communicate together.
+### Java library
 
-```
-$ docker network create mahuta-network
-```
+1. Import the Maven dependencies (core module + indexer)
 
-##### Start IPFS daemon
 
-Start an IPFS daemon to join the IPFS network and expore the port 4001 (peer2p networking) and 5001(API)
+````
+    <dependency>
+        <groupId>net.consensys.mahuta</groupId>
+        <artifactId>mahuta-core</artifactId>
+        <version>${MAHUTA_VERSION}</version>
+    </dependency>
+    <dependency>
+        <groupId>net.consensys.mahuta</groupId>
+        <artifactId>mahuta-indexing-elasticsearch</artifactId>
+        <version>${MAHUTA_VERSION}</version>
+    </dependency>
+````
 
-```
-$ docker run -d --name ipfs -v /path/to/ipfs/export:/export -v /path/to/ipfs/data:/data/ipfs -p :4001:4001 -p :5001:5001 --net mahuta-network ipfs/go-ipfs:latest
-```
-
-##### Start ElasticSearch
-
-Start ElasticSearch database used as a content indexer.
-
-```
-$ docker run -d --name elasticsearch -v /path/to/elasticsearch:/data/elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" --net mahuta-network docker.elastic.co/elasticsearch/elasticsearch:6.5.0
-```
-
-#### Start Mahuta
-
-Finally we can run Mahuta using the port 8040.
+2. Configure Mahuta to connect to an IPFS node and an indexer
 
 ```
-$ docker run --name mahuta -p 8040:8040 -e IPFS_HOST=ipfs -e ELASTIC_HOST=elasticsearch --net mahuta-network  gjeanmart/mahuta
+
+    Mahuta mahuta = new MahutaFactory()
+        .configureStorage(IPFSService.connect("localhost", 5001))
+        .configureIndexer(ElasticSearchService.connect("localhost", 9300, "cluster-name"))
+        .build();
 ```
 
-A [docker-compose file](https://github.com/ConsenSys/mahuta/blob/master/mahuta-service/docker-compose.yml) can also be used to start Mahuta and its dependencies.
+### HTTP API
 
-To stop the containers, run  `$ docker stop ipfs elasticsearch mahuta`.
+#### From source
 
-### From the source
-
-#### Prerequisites
+##### Prerequisites
 
 - Java 8
 - Maven
 - For elasticsearch, set [vm.max_map_count](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode) to at least 262144 on the host
 
-#### Build
+##### Steps
 
 1. After checking out the code, navigate to the root directory
 
 ```
-$ cd /path/to/mahuta/mahuta-service/
+$ cd /path/to/mahuta/mahuta-http-api/
 ```
 
 2. Compile, test and package the project
@@ -98,14 +89,43 @@ $ mvn clean package
 3. Run the project
 
 ```
-$ export IPFS_HOST=localhost
-$ export IPFS_PORT=5001
-$ export ELASTIC_HOST=localhost
-$ export ELASTIC_PORT=9300
-$ export ELASTIC_CLUSTERNAME=elasticsearch
+$ export MAHUTA_IPFS_HOST=localhost
+$ export MAHUTA_IPFS_PORT=5001
+$ export MAHUTA_ELASTICSEARCH_HOST=localhost
+$ export MAHUTA_ELASTICSEARCH_PORT=9300
+$ export MAHUTA_ELASTICSEARCH_CLUSTERNAME=cluster_name
 
-$ java -jar target/mahuta-exec.jar
+$ java -jar target/mahuta-http-api-exec.jar
 ```
+
+
+#### Docker
+
+
+##### Prerequisites
+
+- Docker
+- [see wiki page - run IPFS and ElasticSearch] 
+
+
+##### Steps
+
+```
+$ docker run -it --name mahuta \ 
+    -p 8040:8040 \
+    -e MAHUTA_IPFS_HOST=ipfs \
+    -e MAHUTA_ELASTICSEARCH_HOST=elasticsearch \
+    gjeanmart/mahuta
+```
+
+##### docker-compose
+
+[see wiki page - docker-compose]
+
+
+
+-------------------------------------------------------------------------
+
 
 ## API Documentation
 

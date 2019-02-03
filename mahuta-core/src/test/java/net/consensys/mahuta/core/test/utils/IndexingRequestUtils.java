@@ -87,6 +87,27 @@ public class IndexingRequestUtils extends TestUtils{
         return value;
     }
     
+
+    
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateStringIndexingRequest(String content, String indexName, String indexDocId, Map<String, Object> fields) {
+
+        FileInfo file = FileTestUtils.newPlainText(ipfs, content);
+        String contentId = file.getCid();
+        String contentType = file.getType();
+        
+        Builder<IndexingRequest, IndexingResponse> builder = new StringIndexingRequestBuilder(service)
+                .content(new String(file.getBytearray()))
+                .indexName(indexName)
+                .indexDocId(indexDocId)
+                .contentType(contentType)
+                .indexFields(fields);
+        
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
+        
+        return new BuilderAndResponse<>(builder, response);
+    }
+    
+    
     
     public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest() {
         String indexName = mockNeat.strings().size(20).get();
@@ -157,7 +178,7 @@ public class IndexingRequestUtils extends TestUtils{
         String contentType = file.getType();
         
         Builder<IndexingRequest, IndexingResponse> builder = new CIDIndexingRequestBuilder(service)
-                .content(file.getCid())
+                .cid(file.getCid())
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)

@@ -26,7 +26,7 @@ public class CIDIndexingRequestBuilder extends AbstractBuilder implements Builde
         return this;
     }
 
-    public CIDIndexingRequestBuilder content(String cid) {
+    public CIDIndexingRequestBuilder cid(String cid) {
         request.setCid(cid);
         return this;
     }
