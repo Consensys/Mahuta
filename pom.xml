@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
-        <java-ipfs.version>v1.2.2</java-ipfs.version>
+        <java-ipfs.version>v1.2.3</java-ipfs.version>
         <lombok.version>1.18.4</lombok.version>
         <guava.version>27.0.1-jre</guava.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -23,6 +23,7 @@
         <jackson.version>2.9.8</jackson.version>
         <powermock.version>2.0.0</powermock.version>
         <mockneat.version>0.3.0</mockneat.version>
+        <failsafe.version>2.0.0</failsafe.version>
 
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
@@ -36,7 +37,7 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${jacoco.reportPath}</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
-    
+
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
@@ -92,6 +93,13 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${common-io.version}</version>
+        </dependency>
+
+        <!-- commons-io -->
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>${failsafe.version}</version>
         </dependency>
 
         <!-- testcontainers -->
