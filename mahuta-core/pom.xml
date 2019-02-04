@@ -18,11 +18,11 @@
         <!-- IPFS -->
         <dependency>
             <groupId>com.github.ipfs</groupId>
-            <artifactId>java-ipfs-api</artifactId>
+            <artifactId>java-ipfs-http-client</artifactId>
             <version>${java-ipfs.version}</version>
         </dependency>
+        
     </dependencies>
-
 
     <build>
         <plugins>
