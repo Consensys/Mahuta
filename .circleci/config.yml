@@ -29,7 +29,7 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
       - run:
           name: Run tests
-          command: mvn test jacoco:report coveralls:report -DrepoToken=${COVERALLS_REPOTOKEN}
+          command: mvn clean test jacoco:report coveralls:report sonar:sonar -DrepoToken=${COVERALLS_REPOTOKEN} -Dsonar.projectKey=${SONAR_PROJECTKEY} -Dsonar.organization=${SONAR_ORG} -Dsonar.host.url=${SONAR_HOST} -Dsonar.login=${SONAR_LOGIN}
 
   release-snapshot:
     docker:
