@@ -7,13 +7,11 @@ public class IPFSSettings {
 
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 5001;
-    public static final int DEFAULT_THREAD_POOL = 10;
     public static final int DEFAULT_TIMEOUT = 10000;
 
     private @Setter @Getter String host = DEFAULT_HOST;
     private @Setter @Getter Integer port = DEFAULT_PORT;
     private @Setter @Getter String multiaddress;
-    private @Setter @Getter int poolSize = DEFAULT_THREAD_POOL;
     private @Setter @Getter int timeout = DEFAULT_TIMEOUT;
     
     public static IPFSSettings of(String host, Integer port, String multiaddress) {

@@ -1,8 +1,10 @@
 package net.consensys.mahuta.core.service.storage.ipfs;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +29,8 @@ import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.exception.TimeoutException;
 import net.consensys.mahuta.core.service.storage.StorageService;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 
 @Slf4j
 public class IPFSService implements StorageService {
@@ -34,6 +38,7 @@ public class IPFSService implements StorageService {
     private final IPFSSettings settings;
     private final IPFS ipfs;
     private ExecutorService pool;
+    private RetryPolicy<Object> retryPolicy;
 
     private IPFSService(IPFSSettings settings, IPFS ipfs) {
         ValidatorUtils.rejectIfNull("settings", settings);
@@ -41,7 +46,8 @@ public class IPFSService implements StorageService {
 
         this.settings = settings;
         this.ipfs = ipfs;
-        this.configureThreadPool(IPFSSettings.DEFAULT_THREAD_POOL);
+        this.configureThreadPool(10);
+        this.configureRetry(0);
     }
 
     public static IPFSService connect() {
@@ -87,7 +93,23 @@ public class IPFSService implements StorageService {
 
     public IPFSService configureThreadPool(Integer poolSize) {
         ValidatorUtils.rejectIfNegative("poolSize", poolSize);
-        this.pool = Executors.newFixedThreadPool(settings.getPoolSize());
+        this.pool = Executors.newFixedThreadPool(poolSize);
+        return this;
+    }
+
+    public IPFSService configureRetry(Integer maxRetry) {
+        return this.configureRetry(maxRetry, Duration.ofSeconds(1));
+    }
+
+    public IPFSService configureRetry(Integer maxRetry, Duration delay) {
+        ValidatorUtils.rejectIfNegative("maxRetry", maxRetry);
+        ValidatorUtils.rejectIfNull("delay", delay);
+
+        this.retryPolicy = new RetryPolicy<>()
+                .handle(IOException.class)
+                .withDelay(delay)
+                .withMaxRetries(maxRetry);
+        
         return this;
     }
 
@@ -105,25 +127,18 @@ public class IPFSService implements StorageService {
 
     @Override
     public String write(byte[] content) {
-        
-        try {
-            log.debug("Write file on IPFS");
+        log.debug("Write file on IPFS");
 
-            ValidatorUtils.rejectIfNull("content", content);
+        ValidatorUtils.rejectIfNull("content", content);
 
-            NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
-            MerkleNode response = this.ipfs.add(file).get(0);
-
-            String hash = response.hash.toString();
-
-            log.debug("File written on IPFS: hash={} ", hash);
-
-            return hash;
-
-        } catch (Exception ex) {
-            log.error("Exception writting file on IPFS", ex);
-            throw new TechnicalException("Exception writting file on IPFS", ex);
-        }
+        return Failsafe.with(retryPolicy)
+            .onFailure(event -> log.error("Exception writting file on IPFS after {} attemps", event.getAttemptCount(), event.getResult()))
+            .onSuccess(event -> log.debug("File written on IPFS: hash={} ", event.getResult()))
+            .get(() -> {
+                NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
+                MerkleNode response = this.ipfs.add(file).get(0);
+                return response.hash.toString();
+            });
     }
 
     @Override
@@ -139,7 +154,7 @@ public class IPFSService implements StorageService {
 
             log.debug("CID {} pinned on IPFS", cid);
 
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("Exception pinning CID {} on IPFS", cid, ex);
             throw new TechnicalException("Exception pinning CID " + cid + " on IPFS", ex);
         }
@@ -157,7 +172,7 @@ public class IPFSService implements StorageService {
 
             log.debug("CID {} unpinned on IPFS", cid);
 
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("Exception unpinning CID {} on IPFS", cid, ex);
             throw new TechnicalException("Exception unpinning CID " + cid + " on IPFS", ex);
         }
@@ -176,7 +191,7 @@ public class IPFSService implements StorageService {
                     .map(e-> e.getKey().toBase58())
                     .collect(Collectors.toList());
             
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("Exception getting pinned files on IPFS", ex);
             throw new TechnicalException("Exception getting pinned files on IPFS", ex);
         }
@@ -220,7 +235,7 @@ public class IPFSService implements StorageService {
             log.error("Execution Exception while fetching file from IPFS [id: {}]", id, ex);
             throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
 
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("IOException while fetching file from IPFS [id: {}]", id, ex);
             throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
         }
@@ -240,7 +255,7 @@ public class IPFSService implements StorageService {
         public byte[] call() {
             try {
                 return this.ipfs.cat(multihash);
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 log.error("Exception while fetching file from IPFS [hash: {}]", multihash, ex);
                 throw new TechnicalException("Exception while fetching file from IPFS " + multihash, ex);
             }
