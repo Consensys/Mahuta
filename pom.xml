@@ -24,6 +24,7 @@
         <powermock.version>2.0.0</powermock.version>
         <mockneat.version>0.3.0</mockneat.version>
         <failsafe.version>2.0.0</failsafe.version>
+        <unirest-java.version>1.4.9</unirest-java.version>
 
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>

@@ -18,7 +18,7 @@ public class MahutaFactory {
         this.indexingService = indexingService;
         return this;
     }
-    
+
     public Mahuta build() {
         return Mahuta.of(new MahutaServiceImpl(storageService, indexingService)); 
     }

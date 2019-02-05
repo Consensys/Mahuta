@@ -35,6 +35,8 @@ public class MahutaTest extends MahutaTestAbstract {
     @BeforeClass
     public static void startContainers() throws IOException {
         ContainerUtils.startContainer("ipfs", ContainerType.IPFS);
+        ContainerUtils.startContainer("ipfs-replica1", ContainerType.IPFS);
+        ContainerUtils.startContainer("ipfs-replica2", ContainerType.IPFS);
     }
     
     @AfterClass
@@ -45,6 +47,8 @@ public class MahutaTest extends MahutaTestAbstract {
     public MahutaTest () {
         super(Mockito.mock(IndexingService.class), 
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
+                         .addReplica(IPFSService.connect(ContainerUtils.getHost("ipfs-replica1"), ContainerUtils.getPort("ipfs-replica1")))
+                         .addReplica(IPFSService.connect(ContainerUtils.getHost("ipfs-replica2"), ContainerUtils.getPort("ipfs-replica2")))
         );
         indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));

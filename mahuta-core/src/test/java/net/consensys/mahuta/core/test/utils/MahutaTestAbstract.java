@@ -33,7 +33,11 @@ public abstract class MahutaTestAbstract extends TestUtils {
     public MahutaTestAbstract(IndexingService indexingService, StorageService storageService) {
         this.indexingService = indexingService;
         this.storageService = storageService;
-        this.mahuta = new MahutaFactory().configureStorage(storageService).configureIndexer(indexingService).build();
+        
+        this.mahuta = new MahutaFactory()
+                .configureStorage(storageService)
+                .configureIndexer(indexingService)
+                .build();
     }
     
     protected void creatIndex(String indexName) throws Exception {
@@ -56,6 +60,11 @@ public abstract class MahutaTestAbstract extends TestUtils {
         ///////////////////////
         
         validateMetadata(builderAndResponse, indexingResponse);
+        
+        // Check each replica
+        Thread.sleep(2000);
+        assertTrue(storageService.getReplicaSet().stream()
+                .allMatch(p->p.getTracked().contains(builderAndResponse.getResponse().getContentId())));
     }
     
     protected void deindex(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse) throws Exception {
@@ -63,6 +72,8 @@ public abstract class MahutaTestAbstract extends TestUtils {
         ////////////////////////
         IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
         assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
+
+        Thread.sleep(2000);
         
         DeindexingResponse deindexingResponse = mahuta.prepareDeindexing(
             builderAndResponse.getBuilder().getRequest().getIndexName(),
@@ -71,7 +82,10 @@ public abstract class MahutaTestAbstract extends TestUtils {
         assertEquals(ResponseStatus.SUCCESS, deindexingResponse.getStatus());
         ///////////////////////
 
-        assertFalse(storageService.getPinned().stream().anyMatch(h -> h.equals(builderAndResponse.getResponse().getContentId())));
+        // Check each replica
+        Thread.sleep(2000);
+        assertFalse(storageService.getReplicaSet().stream()
+                .anyMatch(p->p.getTracked().contains(builderAndResponse.getResponse().getContentId())));
     }
     
     protected void getById(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse) {

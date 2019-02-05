@@ -21,12 +21,19 @@
             <artifactId>java-ipfs-http-client</artifactId>
             <version>${java-ipfs.version}</version>
         </dependency>
-        
+
+        <!-- HTTP Client -->
+        <dependency>
+            <groupId>com.mashape.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>${unirest-java.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

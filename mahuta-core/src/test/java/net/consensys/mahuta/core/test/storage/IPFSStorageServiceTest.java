@@ -18,7 +18,6 @@ import io.ipfs.api.NamedStreamable;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.exception.ConnectionException;
 import net.consensys.mahuta.core.exception.TimeoutException;
-import net.consensys.mahuta.core.service.storage.StorageService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
@@ -82,7 +81,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void write() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
         String hash = service.write(file.getIs());
@@ -94,7 +93,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void write2() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
         String hash = service.write(file.getBytearray());
@@ -106,11 +105,11 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void getPinnedFiles() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
         String hash = service.write(file.getIs());
-        List<String> hashes = service.getPinned();
+        List<String> hashes = service.getTracked();
         log.debug("hashes: {}", hashes);
         //////////////////////////////
         
@@ -120,11 +119,11 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void pinFile() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
         service.pin(file.getCid());
-        List<String> hashes = service.getPinned();
+        List<String> hashes = service.getTracked();
         //////////////////////////////
         
         assertTrue(hashes.stream().anyMatch(h -> h.equals(file.getCid())));
@@ -133,12 +132,12 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void unpinFile() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
         service.unpin(file.getCid());
         Thread.sleep(2000); // pause
-        List<String> hashes = service.getPinned();
+        List<String> hashes = service.getTracked();
         //////////////////////////////
         
         assertFalse(hashes.stream().anyMatch(h -> h.equals(file.getCid())));
@@ -147,7 +146,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void read() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
         service.write(file.getIs());
 
         //////////////////////////////
@@ -161,7 +160,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Ignore("Not a stable test")
     public void readTimeoutException() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
-        StorageService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"))
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"))
                 .configureTimeout(1);
         service.write(file.getIs());
 

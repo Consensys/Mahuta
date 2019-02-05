@@ -196,7 +196,7 @@ public class ElasticSearchService implements IndexingService {
         }
         log.trace("source={}", source.toString());
 
-        // Create or Update the document
+        // Upsert
         DocWriteResponse response;
         if (indexDocId == null || !this.documentExists(indexName, indexDocId)) {
             response = client.prepareIndex(indexName, DEFAULT_TYPE, indexDocId)
@@ -206,6 +206,7 @@ public class ElasticSearchService implements IndexingService {
             response = client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
                     .setDoc(convertObjectToJsonString(source), XContentType.JSON).get();
         }
+
 
         log.debug(
                 "Document indexed ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, indexFields: {}]. Result ID= {} ",

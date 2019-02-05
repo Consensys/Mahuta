@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -18,27 +19,32 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.collect.Sets;
+
 import io.ipfs.api.IPFS;
 import io.ipfs.api.IPFS.PinType;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.exception.ConnectionException;
 import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.exception.TimeoutException;
+import net.consensys.mahuta.core.service.pinning.PinningService;
 import net.consensys.mahuta.core.service.storage.StorageService;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
 @Slf4j
-public class IPFSService implements StorageService {
+public class IPFSService implements StorageService, PinningService {
 
     private final IPFSSettings settings;
     private final IPFS ipfs;
     private ExecutorService pool;
     private RetryPolicy<Object> retryPolicy;
+    private @Getter Set<PinningService> replicaSet;
 
     private IPFSService(IPFSSettings settings, IPFS ipfs) {
         ValidatorUtils.rejectIfNull("settings", settings);
@@ -46,6 +52,7 @@ public class IPFSService implements StorageService {
 
         this.settings = settings;
         this.ipfs = ipfs;
+        this.replicaSet = Sets.newHashSet(this); // IPFSService is a PinningService
         this.configureThreadPool(10);
         this.configureRetry(0);
     }
@@ -113,13 +120,20 @@ public class IPFSService implements StorageService {
         return this;
     }
 
+    public IPFSService addReplica(PinningService pinningService) {
+        ValidatorUtils.rejectIfNull("pinningService", pinningService);
+        
+        this.replicaSet.add(pinningService);
+        return this;
+    }
+
     @Override
     public String write(InputStream content) {
         
         try {
             return this.write(IOUtils.toByteArray(content));
             
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("Exception converting Inputstream to byte array", ex);
             throw new TechnicalException("Exception converting Inputstream to byte array", ex);
         }
@@ -179,7 +193,7 @@ public class IPFSService implements StorageService {
     }
     
     @Override
-    public List<String> getPinned() {
+    public List<String> getTracked() {
         try {
             log.debug("Get pinned files on IPFS");
             
