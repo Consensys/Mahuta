@@ -7,7 +7,7 @@ Mahuta
 | Test Coverage | [![Coverage](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=master) | [![Coverage](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=development) |
 | Bintray | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/ipfs-store/images/download.svg?version=0.2.2) ](https://bintray.com/consensys/kauri/ipfs-store/0.2.2/link) | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/ipfs-store/images/download.svg) ](https://bintray.com/consensys/kauri/ipfs-store/_latestVersion) |
 | Docker | [![](https://img.shields.io/docker/pulls/gjeanmart/mahuta.svg?style=flat)](https://cloud.docker.com/repository/docker/gjeanmart/mahuta)|
-
+| Sonar | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gjeanmart_IPFS-Store&metric=alert_status)](https://sonarcloud.io/dashboard?id=gjeanmart_IPFS-Store) |
 
 
 **Mahuta** (formerly known as IPFS-Store) is a adaptable search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications storing data on IPFS which require content discovery (complex queries or full text search with fuzziness).
