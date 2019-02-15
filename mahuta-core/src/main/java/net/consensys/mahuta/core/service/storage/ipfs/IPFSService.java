@@ -44,7 +44,8 @@ public class IPFSService implements StorageService, PinningService {
     private final IPFS ipfs;
     private ExecutorService pool;
     private RetryPolicy<Object> retryPolicy;
-    private @Getter Set<PinningService> replicaSet;
+    @Getter
+    private Set<PinningService> replicaSet;
 
     private IPFSService(IPFSSettings settings, IPFS ipfs) {
         ValidatorUtils.rejectIfNull("settings", settings);
@@ -54,7 +55,7 @@ public class IPFSService implements StorageService, PinningService {
         this.ipfs = ipfs;
         this.replicaSet = Sets.newHashSet(this); // IPFSService is a PinningService
         this.configureThreadPool(10);
-        this.configureRetry(0);
+        this.configureRetry(3);
     }
 
     public static IPFSService connect() {
@@ -146,7 +147,7 @@ public class IPFSService implements StorageService, PinningService {
         ValidatorUtils.rejectIfNull("content", content);
 
         return Failsafe.with(retryPolicy)
-            .onFailure(event -> log.error("Exception writting file on IPFS after {} attemps", event.getAttemptCount(), event.getResult()))
+            .onFailure(event -> log.error("Exception writting file on IPFS after {} attemps. {}", event.getAttemptCount(), event.getResult()))
             .onSuccess(event -> log.debug("File written on IPFS: hash={} ", event.getResult()))
             .get(() -> {
                 NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
@@ -157,39 +158,32 @@ public class IPFSService implements StorageService, PinningService {
 
     @Override
     public void pin(String cid) {
-
-        try {
-            log.debug("Pin CID {} on IPFS", cid);
-            
-            ValidatorUtils.rejectIfEmpty("cid", cid);
-
-            Multihash hash = Multihash.fromBase58(cid);
-            this.ipfs.pin.add(hash);
-
-            log.debug("CID {} pinned on IPFS", cid);
-
-        } catch (IOException ex) {
-            log.error("Exception pinning CID {} on IPFS", cid, ex);
-            throw new TechnicalException("Exception pinning CID " + cid + " on IPFS", ex);
-        }
+        log.debug("Pin CID {} on IPFS", cid);
+        
+        ValidatorUtils.rejectIfEmpty("cid", cid);
+        
+        Failsafe.with(retryPolicy)
+            .onFailure(event -> log.error("Exception pinning cid {} on IPFS after {} attemps", cid, event.getAttemptCount()))
+            .onSuccess(event -> log.debug("CID {} pinned on IPFS", cid))
+            .run(() -> {
+                Multihash hash = Multihash.fromBase58(cid);
+                this.ipfs.pin.add(hash);
+            });   
     }
 
     @Override
     public void unpin(String cid) {
-        try {
-            log.debug("Unpin CID {} on IPFS", cid);
-            
-            ValidatorUtils.rejectIfEmpty("cid", cid);
-
-            Multihash hash = Multihash.fromBase58(cid);
-            this.ipfs.pin.rm(hash);
-
-            log.debug("CID {} unpinned on IPFS", cid);
-
-        } catch (IOException ex) {
-            log.error("Exception unpinning CID {} on IPFS", cid, ex);
-            throw new TechnicalException("Exception unpinning CID " + cid + " on IPFS", ex);
-        }
+        log.debug("Unpin CID {} on IPFS", cid);
+        
+        ValidatorUtils.rejectIfEmpty("cid", cid);
+        
+        Failsafe.with(retryPolicy)
+            .onFailure(event -> log.error("Exception unpinning cid {} on IPFS after {} attemps", cid, event.getAttemptCount()))
+            .onSuccess(event -> log.debug("CID {} unpinned on IPFS", cid))
+            .run(() -> {
+                Multihash hash = Multihash.fromBase58(cid);
+                this.ipfs.pin.rm(hash);
+            }); 
     }
     
     @Override

@@ -20,7 +20,7 @@ public class GetIndexesResponse implements Response {
     }
     
     public static GetIndexesResponse of() {
-        return new GetIndexesResponse(ResponseStatus.SUCCESS);
+        return of(ResponseStatus.SUCCESS);
     }
     
     public static GetIndexesResponse of(ResponseStatus status) {

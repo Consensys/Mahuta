@@ -4,8 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.MahutaFactory;
@@ -13,6 +18,7 @@ import net.consensys.mahuta.core.domain.Response.ResponseStatus;
 import net.consensys.mahuta.core.domain.common.Metadata;
 import net.consensys.mahuta.core.domain.common.MetadataAndPayload;
 import net.consensys.mahuta.core.domain.common.pagination.Page;
+import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
 import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.domain.createindex.CreateIndexResponse;
 import net.consensys.mahuta.core.domain.deindexing.DeindexingResponse;
@@ -171,5 +177,41 @@ public abstract class MahutaTestAbstract extends TestUtils {
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.STATUS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.STATUS_FIELD));
         
     }
+    
+    ////////////////////////////////
+    
+
+    protected void mockGetIndexes(String indexName) {
+        when(indexingService.getIndexes())
+        .thenReturn(Arrays.asList(mockNeat.strings().get(), mockNeat.strings().get(), indexName));
+    } 
+    
+    protected void mockIndex(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
+        when(indexingService.index(
+                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
+                eq(builderAndResponse.getResponse().getContentId()), 
+                eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
+        .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+    }  
+    
+    protected void mockGetDocument(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
+        when(indexingService.getDocument(
+                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                eq(builderAndResponse.getBuilder().getRequest().getIndexDocId())))
+        .thenReturn(builderAndResponse.getResponse());
+    } 
+    
+    protected void mockSearchDocuments(String indexName, Integer totalNo, Query query,  BuilderAndResponse<IndexingRequest, IndexingResponse>... builderAndResponses) {
+        when(indexingService.searchDocuments(
+                eq(indexName), 
+                eq(query),
+                any(PageRequest.class)))
+        .thenReturn(Page.of(
+                PageRequest.of(), 
+                Arrays.asList(builderAndResponses).stream().map(b->b.getResponse()).collect(Collectors.toList()), 
+                totalNo));
+    }    
 
 }

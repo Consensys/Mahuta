@@ -18,7 +18,7 @@ public class CreateIndexResponse extends DefaultResponse implements Response {
     }
     
     public static CreateIndexResponse of() {
-        return new CreateIndexResponse(ResponseStatus.SUCCESS);
+        return of(ResponseStatus.SUCCESS);
     }
     
     public static CreateIndexResponse of(ResponseStatus status) {

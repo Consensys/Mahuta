@@ -18,7 +18,7 @@ public class DeindexingResponse extends DefaultResponse implements Response {
     }
     
     public static DeindexingResponse of() {
-        return new DeindexingResponse(ResponseStatus.SUCCESS);
+        return of(ResponseStatus.SUCCESS);
     }
     
     public static DeindexingResponse of(ResponseStatus status) {

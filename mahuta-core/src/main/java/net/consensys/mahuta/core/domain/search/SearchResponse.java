@@ -20,7 +20,7 @@ public class SearchResponse implements Response {
     }
 
     public static SearchResponse of() {
-        return new SearchResponse(ResponseStatus.SUCCESS);
+        return of(ResponseStatus.SUCCESS);
     }
 
     public static SearchResponse of(ResponseStatus status) {

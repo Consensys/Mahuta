@@ -4,6 +4,13 @@ import net.consensys.mahuta.core.service.MahutaServiceImpl;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
 
+/**
+ * Mahuta factory 
+ * Can be used to configure and build a Mahuta object.
+ * 
+ * @author gjeanmart
+ *
+ */
 public class MahutaFactory {
 
     private StorageService storageService;

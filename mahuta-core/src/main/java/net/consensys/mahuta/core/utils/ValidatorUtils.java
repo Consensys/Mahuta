@@ -2,6 +2,7 @@ package net.consensys.mahuta.core.utils;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class ValidatorUtils {
 
@@ -63,6 +64,13 @@ public class ValidatorUtils {
         if (isEmpty(value)) {
             throw new IllegalArgumentException(field + " should not be empty or null.");
         }
+    }
+
+    public static <T> void rejectIfDifferentThan(String field, T value, T... expectedValues) {
+        Stream.of(expectedValues)
+            .filter(expected -> value.equals(expected))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(field + " has an incorrect value ("+value+"). Expected: " + expectedValues));
     }
 
 }

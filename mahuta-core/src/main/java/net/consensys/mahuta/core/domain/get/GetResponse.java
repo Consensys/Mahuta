@@ -25,7 +25,7 @@ public class GetResponse extends MetadataAndPayload implements Response {
     }
 
     public static GetResponse of(ResponseStatus status) {
-        return new GetResponse(status);
+        return of(status);
     }
 
     public GetResponse metadata(Metadata metadata) {
