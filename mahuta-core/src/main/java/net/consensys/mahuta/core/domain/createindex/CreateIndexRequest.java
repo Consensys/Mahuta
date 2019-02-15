@@ -4,10 +4,9 @@ import java.io.InputStream;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import net.consensys.mahuta.core.domain.Request;
 
-@Getter @Setter @ToString
+@Getter @Setter
 public class CreateIndexRequest implements Request {
     
     private String name;

@@ -7,11 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import net.consensys.mahuta.core.domain.common.Metadata;
 import net.consensys.mahuta.core.domain.Response;
 
-@Getter @Setter @ToString
+@Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 public class IndexingResponse extends Metadata implements Response {
 

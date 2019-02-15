@@ -44,7 +44,7 @@ public class Mahuta {
             Constructor<T> constructor = clazz.getConstructor(MahutaService.class);
             return constructor.newInstance(service);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new TechnicalException(e);
+            throw new TechnicalException("Error whilst instanciatioing request builder", e);
         }
     }
 

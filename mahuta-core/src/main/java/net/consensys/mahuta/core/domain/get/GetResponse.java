@@ -5,12 +5,11 @@ import java.io.OutputStream;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import net.consensys.mahuta.core.domain.Response;
 import net.consensys.mahuta.core.domain.common.Metadata;
 import net.consensys.mahuta.core.domain.common.MetadataAndPayload;
 
-@Getter @Setter @ToString
+@Getter @Setter
 @NoArgsConstructor
 public class GetResponse extends MetadataAndPayload implements Response {
 

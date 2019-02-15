@@ -12,13 +12,4 @@ public class MahutaException extends RuntimeException {
     public MahutaException(String message) {
         super(message);
     }
-
-    public MahutaException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public MahutaException(Throwable cause) {
-        super(cause);
-    }
-
 }

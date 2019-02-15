@@ -85,7 +85,7 @@ public class MahutaServiceImpl implements MahutaService {
             InputStream content = ((InputStreamIndexingRequest) request).getContent();
             contentId = storageService.write(content);
             contentType = Optional.ofNullable(contentType)
-                    .orElseGet(Throwing.rethrow(() -> URLConnection.guessContentTypeFromStream(content)));
+                    .orElseGet(Throwing.rethrowSupplier(() -> URLConnection.guessContentTypeFromStream(content)));
 
         } else if (request instanceof CIDIndexingRequest) {
             String cid = ((CIDIndexingRequest) request).getCid();

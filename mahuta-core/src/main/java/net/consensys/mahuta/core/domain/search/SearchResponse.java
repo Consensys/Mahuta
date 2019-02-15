@@ -3,12 +3,11 @@ package net.consensys.mahuta.core.domain.search;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import net.consensys.mahuta.core.domain.Response;
 import net.consensys.mahuta.core.domain.common.MetadataAndPayload;
 import net.consensys.mahuta.core.domain.common.pagination.Page;
 
-@Getter @Setter @ToString
+@Getter @Setter
 @NoArgsConstructor
 public class SearchResponse implements Response {
 

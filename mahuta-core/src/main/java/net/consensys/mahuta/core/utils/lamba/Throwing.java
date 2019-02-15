@@ -12,22 +12,23 @@ public final class Throwing {
     private Throwing() {}
 
     @Nonnull
-    public static <T> Consumer<T> rethrow(@Nonnull final ThrowingConsumer<T> consumer) {
+    public static <T> Consumer<T> rethrowConsumer(@Nonnull final ThrowingConsumer<T> consumer) {
         return consumer;
     }
+
     @Nonnull
-    public static <T1, T2> BiConsumer<T1, T2> rethrow(@Nonnull final ThrowingBiConsumer<T1, T2> consumer) {
+    public static <T> Supplier<T> rethrowSupplier(@Nonnull final ThrowingSupplier<T> supplier) {
+        return supplier;
+    }
+    
+    @Nonnull
+    public static <T1, T2> BiConsumer<T1, T2> rethrowBiConsumer(@Nonnull final ThrowingBiConsumer<T1, T2> consumer) {
         return consumer;
     }
 
     @Nonnull
     public static <T, R> Function<T, R> rethrowFunc(@Nonnull final ThrowingFunction<T, R> function) {
         return function;
-    }
-
-    @Nonnull
-    public static <T> Supplier<T> rethrow(@Nonnull final ThrowingSupplier<T> supplier) {
-        return supplier;
     }
 
     /**

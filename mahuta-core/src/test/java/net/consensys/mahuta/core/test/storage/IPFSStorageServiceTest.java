@@ -35,7 +35,7 @@ public class IPFSStorageServiceTest extends TestUtils {
         ContainerUtils.startContainer("ipfs2", ContainerType.IPFS);
         
         IPFS ipfs = new IPFS(ContainerUtils.getHost("ipfs2"), ContainerUtils.getPort("ipfs2"));
-        FileTestUtils.files.forEach(Throwing.rethrow((path, file) -> {
+        FileTestUtils.files.forEach(Throwing.rethrowBiConsumer((path, file) -> {
             ipfs.add(new NamedStreamable.ByteArrayWrapper(file.getBytearray()));
         }));
         

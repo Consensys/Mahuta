@@ -5,10 +5,9 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import net.consensys.mahuta.core.domain.Response;
 
-@Getter @Setter @ToString
+@Getter @Setter
 @NoArgsConstructor
 public class GetIndexesResponse implements Response {
 

@@ -1,10 +1,14 @@
 package net.consensys.mahuta.core.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -19,14 +23,17 @@ import io.ipfs.api.IPFS;
 import net.consensys.mahuta.core.domain.common.pagination.Page;
 import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
 import net.consensys.mahuta.core.domain.common.query.Query;
+import net.consensys.mahuta.core.domain.indexing.CIDIndexingRequestBuilder;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
-import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
+import net.consensys.mahuta.core.domain.indexing.IndexingResponse;import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.service.MahutaServiceImpl;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.pinning.ipfs.IPFSClusterPinningService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
+import net.consensys.mahuta.core.test.utils.FileTestUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
+import net.consensys.mahuta.core.test.utils.FileTestUtils.FileInfo;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
@@ -137,6 +144,48 @@ public class MahutaTest extends MahutaTestAbstract {
         super.searchAll(Arrays.asList(builderAndResponse1, builderAndResponse2, builderAndResponse3), 3);
     }
     
+    @Test
+    public void prepareCIDndexing() {
+        String indexName = mockNeat.strings().size(20).get();
+        String indexDocId = mockNeat.strings().size(20).get();
+        FileInfo file = FileTestUtils.newRandomPlainText(indexingRequestUtils.getIpfs());
+        
+        IndexingResponse response = mahuta.prepareCIDndexing(indexName, file.getCid()).indexDocId(indexDocId).execute();
+        assertEquals(file.getCid(), response.getContentId());
+    }
+    
+    @Test
+    public void prepareStringIndexing() {
+        String indexName = mockNeat.strings().size(20).get();
+        String indexDocId = mockNeat.strings().size(20).get();
+        String content = mockNeat.strings().size(20).get();
+        FileInfo file = FileTestUtils.newPlainText(indexingRequestUtils.getIpfs(), content);
+        
+        IndexingResponse response = mahuta.prepareStringIndexing(indexName, content).indexDocId(indexDocId).execute();
+        assertEquals(file.getCid(), response.getContentId());
+    }
+    
+    @Test
+    public void prepareInputStreamIndexing() {
+        String indexName = mockNeat.strings().size(20).get();
+        String indexDocId = mockNeat.strings().size(20).get();
+        String content = mockNeat.strings().size(20).get();
+        InputStream is = new ByteArrayInputStream(content.getBytes());
+        FileInfo file = FileTestUtils.newPlainText(indexingRequestUtils.getIpfs(), content);
+        
+        IndexingResponse response = mahuta.prepareInputStreamIndexing(indexName, is).indexDocId(indexDocId).execute();
+        assertEquals(file.getCid(), response.getContentId());
+    }
+    
+    @Test
+    public void prepareStorage() {
+        String content = mockNeat.strings().size(20).get();
+        InputStream is = new ByteArrayInputStream(content.getBytes());
+        FileInfo file = FileTestUtils.newPlainText(indexingRequestUtils.getIpfs(), content);
+        
+        IndexingResponse response = mahuta.prepareStorage(is).execute();
+        assertEquals(file.getCid(), response.getContentId());
+    }
 
     
 }

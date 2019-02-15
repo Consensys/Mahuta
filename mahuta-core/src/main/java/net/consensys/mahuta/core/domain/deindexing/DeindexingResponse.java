@@ -2,11 +2,10 @@ package net.consensys.mahuta.core.domain.deindexing;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import net.consensys.mahuta.core.domain.DefaultResponse;
 import net.consensys.mahuta.core.domain.Response;
 
-@Getter @Setter @ToString
+@Getter @Setter
 public class DeindexingResponse extends DefaultResponse implements Response {
 
     private DeindexingResponse() {

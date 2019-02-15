@@ -3,7 +3,6 @@ package net.consensys.mahuta.core.service.pinning.ipfs;
 import java.io.IOException;
 import java.util.List;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -95,10 +94,10 @@ public class IPFSClusterPinningService  implements PinningService {
             HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/pins", protocol, host, port))
                 .asString();
             log.debug("response: {}", response);
-            List<String> result = mapper.readValue(response.getBody(), new TypeReference<List<String>>() {});
+            TrackedResponse result = mapper.readValue(response.getBody(), TrackedResponse.class);
 
             log.debug("get pinned files on IPFS-cluster");
-            return result;
+            return result.getPins();
             
         } catch (UnirestException | IOException ex) {
             log.error("Exception converting HTTP response to JSON", ex);

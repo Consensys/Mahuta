@@ -28,7 +28,7 @@ public class FileUtils {
             return new FileInputStream(file);
 
         } catch (FileNotFoundException e) {
-            throw new TechnicalException(e);
+            throw new TechnicalException("File cannot be found...", e);
         }
     }
 
@@ -38,7 +38,7 @@ public class FileUtils {
             return IOUtils.toByteArray(fileInputStream);
 
         } catch (IOException e) {
-            throw new TechnicalException(e);
+            throw new TechnicalException("File cannot be found...", e);
         }
     }
 }

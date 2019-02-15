@@ -30,7 +30,7 @@ public class IndexingRequestUtils extends TestUtils{
     public static final String STATUS_FIELD = "status";
 
     private final MahutaService service;
-    private final IPFS ipfs;
+    private @Getter final IPFS ipfs;
     private final boolean dateTimestamp;
 
     public IndexingRequestUtils(IPFS ipfs) {
