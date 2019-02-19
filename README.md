@@ -461,15 +461,15 @@ The `search` operation allows to run a multi-criteria search against an index. T
 
 | Operation | Description |
 | -------- | -------- |
-| full_text | Full text search |
-| equals | Equals |
-| not_equals | Not equals |
-| contains | Contains the word/phrase |
-| in | in the following list |
-| gt | Greater than |
-| gte | Greater than or Equals |
-| lt | Less than  |
-| lte | Less than or Equals |
+| FULL_TEXT | Full text search |
+| EQUALS | Equals |
+| NOT_EQUALS | Not equals |
+| CONTAINS | Contains the word/phrase |
+| IN | in the following list |
+| GT | Greater than |
+| GTE | Greater than or Equals |
+| LT | Less than  |
+| LTE | Less than or Equals |
 
 
 ```
@@ -477,17 +477,17 @@ The `search` operation allows to run a multi-criteria search against an index. T
   "query": [
     {
       "name": "title",
-      "operation": "contains",
+      "operation": "CONTAINS",
       "value": "Hello"
     },
     {
       "names": ["description", "title"],
-      "operation": "full_text",
+      "operation": "FULL_TEXT",
       "value": "IPFS"
     },
     {
       "name": "votes",
-      "operation": "lt",
+      "operation": "LT",
       "value": "5"
     }
   ]
@@ -500,7 +500,7 @@ The `search` operation allows to run a multi-criteria search against an index. T
 curl -X POST \
     'http://localhost:8040/mahuta/query/search?index=articles' \
     -H 'content-type: application/json' \  
-    -d '{"query":[{"name":"title","operation":"contains","value":"Hello"},{"name":"author","operation":"equals","value":"Gregoire Jeanmart"},{"name":"votes","operation":"lt","value":"5"}]}'
+    -d '{"query":[{"name":"title","operation":"CONTAINS","value":"Hello"},{"name":"author","operation":"EQUALS","value":"Gregoire Jeanmart"},{"name":"votes","operation":"LT","value":"5"}]}'
 ```
 
 -   **Success Response:**
