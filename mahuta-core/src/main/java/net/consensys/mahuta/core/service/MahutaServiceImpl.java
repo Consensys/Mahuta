@@ -155,8 +155,8 @@ public class MahutaServiceImpl implements MahutaService {
                     PageRequest.singleElementPage());
 
             if (result.isEmpty()) {
-                throw new NotFoundException("No Document found for contentId=" + request.getIndexDocId()
-                        + " in the index " + request.getIndexDocId());
+                throw new NotFoundException("No Document found for contentId=" + request.getContentId()
+                        + " in the index " + request.getIndexName());
             }
 
             metadata = result.getElements().get(0);
