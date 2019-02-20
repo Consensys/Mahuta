@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.domain.common.Content;
 import net.consensys.mahuta.core.domain.common.Metadata;
 import net.consensys.mahuta.core.domain.common.MetadataAndPayload;
@@ -30,7 +31,6 @@ import net.consensys.mahuta.core.domain.indexing.OnylStoreIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.domain.search.SearchRequest;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
-import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.exception.ValidationException;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
@@ -43,6 +43,7 @@ import net.consensys.mahuta.core.utils.lamba.Throwing;
  * @author gjeanmart<gregoire.jeanmart@gmail.com>
  *
  */
+@Slf4j
 public class MahutaServiceImpl implements MahutaService {
     private static final String REQUEST = "request";
     
@@ -154,12 +155,11 @@ public class MahutaServiceImpl implements MahutaService {
             Page<Metadata> result = indexingService.searchDocuments(request.getIndexName(), query,
                     PageRequest.singleElementPage());
 
-            if (result.isEmpty()) {
-                throw new NotFoundException("No Document found for contentId=" + request.getContentId()
-                        + " in the index " + request.getIndexName());
+            if (!result.isEmpty()) {
+                metadata = result.getElements().get(0);
+            } else {
+                log.warn("Document [hash: {}] not found in the index {}", request.getContentId(), request.getIndexName());
             }
-
-            metadata = result.getElements().get(0);
 
         } else {
             throw new ValidationException("request must contain 'indexDocId' or 'contentId'");
@@ -168,7 +168,7 @@ public class MahutaServiceImpl implements MahutaService {
         // Payload
         OutputStream payload = null;
         if (request.isLoadFile()) {
-            payload = storageService.read(metadata.getContentId());
+            payload = storageService.read(request.getContentId());
         }
 
         return GetResponse.of().metadata(metadata).payload(payload);
