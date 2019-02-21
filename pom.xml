@@ -187,15 +187,15 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:git:git:@github.com:ConsenSys/IPFS-Store.git</connection>
-        <developerConnection>scm:git:git@github.com:ConsenSys/IPFS-Store.git</developerConnection>
+        <connection>scm:git:git:@github.com:ConsenSys/mahuta.git</connection>
+        <developerConnection>scm:git:git@github.com:ConsenSys/mahuta.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
         <repository>
             <id>bintray</id>
-            <url>https://api.bintray.com/maven/consensys/kauri/ipfs-store/;publish=1</url>
+            <url>https://api.bintray.com/maven/consensys/kauri/mahuta/;publish=1</url>
         </repository>
     </distributionManagement>
 

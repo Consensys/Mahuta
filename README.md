@@ -3,9 +3,9 @@ Mahuta
 
 | Service | Master | Development |
 | -------- | -------- | -------- |
-| CI Status | ![](https://img.shields.io/circleci/project/github/ConsenSys/IPFS-Store/master.svg) | ![](https://img.shields.io/circleci/project/github/ConsenSys/IPFS-Store/development.svg) |
-| Test Coverage | [![Coverage](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=master) | [![Coverage](https://coveralls.io/repos/github/ConsenSys/IPFS-Store/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/IPFS-Store?branch=development) |
-| Bintray | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/ipfs-store/images/download.svg?version=0.2.2) ](https://bintray.com/consensys/kauri/ipfs-store/0.2.2/link) | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/ipfs-store/images/download.svg) ](https://bintray.com/consensys/kauri/ipfs-store/_latestVersion) |
+| CI Status | ![](https://img.shields.io/circleci/project/github/ConsenSys/Mahuta/master.svg) | ![](https://img.shields.io/circleci/project/github/ConsenSys/Mahuta/development.svg) |
+| Test Coverage | [![Coverage](https://coveralls.io/repos/github/ConsenSys/Mahuta/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/Mahuta?branch=master) | [![Coverage](https://coveralls.io/repos/github/ConsenSys/Mahuta/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/Mahuta?branch=development) |
+| Bintray | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/mahuta/images/download.svg) ](https://bintray.com/consensys/kauri/mahuta/_latestVersion) |
 | Docker | [![](https://img.shields.io/docker/pulls/gjeanmart/mahuta.svg?style=flat)](https://cloud.docker.com/repository/docker/gjeanmart/mahuta)|
 | Sonar | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gjeanmart_IPFS-Store&metric=alert_status)](https://sonarcloud.io/dashboard?id=gjeanmart_IPFS-Store) |
 
