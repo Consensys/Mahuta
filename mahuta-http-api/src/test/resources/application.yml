@@ -1,0 +1,54 @@
+app:
+  version: "@project.version@"
+  name: "@project.name@"
+  
+server:
+  port: 8040
+  servlet:
+    context-path: /mahuta
+
+logging:
+  level:
+    net.consensys.mahuta: TRACE
+
+mahuta:
+  ipfs:
+    host: ${MAHUTA_IPFS_HOST}
+    port: ${MAHUTA_IPFS_PORT}
+#    multiaddress: 
+    timeout: 5000
+    threadPool: 10
+    
+  elasticsearch:
+    host: ${MAHUTA_ELASTICSEARCH_HOST}
+    port: ${MAHUTA_ELASTICSEARCH_PORT}
+    clusterName: ${MAHUTA_ELASTICSEARCH_CLUSTERNAME}
+    indexNullValue: "true"
+    indexConfigs:
+    - name: test
+      map: index_mapping.json
+
+  security:
+    cors:
+      origins: "*"
+      methods: "GET,POST"
+      headers: "Origin,Content-Type,Accept"
+      credentials: "false"
+
+  api-spec:
+    v1:
+      query:
+        fetch: /query/fetch/{hash}
+        search: /query/search
+      config:
+        index: 
+          create: /config/index/{index}
+          list: /config/index
+      persistence:
+        index:
+          simple: /index
+          cid: /index/cid
+          file: /index/file
+        delete:
+          id: /delete/id/{id}
+          hash: /delete/hash/{hash}

@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+
+  mahuta:
+    build: ./
+    image: kauri/mahuta
+    ports:
+    - "8040:8040"
+    depends_on:
+      - elasticsearch
+    environment:
+      LOG_LEVEL: TRACE
+      ELASTIC_HOST: elasticsearch
+      ELASTIC_PORT: 9300
+      IPFS_MULTIADDRESS: /dnsaddr/ipfs.infura.io/tcp/5001/https
+    networks:
+      - default
+
+  elasticsearch:
+    image:  docker.elastic.co/elasticsearch/elasticsearch-oss:6.4.2 
+    ports:
+          - "9200:9200"
+          - "9300:9300"
+    volumes:
+      - .elasticsearch-docker:/data/elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - default
+
+

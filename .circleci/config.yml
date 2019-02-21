@@ -3,6 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2
+executorType: machine
 jobs:
   build-and-test:
     docker:
@@ -28,7 +29,7 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
       - run:
           name: Run tests
-          command: mvn test
+          command: mvn clean test jacoco:report coveralls:report sonar:sonar -DrepoToken=${COVERALLS_REPOTOKEN} -Dsonar.projectKey=${SONAR_PROJECTKEY} -Dsonar.organization=${SONAR_ORG} -Dsonar.host.url=${SONAR_HOST} -Dsonar.login=${SONAR_LOGIN}
 
   release-snapshot:
     docker:
@@ -52,7 +53,18 @@ jobs:
           command: mvn clean install -DskipTests
       - run:
           name: Release docker image
-          command: ./scripts/build-docker-image.sh
+          command: ./.scripts/build-docker-image.sh latest
+
+  release-docker-image-snapshot:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: maven install
+          command: mvn clean install -DskipTests
+      - run:
+          name: Release docker image
+          command: ./.scripts/build-docker-image.sh snapshot
 
   release:
     docker:
@@ -65,7 +77,7 @@ jobs:
       - checkout
       - run:
           name: Release
-          command: ./scripts/handle-maven-release.sh
+          command: ./.scripts/handle-maven-release.sh
 
   update-dev-branch:
     docker:
@@ -78,7 +90,7 @@ jobs:
       - checkout
       - run:
           name: Update dev branch
-          command: ./scripts/update-development-branch-version.sh
+          command: ./.scripts/update-development-branch-version.sh
 
 workflows:
   version: 2
@@ -86,6 +98,12 @@ workflows:
     jobs:
       - build-and-test
       - release-snapshot:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: development
+      - release-docker-image-snapshot:
           requires:
             - build-and-test
           filters:

@@ -1,0 +1,43 @@
+package net.consensys.mahuta.springdata;
+
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+/**
+ * MahutaCustomRepository allows to extend a classic CRUDRepository by providing custom methods
+ *
+ * @param <E>  Entity type
+ * @param <ID> Entity ID type
+ * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
+ */
+public interface MahutaCustomRepository<E> {
+
+    /**
+     * Find elements in the repository by full text search
+     *
+     * @param fullTextCriteria Criteria
+     * @param pagination       Pagination
+     * @return A Page of result
+     */
+    Page<E> findByfullTextSearch(String fullTextCriteria, Pageable pagination);
+
+    /**
+     * Find a document in the repository by hash
+     *
+     * @param hash
+     * @return
+     */
+    Optional<E> findByHash(String hash);
+
+    /**
+     * Save a document without attributing an ID and a Hash to the object (no reflection)
+     *
+     * @param entity Entity to save
+     * @return Unique hash of the file
+     */
+    String saveNoIndexation(E entity);
+}
+
+
