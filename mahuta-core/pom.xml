@@ -8,7 +8,7 @@
     <parent>
         <groupId>net.consensys.mahuta</groupId>
         <artifactId>mahuta-parent</artifactId>
-        <version>0.3.0</version>
+        <version>0.3.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>
