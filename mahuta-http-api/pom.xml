@@ -13,7 +13,6 @@
     <properties>
         <java.version>1.8</java.version>
 
-        <mahuta-core.version>${project.version}</mahuta-core.version>
         <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -26,7 +25,7 @@
         <dependency>
             <groupId>net.consensys.mahuta</groupId>
             <artifactId>mahuta-indexer-elasticsearch</artifactId>
-            <version>${mahuta-core.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.mahuta</groupId>
