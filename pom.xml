@@ -4,7 +4,7 @@
 
     <groupId>net.consensys.mahuta</groupId>
     <artifactId>mahuta-parent</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -189,7 +189,7 @@
     <scm>
         <connection>scm:git:git:@github.com:ConsenSys/IPFS-Store.git</connection>
         <developerConnection>scm:git:git@github.com:ConsenSys/IPFS-Store.git</developerConnection>
-        <tag>v0.3.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
