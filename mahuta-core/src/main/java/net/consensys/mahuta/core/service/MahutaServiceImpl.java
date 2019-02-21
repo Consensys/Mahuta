@@ -143,24 +143,27 @@ public class MahutaServiceImpl implements MahutaService {
     public GetResponse get(GetRequest request) {
 
         ValidatorUtils.rejectIfNull(REQUEST, request);
-
+        
         // Metadata
         Metadata metadata = null;
+        String contentId = null;
         if (!ValidatorUtils.isEmpty(request.getIndexDocId())) {
             metadata = indexingService.getDocument(request.getIndexName(), request.getIndexDocId());
+            contentId = metadata.getContentId();
 
         } else if (!ValidatorUtils.isEmpty(request.getContentId())) {
-
             Query query = Query.newQuery().equals(IndexingService.HASH_INDEX_KEY, request.getContentId());
             Page<Metadata> result = indexingService.searchDocuments(request.getIndexName(), query,
                     PageRequest.singleElementPage());
 
-            if (!result.isEmpty()) {
-                metadata = result.getElements().get(0);
-            } else {
+            if (result.isEmpty()) {
                 log.warn("Document [hash: {}] not found in the index {}", request.getContentId(), request.getIndexName());
+                contentId = request.getContentId();
+            } else {
+                metadata = result.getElements().get(0);
+                contentId = metadata.getContentId();
             }
-
+            
         } else {
             throw new ValidationException("request must contain 'indexDocId' or 'contentId'");
         }
@@ -168,7 +171,7 @@ public class MahutaServiceImpl implements MahutaService {
         // Payload
         OutputStream payload = null;
         if (request.isLoadFile()) {
-            payload = storageService.read(request.getContentId());
+            payload = storageService.read(contentId);
         }
 
         return GetResponse.of().metadata(metadata).payload(payload);

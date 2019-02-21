@@ -36,6 +36,7 @@ import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
+import net.consensys.mahuta.core.exception.TimeoutException;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 import net.consensys.mahuta.springdata.MahutaCustomRepository;
 import net.consensys.mahuta.springdata.exception.MahutaSpringDataException;
@@ -123,7 +124,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
 
             return Optional.of(entity);
 
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | TimeoutException e) {
             log.warn("File [hash: {}] not found", hash, e);
             return Optional.empty();
         }

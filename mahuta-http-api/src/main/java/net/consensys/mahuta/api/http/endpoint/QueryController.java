@@ -55,13 +55,15 @@ public class QueryController {
         }
         
         // Attach content-type to the header
-        response.setContentType(Optional.ofNullable(resp.getMetadata().getContentType())
-                .orElseGet(() -> "application/octet-stream"));
-        log.info("response.getContentType()={}", response.getContentType());
+        if(resp.getMetadata() != null && resp.getMetadata().getContentType() != null) {
+            response.setContentType(resp.getMetadata().getContentType());
+        } else {
+            response.setContentType("application/octet-stream");
+        }
+        log.trace("response.getContentType()={}", response.getContentType());
 
         final HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(Optional.ofNullable(resp.getMetadata().getContentType())
-                .map(MediaType::valueOf).orElseGet(() -> MediaType.APPLICATION_OCTET_STREAM));
+        httpHeaders.setContentType(MediaType.valueOf(response.getContentType()));
 
         return new ResponseEntity<>(
                 ((ByteArrayOutputStream) resp.getPayload()).toByteArray(),
