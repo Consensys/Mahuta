@@ -406,7 +406,7 @@ public class MahutaRepositoryTest {
     @Test
     public void findByHashNotFound() throws Exception {
         // #################################################
-        Optional<Entity> result = underTest.findByHash("QmU2viJUREiEcFPgx5rzEVtB8psw1F49hYc5C7pS6pffpt");
+        Optional<Entity> result = underTest.findByHash("QmVPKMdfLaEsMSB3aZUrbGbZ4TnUobo2TGbkeXZbLBAmbn");
         // #################################################
  
         assertFalse(result.isPresent());
