@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.google.common.primitives.Longs;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
@@ -362,14 +363,12 @@ public class ElasticSearchService implements IndexingService {
             Map<String, String> mapping = this.getMapping(indexName);
             log.debug("mapping={}", mapping);
             sourceMap.forEach((key, value) -> {
-                if(mapping.containsKey(key)) {
-                    switch (mapping.get(key)) {
-                    case "date":
-                        sourceMap.put(key, new Date((Long) value));
-                        break;
-
-                    default:
-                        break;
+                if (mapping.containsKey(key)) {
+                    if ("date".equals(mapping.get(key))) {
+                        Long date = Longs.tryParse(value.toString());
+                        if (date != null) {
+                            sourceMap.put(key, new Date(date));
+                        }
                     }
                 }
             });
