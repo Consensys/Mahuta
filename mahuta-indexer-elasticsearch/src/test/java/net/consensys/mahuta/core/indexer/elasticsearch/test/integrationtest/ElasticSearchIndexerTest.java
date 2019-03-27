@@ -27,6 +27,7 @@ import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.exception.ConnectionException;
+import net.consensys.mahuta.core.exception.NoIndexException;
 import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
@@ -149,6 +150,25 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         assertNotNull(docId);;
     }
+    
+    @Test(expected=NoIndexException.class)
+    public void indexWithNoIndex() throws Exception {
+
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest();
+
+        IndexingService service = ElasticSearchService
+                .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"));
+        
+        //////////////////////////////
+        String docId = service.index(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse.getResponse().getContentId(), 
+                builderAndResponse.getBuilder().getRequest().getContentType(), 
+                builderAndResponse.getBuilder().getRequest().getIndexFields());
+        //////////////////////////////
+    }
+
 
     @Test
     public void update() throws Exception {
