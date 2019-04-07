@@ -28,6 +28,7 @@ import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
+import net.consensys.mahuta.core.exception.ValidationException;
 
 @RestController
 @Slf4j
@@ -52,6 +53,8 @@ public class QueryController {
             resp = mahuta.prepareGet().indexName(indexName).contentId(hash).loadFile(true).execute();
         } catch (NotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage(), ex);
+        } catch (ValidationException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         }
         
         // Attach content-type to the header

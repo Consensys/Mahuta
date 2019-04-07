@@ -4,13 +4,14 @@ services:
 
   mahuta:
     build: ./
-    image: kauri/mahuta
+    #image: gjeanmart/mahuta:latest
     ports:
     - "8040:8040"
     depends_on:
       - ipfs
       - elasticsearch
     environment:
+      WAIT_HOSTS: elasticsearch:9300, ipfs:5001
       LOG_LEVEL: TRACE
       MAHUTA_ELASTICSEARCH_HOST: elasticsearch
       MAHUTA_ELASTICSEARCH_PORT: 9300

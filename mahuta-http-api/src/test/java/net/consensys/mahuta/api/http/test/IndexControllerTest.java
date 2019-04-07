@@ -122,4 +122,16 @@ public class IndexControllerTest extends WebTestUtils {
         IndexingResponse result = mapper.readValue(response.getResponse().getContentAsString(), IndexingResponse.class);
         MahutaTestAbstract.validateMetadata(builderAndResponse, result);
     }
+    
+
+    @Test
+    public void indexStringNoIndex() throws Exception {
+        
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest();
+        StringIndexingRequest request = (StringIndexingRequest) builderAndResponse.getBuilder().getRequest();
+        
+        mockMvc.perform(post("/index").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

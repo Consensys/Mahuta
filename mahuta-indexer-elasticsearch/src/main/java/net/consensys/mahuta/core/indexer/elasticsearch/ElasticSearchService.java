@@ -47,6 +47,7 @@ import net.consensys.mahuta.core.domain.common.pagination.Page;
 import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
 import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.exception.ConnectionException;
+import net.consensys.mahuta.core.exception.NoIndexException;
 import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
@@ -133,7 +134,7 @@ public class ElasticSearchService implements IndexingService {
             indexName = indexName.toLowerCase();
 
             // Check existence
-            boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
+            boolean exists = indexExists(indexName);
 
             if (!exists) {
                 CreateIndexRequestBuilder request = client.admin()
@@ -188,6 +189,11 @@ public class ElasticSearchService implements IndexingService {
         // Format index
         indexName = indexName.toLowerCase();
 
+        // Check if index exists
+        if(!indexExists(indexName)) {
+            throw new NoIndexException(indexName);
+        }
+        
         // Populate the ElasticSearch Document
         Map<String, Object> source = new HashMap<>();
         source.put(HASH_INDEX_KEY, contentId);
@@ -207,7 +213,6 @@ public class ElasticSearchService implements IndexingService {
             response = client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
                     .setDoc(convertObjectToJsonString(source), XContentType.JSON).get();
         }
-
 
         log.debug(
                 "Document indexed ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, indexFields: {}]. Result ID= {} ",
@@ -230,6 +235,11 @@ public class ElasticSearchService implements IndexingService {
         // Format index
         indexName = indexName.toLowerCase();
 
+        // Check if index exists
+        if(!indexExists(indexName)) {
+            throw new NoIndexException(indexName);
+        }
+        
         if (!this.documentExists(indexName, indexDocId)) {
             throw new NotFoundException("Document [indexName: " + indexName + ", id: " + indexDocId + "] not found");
         }
@@ -340,6 +350,10 @@ public class ElasticSearchService implements IndexingService {
 
     private void refreshIndex(String indexName) {
         this.client.admin().indices().prepareRefresh(indexName).get();
+    }
+    
+    private boolean indexExists(String indexName) {
+        return client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
     }
 
     private Metadata convert(String indexName, String documentId, Map<String, Object> sourceMap) {
