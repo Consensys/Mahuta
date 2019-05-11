@@ -35,6 +35,10 @@ hs_err_pid*
 .idea/
 *.iml
 
+# vscode
+.factorypath
+*.code-workspace
+
 # Node NPM BOWER
 node_modules
 bower_components
@@ -48,4 +52,5 @@ build/
 
 #checkstyle
 .checkstyle
+
 
