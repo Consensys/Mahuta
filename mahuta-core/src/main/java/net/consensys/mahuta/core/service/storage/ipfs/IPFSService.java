@@ -115,6 +115,8 @@ public class IPFSService implements StorageService, PinningService {
 
         this.retryPolicy = new RetryPolicy<>()
                 .handle(IOException.class)
+                .handle(ExecutionException.class)
+                .handle(TimeoutException.class)
                 .withDelay(delay)
                 .withMaxRetries(maxRetry);
         
@@ -188,21 +190,19 @@ public class IPFSService implements StorageService, PinningService {
     
     @Override
     public List<String> getTracked() {
-        try {
-            log.debug("Get pinned files on IPFS");
-            
-            Map<Multihash, Object> cids = this.ipfs.pin.ls(PinType.all);
 
-            log.debug("Get pinned files on IPFS: {}", cids);
+        log.debug("Get pinned files on IPFS");
+        
+        return Failsafe.with(retryPolicy)
+            .onFailure(event -> log.error("Exception getting pinned files on IPFS after {} attemps", event.getAttemptCount()))
+            .onSuccess(event -> log.debug("Get pinned files on IPFS: {}", event.getResult()))
+            .get(() -> {
+                Map<Multihash, Object> cids = this.ipfs.pin.ls(PinType.all);
 
-            return cids.entrySet().stream()
-                    .map(e-> e.getKey().toBase58())
-                    .collect(Collectors.toList());
-            
-        } catch (IOException ex) {
-            log.error("Exception getting pinned files on IPFS", ex);
-            throw new TechnicalException("Exception getting pinned files on IPFS", ex);
-        }
+                return cids.entrySet().stream()
+                        .map(e-> e.getKey().toBase58())
+                        .collect(Collectors.toList());
+            }); 
     }
 
     @Override
@@ -212,41 +212,44 @@ public class IPFSService implements StorageService, PinningService {
 
     @Override
     public OutputStream read(String id, OutputStream output) {
+        log.debug("Read file on IPFS [id: {}]", id);
 
-        try {
-            log.debug("Read file on IPFS [id: {}]", id);
+        ValidatorUtils.rejectIfEmpty("id", id);
 
-            ValidatorUtils.rejectIfEmpty("id", id);
+        return Failsafe.with(retryPolicy)
+                .onFailure(event -> log.error("Exception reading file [id: {}] on IPFS after {} attemps. {}", id, event.getAttemptCount(), event.getResult()))
+                .onSuccess(event -> log.debug("File read on IPFS: [id: {}] ", id))
+                .get(() -> {
+                    try {
+                        Multihash filePointer = Multihash.fromBase58(id);
 
-            Multihash filePointer = Multihash.fromBase58(id);
+                        Future<byte[]> ipfsFetcherResult = pool.submit(new IPFSContentFetcher(ipfs, filePointer));
 
-            Future<byte[]> ipfsFetcherResult = pool.submit(new IPFSContentFetcher(ipfs, filePointer));
+                        byte[] content = ipfsFetcherResult.get(settings.getTimeout(), TimeUnit.MILLISECONDS);
+                        IOUtils.write(content, output);
 
-            byte[] content = ipfsFetcherResult.get(settings.getTimeout(), TimeUnit.MILLISECONDS);
-            IOUtils.write(content, output);
+                        return output;
 
-            log.debug("File read on IPFS [id: {}]", id);
+                    } catch (java.util.concurrent.TimeoutException ex) {
+                        log.error("Timeout Exception while fetching file from IPFS [id: {}, timeout: {} ms]", id,
+                                settings.getTimeout());
+                        throw new TimeoutException("Timeout Exception while fetching file from IPFS [id: " + id + "]");
 
-            return output;
+                    } catch (InterruptedException ex) {
+                        log.error("Interrupted Exception while fetching file from IPFS [id: {}]", id);
+                        Thread.currentThread().interrupt();
+                        throw new TechnicalException("Interrupted Exception while fetching file from IPFS [id: " + id + "]", ex);
 
-        } catch (java.util.concurrent.TimeoutException ex) {
-            log.error("Timeout Exception while fetching file from IPFS [id: {}, timeout: {} ms]", id,
-                    settings.getTimeout());
-            throw new TimeoutException("Timeout Exception while fetching file from IPFS [id: " + id + "]");
+                    } catch (ExecutionException ex) {
+                        log.error("Execution Exception while fetching file from IPFS [id: {}]", id, ex);
+                        throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
 
-        } catch (InterruptedException ex) {
-            log.error("Interrupted Exception while fetching file from IPFS [id: {}]", id);
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Interrupted Exception while fetching file from IPFS [id: " + id + "]", ex);
-
-        } catch (ExecutionException ex) {
-            log.error("Execution Exception while fetching file from IPFS [id: {}]", id, ex);
-            throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
-
-        } catch (IOException ex) {
-            log.error("IOException while fetching file from IPFS [id: {}]", id, ex);
-            throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
-        }
+                    } catch (IOException ex) {
+                        log.error("IOException while fetching file from IPFS [id: {}]", id, ex);
+                        throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
+                    }
+                });
+        
     }
 
     private class IPFSContentFetcher implements Callable<byte[]> {
