@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.consensys.mahuta</groupId>
         <artifactId>mahuta-parent</artifactId>
-        <version>0.3.5-SNAPSHOT</version>
+        <version>0.3.5</version>
     </parent>
     <artifactId>mahuta-springdata</artifactId>
 
