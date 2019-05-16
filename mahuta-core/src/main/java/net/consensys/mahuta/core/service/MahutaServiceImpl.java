@@ -143,30 +143,38 @@ public class MahutaServiceImpl implements MahutaService {
     public GetResponse get(GetRequest request) {
 
         ValidatorUtils.rejectIfNull(REQUEST, request);
-        
-        // Metadata
-        Metadata metadata = null;
+
         String contentId = null;
-        if (!ValidatorUtils.isEmpty(request.getIndexDocId())) {
-            metadata = indexingService.getDocument(request.getIndexName(), request.getIndexDocId());
-            contentId = metadata.getContentId();
-
-        } else if (!ValidatorUtils.isEmpty(request.getContentId())) {
-            Query query = Query.newQuery().equals(IndexingService.HASH_INDEX_KEY, request.getContentId());
-            Page<Metadata> result = indexingService.searchDocuments(request.getIndexName(), query,
-                    PageRequest.singleElementPage());
-
-            if (result.isEmpty()) {
-                log.warn("Document [hash: {}] not found in the index {}", request.getContentId(), request.getIndexName());
-                contentId = request.getContentId();
-            } else {
-                metadata = result.getElements().get(0);
+        Metadata metadata = null;
+        
+        // If an index is passed, we try to find some metadata, either by indexDocId or contentId
+        if(!ValidatorUtils.isEmpty(request.getIndexName())) {
+            
+            if (!ValidatorUtils.isEmpty(request.getIndexDocId())) {
+                metadata = indexingService.getDocument(request.getIndexName(), request.getIndexDocId());
                 contentId = metadata.getContentId();
+
+            } else if (!ValidatorUtils.isEmpty(request.getContentId())) {
+                Query query = Query.newQuery().equals(IndexingService.HASH_INDEX_KEY, request.getContentId());
+                Page<Metadata> result = indexingService.searchDocuments(request.getIndexName(), query,
+                        PageRequest.singleElementPage());
+
+                if (result.isEmpty()) {
+                    log.warn("Document [hash: {}] not found in the index {}", request.getContentId(), request.getIndexName());
+                    contentId = request.getContentId();
+                } else {
+                    metadata = result.getElements().get(0);
+                    contentId = metadata.getContentId();
+                }
+                
+            } else {
+                throw new ValidationException("request must contain 'indexDocId' or 'contentId'");
             }
             
-        } else {
-            throw new ValidationException("request must contain 'indexDocId' or 'contentId'");
+        } else if(ValidatorUtils.isEmpty(request.getContentId())) {
+            throw new ValidationException("request must contain 'contentId'");
         }
+        
 
         // Payload
         OutputStream payload = null;
