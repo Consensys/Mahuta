@@ -10,7 +10,7 @@ import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.MahutaFactory;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 
 @Configuration
@@ -37,7 +37,7 @@ public class MahutaConfiguration {
 
         if (!ValidatorUtils.isEmpty(settings.getElasticSearch().getIndexConfigs())) {
             settings.getElasticSearch().getIndexConfigs()
-                    .forEach(config -> indexerService.withIndex(config.getName(), FileUtils.readFileInputStream(config.getMap())));
+                    .forEach(config -> indexerService.withIndex(config.getName(), BytesUtils.readFileInputStream(config.getMap())));
         }
         
         return new MahutaFactory()

@@ -187,13 +187,26 @@ public abstract class MahutaTestAbstract extends TestUtils {
     } 
     
     protected void mockIndex(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
-        when(indexingService.index(
-                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
-                eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
-                eq(builderAndResponse.getResponse().getContentId()), 
-                eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
-                eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
-        .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+        if(builderAndResponse.getBuilder().getRequest().isIndexContent()) {
+            when(indexingService.index(
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
+                    eq(builderAndResponse.getResponse().getContentId()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                    any(byte[].class),
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
+            .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+            
+        } else {
+            when(indexingService.index(
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
+                    eq(builderAndResponse.getResponse().getContentId()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
+            .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+            
+        }
     }  
     
     protected void mockGetDocument(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {

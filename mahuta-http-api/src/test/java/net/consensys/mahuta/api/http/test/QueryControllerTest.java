@@ -31,7 +31,7 @@ import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -59,7 +59,7 @@ public class QueryControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
 
@@ -68,7 +68,7 @@ public class QueryControllerTest extends WebTestUtils {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        MvcResult response = mockMvc.perform(get("/query/fetch/"+builderAndResponse.getResponse().getContentId()))
+        MvcResult response = mockMvc.perform(get("/query/fetch/"+builderAndResponse.getResponse().getContentId() + "?index="+builderAndResponse.getBuilder().getRequest().getIndexName()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(builderAndResponse.getBuilder().getRequest().getContentType()))
@@ -85,7 +85,7 @@ public class QueryControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + indexName)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
         
@@ -124,7 +124,7 @@ public class QueryControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + indexName)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
         
@@ -162,7 +162,7 @@ public class QueryControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + indexName)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
         
@@ -200,7 +200,7 @@ public class QueryControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + indexName)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
         

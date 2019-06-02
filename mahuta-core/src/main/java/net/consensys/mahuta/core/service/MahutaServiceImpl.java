@@ -1,5 +1,6 @@
 package net.consensys.mahuta.core.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
@@ -34,6 +35,7 @@ import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.exception.ValidationException;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
+import net.consensys.mahuta.core.utils.BytesUtils;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 import net.consensys.mahuta.core.utils.lamba.Throwing;
 
@@ -79,26 +81,29 @@ public class MahutaServiceImpl implements MahutaService {
         ValidatorUtils.rejectIfNull(REQUEST, request);
 
         // Write content
+        byte[] content = null;
         String contentId = null;
         String contentType = request.getContentType();
 
         if (request instanceof InputStreamIndexingRequest) {
-            InputStream content = ((InputStreamIndexingRequest) request).getContent();
+            InputStream contentIS = ((InputStreamIndexingRequest) request).getContent();
+            content = BytesUtils.convertToByteArray(contentIS);
             contentId = storageService.write(content);
             contentType = Optional.ofNullable(contentType)
-                    .orElseGet(Throwing.rethrowSupplier(() -> URLConnection.guessContentTypeFromStream(content)));
+                    .orElseGet(Throwing.rethrowSupplier(() -> URLConnection.guessContentTypeFromStream(contentIS)));
 
         } else if (request instanceof CIDIndexingRequest) {
             String cid = ((CIDIndexingRequest) request).getCid();
+            content = ((ByteArrayOutputStream) storageService.read(cid)).toByteArray();
             contentId = cid;
 
         } else if (request instanceof StringIndexingRequest) {
-            byte[] content = ((StringIndexingRequest) request).getContent().getBytes();
-            contentId = storageService.write(content);
+            String contentStr = ((StringIndexingRequest) request).getContent();
+            content = contentStr.getBytes();
+            contentId = storageService.write(contentStr.getBytes());
 
         } else if (request instanceof OnylStoreIndexingRequest) {
-            InputStream content = ((OnylStoreIndexingRequest) request).getContent();
-            contentId = storageService.write(content);
+            contentId = storageService.write(BytesUtils.convertToByteArray(((OnylStoreIndexingRequest) request).getContent()));
             
             return IndexingResponse.of(contentId);
 
@@ -107,14 +112,21 @@ public class MahutaServiceImpl implements MahutaService {
         }
 
         // Index content
-        String indexDocId = indexingService.index(request.getIndexName(), request.getIndexDocId(), contentId,
-                contentType, request.getIndexFields());
+        String indexDocId;
+        if(request.isIndexContent()) {
+            indexDocId = indexingService.index(request.getIndexName(), request.getIndexDocId(), contentId, 
+                    contentType, content, request.getIndexFields());
+        } else {
+            indexDocId = indexingService.index(request.getIndexName(), request.getIndexDocId(), contentId, 
+                    contentType, request.getIndexFields());
+            
+        }
 
         // Pin content
-        Content content = Content.of(contentId);
+        Content contentToPin = Content.of(contentId);
         storageService.getReplicaSet().forEach(pinningService ->
             CompletableFuture.supplyAsync(() -> {
-                pinningService.pin(content.getContentId());
+                pinningService.pin(contentToPin.getContentId());
                 return true;
             })
         );
@@ -144,6 +156,7 @@ public class MahutaServiceImpl implements MahutaService {
 
         ValidatorUtils.rejectIfNull(REQUEST, request);
 
+        byte[] content = null;
         String contentId = null;
         Metadata metadata = null;
         
@@ -153,6 +166,7 @@ public class MahutaServiceImpl implements MahutaService {
             if (!ValidatorUtils.isEmpty(request.getIndexDocId())) {
                 metadata = indexingService.getDocument(request.getIndexName(), request.getIndexDocId());
                 contentId = metadata.getContentId();
+                content = metadata.getContent();
 
             } else if (!ValidatorUtils.isEmpty(request.getContentId())) {
                 Query query = Query.newQuery().equals(IndexingService.HASH_INDEX_KEY, request.getContentId());
@@ -165,6 +179,7 @@ public class MahutaServiceImpl implements MahutaService {
                 } else {
                     metadata = result.getElements().get(0);
                     contentId = metadata.getContentId();
+                    content = metadata.getContent();
                 }
                 
             } else {
@@ -173,13 +188,18 @@ public class MahutaServiceImpl implements MahutaService {
             
         } else if(ValidatorUtils.isEmpty(request.getContentId())) {
             throw new ValidationException("request must contain 'contentId'");
+        
+        } else {
+            contentId = request.getContentId();
         }
         
 
         // Payload
         OutputStream payload = null;
-        if (request.isLoadFile()) {
+        if (request.isLoadFile() && content == null) {
             payload = storageService.read(contentId);
+        } else if (request.isLoadFile() && content != null) {
+            payload = BytesUtils.convertToOutputStream(content);
         }
 
         return GetResponse.of().metadata(metadata).payload(payload);
@@ -196,8 +216,10 @@ public class MahutaServiceImpl implements MahutaService {
         List<MetadataAndPayload> elements = metadatas.getElements().stream().map(m -> {
             MetadataAndPayload mp = new MetadataAndPayload();
             mp.setMetadata(m);
-            if (request.isLoadFile()) {
+            if (request.isLoadFile() && m.getContent() == null) {
                 mp.setPayload(storageService.read(m.getContentId()));
+            } else if (request.isLoadFile() && m.getContent() != null) {
+                mp.setPayload(BytesUtils.convertToOutputStream(m.getContent()));
             }
             return mp;
         }).collect(Collectors.toList());

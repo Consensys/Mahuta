@@ -7,7 +7,7 @@ public class IPFSSettings {
 
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 5001;
-    public static final int DEFAULT_TIMEOUT = 10000;
+    public static final int DEFAULT_TIMEOUT = 5000;
 
     private @Setter @Getter String host = DEFAULT_HOST;
     private @Setter @Getter Integer port = DEFAULT_PORT;

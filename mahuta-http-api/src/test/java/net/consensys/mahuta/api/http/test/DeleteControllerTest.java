@@ -28,7 +28,7 @@ import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -56,7 +56,7 @@ public class DeleteControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
 
@@ -87,7 +87,7 @@ public class DeleteControllerTest extends WebTestUtils {
         // Create Index 
         mockMvc.perform(post("/config/index/" + request.getIndexName())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(FileUtils.readFile("index_mapping.json")))
+                .content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
 

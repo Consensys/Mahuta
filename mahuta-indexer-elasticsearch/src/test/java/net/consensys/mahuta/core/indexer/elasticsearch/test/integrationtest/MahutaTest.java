@@ -27,7 +27,7 @@ import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 public class MahutaTest extends MahutaTestAbstract {
     
@@ -58,7 +58,7 @@ public class MahutaTest extends MahutaTestAbstract {
     @Before
     public void before() {
         indexName = mockNeat.strings().size(20).get();
-        indexingService.createIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+        indexingService.createIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
     }
     

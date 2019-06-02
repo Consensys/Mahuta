@@ -21,4 +21,8 @@ public interface IndexingRequest extends Request {
     Map<String, Object> getIndexFields();
     
     void setIndexFields(Map<String, Object> indexName);
+    
+    void setIndexContent(boolean indexContent);
+    
+    boolean isIndexContent();
 }

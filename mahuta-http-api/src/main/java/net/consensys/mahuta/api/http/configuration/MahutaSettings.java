@@ -29,6 +29,7 @@ public class MahutaSettings {
         private @Getter @Setter int port;
         private @Getter @Setter String clusterName;
         private @Getter @Setter boolean indexNullValue;
+        private @Getter @Setter boolean indexContent;
         private @Getter @Setter List<IndexConfig> indexConfigs;
     }
 

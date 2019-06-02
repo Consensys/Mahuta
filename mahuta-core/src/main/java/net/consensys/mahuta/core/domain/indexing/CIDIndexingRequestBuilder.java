@@ -51,4 +51,9 @@ public class CIDIndexingRequestBuilder extends AbstractBuilder implements Builde
         return this;
     }
 
+    public CIDIndexingRequestBuilder indexContent(boolean indexContent) {
+        request.setIndexContent(indexContent);
+        return this;
+    }
+
 }

@@ -37,7 +37,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.Status;
 import net.consensys.mahuta.core.test.utils.TestUtils;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 public class ElasticSearchIndexerTest extends TestUtils  {
 
@@ -79,7 +79,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
         //////////////////////////////
         ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         //////////////////////////////
     }
 
@@ -115,7 +115,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), BytesUtils.readFileInputStream("index_mapping.json"));
         
         //////////////////////////////
         String docId = service.index(
@@ -130,6 +130,28 @@ public class ElasticSearchIndexerTest extends TestUtils  {
     }
 
     @Test
+    public void indexWithIdContent() throws Exception {
+
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest(true);
+
+        IndexingService service = ElasticSearchService
+                .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
+                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), BytesUtils.readFileInputStream("index_mapping.json"));
+        
+        //////////////////////////////
+        String docId = service.index(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse.getResponse().getContentId(), 
+                builderAndResponse.getBuilder().getRequest().getContentType(), 
+                builderAndResponse.getResponse().getContent(),
+                builderAndResponse.getBuilder().getRequest().getIndexFields());
+        //////////////////////////////
+
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexDocId(), docId);
+    }
+
+    @Test
     public void indexWithoutId() throws Exception {
         String indexName = mockNeat.strings().size(20).get();
         
@@ -137,7 +159,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
         //////////////////////////////
         String docId = service.index(
@@ -180,7 +202,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
 
         //////////////////////////////
@@ -220,7 +242,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), BytesUtils.readFileInputStream("index_mapping.json"));
         
         
         //////////////////////////////
@@ -244,7 +266,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), BytesUtils.readFileInputStream("index_mapping.json"));
         
 
         //////////////////////////////
@@ -278,7 +300,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
         
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
         //////////////////////////////
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest(indexName, String.format("%05d", 0));
@@ -323,7 +345,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
         
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName);
@@ -375,7 +397,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
         
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  AUTHOR_FIELD, "Gregoire Jeanmart");
@@ -420,7 +442,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
 
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  VIEWS_FIELD, 1);
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse2 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  VIEWS_FIELD, 2);
@@ -490,7 +512,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DRAFT);
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse2 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DRAFT);
@@ -542,7 +564,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
 
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DRAFT);
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse2 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DRAFT);
@@ -580,7 +602,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"));
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
 
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DRAFT);
@@ -624,7 +646,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"))
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"))
                 .configureIndexNullValue(true);
         
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, null);
@@ -666,7 +688,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
 
         IndexingService service = ElasticSearchService
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
-                .withIndex(indexName, FileUtils.readFileInputStream("index_mapping.json"))
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"))
                 .configureIndexNullValue(false);
         
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, null);

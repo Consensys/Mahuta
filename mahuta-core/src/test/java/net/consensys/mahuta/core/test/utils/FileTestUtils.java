@@ -11,7 +11,7 @@ import io.ipfs.api.IPFS;
 import io.ipfs.api.NamedStreamable;
 import lombok.Getter;
 import lombok.ToString;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 public class FileTestUtils extends TestUtils {
     
@@ -47,7 +47,7 @@ public class FileTestUtils extends TestUtils {
             this.path = path;
             this.cid = cid;
             this.type = type;
-            this.bytearray = FileUtils.readFile(path);
+            this.bytearray = BytesUtils.readFile(path);
         }
         public FileInfo(IPFS ipfs, String type, byte[] bytearray) throws IOException {
             this.path = null;

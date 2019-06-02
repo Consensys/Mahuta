@@ -8,6 +8,9 @@
         "__content_type": {
           "type": "keyword"
         },
+        "__content": {
+          "type": "binary"
+        },
         "title": {
           "type": "text"
         },

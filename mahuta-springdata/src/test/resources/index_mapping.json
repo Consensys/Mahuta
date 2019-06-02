@@ -8,6 +8,9 @@
         "__content_type": {
           "type": "keyword"
         },
+        "__content": {
+          "type": "text"
+        },
         "name": {
           "type": "text",
           "fielddata": true

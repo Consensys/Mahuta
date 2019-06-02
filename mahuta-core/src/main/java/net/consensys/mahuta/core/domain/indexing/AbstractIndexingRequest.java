@@ -12,4 +12,5 @@ public abstract class AbstractIndexingRequest implements IndexingRequest {
     protected String indexDocId;
     protected String contentType;
     protected Map<String, Object> indexFields;
+    protected boolean indexContent;
 }

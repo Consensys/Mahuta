@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -178,10 +179,16 @@ public class ElasticSearchService implements IndexingService {
     @Override
     public String index(String indexName, String indexDocId, String contentId, String contentType,
             Map<String, Object> indexFields) {
+        return index(indexName, indexDocId, contentId, contentType, null, indexFields);
+    }
+
+    @Override
+    public String index(String indexName, String indexDocId, String contentId, String contentType, byte[] content,
+            Map<String, Object> indexFields) {
 
         log.debug(
-                "Index document in ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, indexFields: {}]",
-                indexName, indexDocId, contentId, contentType, indexFields);
+                "Index document in ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, content: {}, indexFields: {}]",
+                indexName, indexDocId, contentId, contentType, content!=null ? "present": "not present", indexFields);
 
         // Validation
         ValidatorUtils.rejectIfEmpty("indexName", indexName);
@@ -198,6 +205,10 @@ public class ElasticSearchService implements IndexingService {
         Map<String, Object> source = new HashMap<>();
         source.put(HASH_INDEX_KEY, contentId);
         source.put(CONTENT_TYPE_INDEX_KEY, contentType);
+        Optional.ofNullable(content)
+            .map(bytearray -> Base64.getEncoder().encode(bytearray))
+            .ifPresent(base64 -> source.put(CONTENT_INDEX_KEY, new String(base64)));
+        
         if (indexFields != null) {
             source.putAll(transformFields(indexFields));
         }
@@ -359,19 +370,9 @@ public class ElasticSearchService implements IndexingService {
     private Metadata convert(String indexName, String documentId, Map<String, Object> sourceMap) {
         String contentId = null;
         String contentType = null;
+        byte[] content = null;
 
         if (sourceMap != null) {
-
-            // Extract special key __hash
-            if (sourceMap.containsKey(HASH_INDEX_KEY) && sourceMap.get(HASH_INDEX_KEY) != null) {
-                contentId = sourceMap.get(HASH_INDEX_KEY).toString();
-                sourceMap.remove(HASH_INDEX_KEY);
-            }
-            // Extract special key __content_type
-            if (sourceMap.containsKey(CONTENT_TYPE_INDEX_KEY) && sourceMap.get(CONTENT_TYPE_INDEX_KEY) != null) {
-                contentType = sourceMap.get(CONTENT_TYPE_INDEX_KEY).toString();
-                sourceMap.remove(CONTENT_TYPE_INDEX_KEY);
-            }
             
             // Cast from mapping
             Map<String, String> mapping = this.getMapping(indexName);
@@ -385,11 +386,28 @@ public class ElasticSearchService implements IndexingService {
                         }
                     }
                 }
+
             });
+            
+            // Extract special key __hash
+            if (sourceMap.containsKey(HASH_INDEX_KEY) && sourceMap.get(HASH_INDEX_KEY) != null) {
+                contentId = sourceMap.get(HASH_INDEX_KEY).toString();
+                sourceMap.remove(HASH_INDEX_KEY);
+            }
+            // Extract special key __content_type
+            if (sourceMap.containsKey(CONTENT_TYPE_INDEX_KEY) && sourceMap.get(CONTENT_TYPE_INDEX_KEY) != null) {
+                contentType = sourceMap.get(CONTENT_TYPE_INDEX_KEY).toString();
+                sourceMap.remove(CONTENT_TYPE_INDEX_KEY);
+            }
+            // Extract special key __content
+            if (sourceMap.containsKey(CONTENT_INDEX_KEY) && sourceMap.get(CONTENT_INDEX_KEY) != null) {
+                content = Base64.getDecoder().decode(sourceMap.get(CONTENT_INDEX_KEY).toString());
+                sourceMap.remove(CONTENT_INDEX_KEY);
+            }
         }
         
         
-        return Metadata.of(indexName, documentId, contentId, contentType, sourceMap);
+        return Metadata.of(indexName, documentId, contentId, contentType, content, sourceMap);
     }
 
     private QueryBuilder buildQuery(Query query) {

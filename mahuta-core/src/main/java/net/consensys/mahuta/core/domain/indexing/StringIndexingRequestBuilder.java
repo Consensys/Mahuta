@@ -51,4 +51,9 @@ public class StringIndexingRequestBuilder extends AbstractBuilder implements Bui
         return this;
     }
 
+    public StringIndexingRequestBuilder indexContent(boolean indexContent) {
+        request.setIndexContent(indexContent);
+        return this;
+    }
+
 }
