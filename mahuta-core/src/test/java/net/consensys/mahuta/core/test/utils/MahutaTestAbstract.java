@@ -68,7 +68,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         validateMetadata(builderAndResponse, indexingResponse);
         
         // Check each replica
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         assertTrue(storageService.getReplicaSet().stream()
                 .allMatch(p->p.getTracked().contains(builderAndResponse.getResponse().getContentId())));
     }
@@ -79,7 +79,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
         assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
 
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         
         DeindexingResponse deindexingResponse = mahuta.prepareDeindexing(
             builderAndResponse.getBuilder().getRequest().getIndexName(),
@@ -89,7 +89,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         ///////////////////////
 
         // Check each replica
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         assertFalse(storageService.getReplicaSet().stream()
                 .anyMatch(p->p.getTracked().contains(builderAndResponse.getResponse().getContentId())));
     }

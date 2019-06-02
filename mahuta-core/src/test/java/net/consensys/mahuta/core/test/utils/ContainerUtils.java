@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ContainerUtils {
-    private static final String DOCKER_IMAGE_IPFS = "ipfs/go-ipfs:latest";
+    private static final String DOCKER_IMAGE_IPFS = "ipfs/go-ipfs:v0.4.20";
     private static final String DOCKER_IMAGE_IPFS_CLUSTER = "ipfs/ipfs-cluster:latest";
     private static final String DOCKER_IMAGE_ELASTICSEARCH = "docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.4";
     private static final String SECRET = "1aebe6d1ff52d96241e00d1abbd1be0743e3ccd0e3f8a05e3c8dd2bbbddb7b93";

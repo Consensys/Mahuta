@@ -168,8 +168,13 @@ public class IPFSService implements StorageService, PinningService {
             .onFailure(event -> log.error("Exception pinning cid {} on IPFS after {} attemps", cid, event.getAttemptCount()))
             .onSuccess(event -> log.debug("CID {} pinned on IPFS", cid))
             .run(() -> {
-                Multihash hash = Multihash.fromBase58(cid);
-                this.ipfs.pin.add(hash);
+                try {
+                    Multihash hash = Multihash.fromBase58(cid);
+                    this.ipfs.pin.add(hash);
+                } catch (Exception ex) {
+                    log.error("Exception pinning cid [cid: {}]", cid, ex);
+                    throw new TechnicalException("Exception pinning cid  [cid: " + cid + "]", ex);
+                }
             });   
     }
 
