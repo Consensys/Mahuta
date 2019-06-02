@@ -290,6 +290,40 @@ public class ElasticSearchIndexerTest extends TestUtils  {
         assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(DATE_CREATED_FIELD), metadata.getIndexFields().get(DATE_CREATED_FIELD));
         assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(VIEWS_FIELD), metadata.getIndexFields().get(VIEWS_FIELD));
     }
+    
+    @Test
+    public void findDocumentWithContent() throws Exception {
+        
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest();
+
+        IndexingService service = ElasticSearchService
+                .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
+                .withIndex(builderAndResponse.getBuilder().getRequest().getIndexName(), BytesUtils.readFileInputStream("index_mapping.json"));
+        
+
+        //////////////////////////////
+        String docId = service.index(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse.getResponse().getContentId(), 
+                builderAndResponse.getBuilder().getRequest().getContentType(), 
+                builderAndResponse.getResponse().getContent(),
+                builderAndResponse.getBuilder().getRequest().getIndexFields());
+        
+        Metadata metadata = service.getDocument(builderAndResponse.getBuilder().getRequest().getIndexName(), docId);
+        //////////////////////////////
+
+        assertTrue(builderAndResponse.getBuilder().getRequest().getIndexName().equalsIgnoreCase(metadata.getIndexName()));
+        assertEquals(builderAndResponse.getResponse().getContentId(), metadata.getContentId());
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexDocId(), metadata.getIndexDocId());
+        assertEquals(builderAndResponse.getResponse().getContent(), metadata.getContent());
+        assertEquals(builderAndResponse.getBuilder().getRequest().getContentType(), metadata.getContentType());
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(AUTHOR_FIELD), metadata.getIndexFields().get(AUTHOR_FIELD));
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(TITLE_FIELD), metadata.getIndexFields().get(TITLE_FIELD));
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(IS_PUBLISHED_FIELD), metadata.getIndexFields().get(IS_PUBLISHED_FIELD));
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(DATE_CREATED_FIELD), metadata.getIndexFields().get(DATE_CREATED_FIELD));
+        assertEquals(builderAndResponse.getBuilder().getRequest().getIndexFields().get(VIEWS_FIELD), metadata.getIndexFields().get(VIEWS_FIELD));
+    }
 
     @Test
     public void searchAll() throws Exception {

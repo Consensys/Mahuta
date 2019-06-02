@@ -99,6 +99,13 @@ public class MahutaTest extends MahutaTestAbstract {
     }
     
     @Test
+    public void getByIdIndexContent() throws Exception {
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
+        builderAndResponse.getBuilder().getRequest().setIndexContent(true);
+        super.getById(builderAndResponse);
+    }
+    
+    @Test
     public void getByHash() throws Exception {
         BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
         super.getByHash(builderAndResponse);

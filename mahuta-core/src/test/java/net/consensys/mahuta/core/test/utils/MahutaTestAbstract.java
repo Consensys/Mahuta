@@ -166,7 +166,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         } else {
             assertNotNull(metadata.getIndexDocId());
         }
-        
+                
         assertEquals(builder.getResponse().getContentId(), metadata.getContentId());
         assertEquals(builder.getResponse().getContentType(), metadata.getContentType());
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD));

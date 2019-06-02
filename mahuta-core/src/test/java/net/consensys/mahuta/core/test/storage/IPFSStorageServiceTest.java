@@ -17,6 +17,7 @@ import io.ipfs.api.IPFS;
 import io.ipfs.api.NamedStreamable;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.exception.ConnectionException;
+import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.exception.TimeoutException;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
@@ -127,6 +128,15 @@ public class IPFSStorageServiceTest extends TestUtils {
         //////////////////////////////
         
         assertTrue(hashes.stream().anyMatch(h -> h.equals(file.getCid())));
+    }
+
+    @Test(expected = TechnicalException.class)
+    public void pinFileException() throws Exception {
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+
+        //////////////////////////////
+        service.pin("dfdfdf");
+        //////////////////////////////
     }
 
     @Test @Ignore("Fail randomly") //TODO investigate why
