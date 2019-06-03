@@ -15,12 +15,17 @@ import lombok.Setter;
 public class MahutaSettings {
     private @Setter @Getter IPFS ipfs;
     private @Setter @Getter ElasticSearch elasticSearch;
+
+    public static class Timeout {
+        private @Getter @Setter int write;
+        private @Getter @Setter int read;
+    }
     
     public static class IPFS {
         private @Getter @Setter String host;
         private @Getter @Setter int port;
         private @Getter @Setter String multiaddress;
-        private @Getter @Setter int timeout;
+        private @Getter @Setter Timeout timeout;
         private @Getter @Setter int threadPool;
     }
 

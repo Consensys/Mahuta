@@ -93,9 +93,15 @@ public class IPFSService implements StorageService, PinningService {
         }
     }
 
-    public IPFSService configureTimeout(Integer timeout) {
-        ValidatorUtils.rejectIfNegative("timeout", timeout);
-        this.settings.setTimeout(timeout);
+    public IPFSService configureReadTimeout(Integer readTtimeout) {
+        ValidatorUtils.rejectIfNegative("readTtimeout", readTtimeout);
+        this.settings.setReadTimeout(readTtimeout);
+        return this;
+    }
+
+    public IPFSService configureWriteTimeout(Integer writeTimeout) {
+        ValidatorUtils.rejectIfNegative("writeTimeout", writeTimeout);
+        this.settings.setWriteTimeout(writeTimeout);
         return this;
     }
 
@@ -149,13 +155,29 @@ public class IPFSService implements StorageService, PinningService {
         ValidatorUtils.rejectIfNull("content", content);
 
         return Failsafe.with(retryPolicy)
-            .onFailure(event -> log.error("Exception writting file on IPFS after {} attemps. {}", event.getAttemptCount(), event.getResult()))
-            .onSuccess(event -> log.debug("File written on IPFS: hash={} ", event.getResult()))
-            .get(() -> {
-                NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
-                MerkleNode response = this.ipfs.add(file).get(0);
-                return response.hash.toString();
-            });
+                .onFailure(event -> log.error("Exception writing file on IPFS after {} attemps. {}", event.getAttemptCount(), event.getResult()))
+                .onSuccess(event -> log.debug("File written on IPFS: [id: {}] ", event.getResult()))
+                .get(() -> {
+                    try {
+                        Future<String> ipfsContentResult = pool.submit(new IPFSContentWritter(ipfs, content));
+
+                        return ipfsContentResult.get(settings.getWriteTimeout(), TimeUnit.MILLISECONDS);
+
+                    } catch (java.util.concurrent.TimeoutException ex) {
+                        log.error("Timeout Exception while writing file on IPFS [timeout: {} ms]", settings.getWriteTimeout());
+                        throw new TimeoutException("Timeout Exception while while writing file on IPFS");
+
+                    } catch (InterruptedException ex) {
+                        log.error("Interrupted Exception while writing file on IPFS");
+                        Thread.currentThread().interrupt();
+                        throw new TechnicalException("Interrupted Exception while writing file on IPFS", ex);
+
+                    } catch (ExecutionException ex) {
+                        log.error("Execution Exception while writing file on IPFS", ex);
+                        throw new TechnicalException("Execution Exception while writing file on IPFS", ex);
+
+                    }
+                });
     }
 
     @Override
@@ -230,14 +252,14 @@ public class IPFSService implements StorageService, PinningService {
 
                         Future<byte[]> ipfsFetcherResult = pool.submit(new IPFSContentFetcher(ipfs, filePointer));
 
-                        byte[] content = ipfsFetcherResult.get(settings.getTimeout(), TimeUnit.MILLISECONDS);
+                        byte[] content = ipfsFetcherResult.get(settings.getReadTimeout(), TimeUnit.MILLISECONDS);
                         IOUtils.write(content, output);
 
                         return output;
 
                     } catch (java.util.concurrent.TimeoutException ex) {
                         log.error("Timeout Exception while fetching file from IPFS [id: {}, timeout: {} ms]", id,
-                                settings.getTimeout());
+                                settings.getReadTimeout());
                         throw new TimeoutException("Timeout Exception while fetching file from IPFS [id: " + id + "]");
 
                     } catch (InterruptedException ex) {
@@ -274,6 +296,29 @@ public class IPFSService implements StorageService, PinningService {
             } catch (IOException ex) {
                 log.error("Exception while fetching file from IPFS [hash: {}]", multihash, ex);
                 throw new TechnicalException("Exception while fetching file from IPFS " + multihash, ex);
+            }
+        }
+    }
+
+    private class IPFSContentWritter implements Callable<String> {
+
+        private final IPFS ipfs;
+        private final  byte[] content;
+
+        public IPFSContentWritter(IPFS ipfs, byte[] content) {
+            this.ipfs = ipfs;
+            this.content = content;
+        }
+
+        @Override
+        public String call() {
+            try {
+                NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
+                MerkleNode response = this.ipfs.add(file).get(0);
+                return response.hash.toString();
+            } catch (IOException ex) {
+                log.error("Exception while writing file on IPFS", ex);
+                throw new TechnicalException("Exception while writing file on IPFS", ex);
             }
         }
     }

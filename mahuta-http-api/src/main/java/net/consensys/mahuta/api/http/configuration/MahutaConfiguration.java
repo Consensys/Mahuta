@@ -30,7 +30,8 @@ public class MahutaConfiguration {
                 .map(IPFSService::connect)
                 .orElseGet(() -> IPFSService.connect(settings.getIpfs().getHost(), settings.getIpfs().getPort()))
                 .configureThreadPool(settings.getIpfs().getThreadPool())
-                .configureTimeout(settings.getIpfs().getTimeout());
+                .configureReadTimeout(settings.getIpfs().getTimeout().getRead())
+                .configureWriteTimeout(settings.getIpfs().getTimeout().getWrite());
 
         ElasticSearchService indexerService = ElasticSearchService.connect(settings.getElasticSearch().getHost(),
                 settings.getElasticSearch().getPort(), settings.getElasticSearch().getClusterName());
