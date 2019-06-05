@@ -17,6 +17,8 @@ import net.consensys.mahuta.core.domain.indexing.OnlyStoreIndexingRequestBuilder
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequestBuilder;
 import net.consensys.mahuta.core.domain.search.SearchRequestBuilder;
+import net.consensys.mahuta.core.domain.updatefield.UpdateFieldRequest;
+import net.consensys.mahuta.core.domain.updatefield.UpdateFieldRequestBuilder;
 import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.service.MahutaService;
 
@@ -96,6 +98,17 @@ public class Mahuta {
     public DeindexingRequestBuilder prepareDeindexing(String indexName, String indexDocId) {
         DeindexingRequestBuilder builder =  prepare(DeindexingRequestBuilder.class);
         return builder.indexName(indexName).indexDocId(indexDocId);
+    }
+
+    public UpdateFieldRequestBuilder prepareUpdateField(String indexName, String indexDocId, String key, Object value) {
+        UpdateFieldRequestBuilder builder =  prepare(UpdateFieldRequestBuilder.class);
+        return builder.indexName(indexName).indexDocId(indexDocId)
+                .key(key).value(value);
+    }
+    
+    public UpdateFieldRequestBuilder prepareUpdateField(UpdateFieldRequest request) {
+        UpdateFieldRequestBuilder builder =  prepare(UpdateFieldRequestBuilder.class);
+        return builder.request(request);
     }
 
     public GetRequestBuilder prepareGet() {

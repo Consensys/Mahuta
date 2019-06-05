@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Longs;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.DocWriteResponse;
@@ -33,6 +34,8 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -60,6 +63,7 @@ public class ElasticSearchService implements IndexingService {
     private static final String DEFAULT_TYPE = "_doc";
     private static final String ALL_INDICES = "_all";
     private static final String NULL = "null";
+    private static final Integer RETRY_ON_CONFLICT = 5;
 
     private final ElasticSearchSettings settings;
     private final TransportClient client;
@@ -205,6 +209,7 @@ public class ElasticSearchService implements IndexingService {
         Map<String, Object> source = new HashMap<>();
         source.put(HASH_INDEX_KEY, contentId);
         source.put(CONTENT_TYPE_INDEX_KEY, contentType);
+        source.put(PINNED_KEY, false);
         Optional.ofNullable(content)
             .map(bytearray -> Base64.getEncoder().encode(bytearray))
             .ifPresent(base64 -> source.put(CONTENT_INDEX_KEY, new String(base64)));
@@ -222,6 +227,7 @@ public class ElasticSearchService implements IndexingService {
 
         } else {
             response = client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
+                    .setRetryOnConflict(RETRY_ON_CONFLICT)
                     .setDoc(convertObjectToJsonString(source), XContentType.JSON).get();
         }
 
@@ -232,6 +238,41 @@ public class ElasticSearchService implements IndexingService {
         this.refreshIndex(indexName);
 
         return response.getId();
+    }
+
+    @Override
+    public void updateField(String indexName, String indexDocId, String key, Object value) {
+        log.debug("Update field on document in ElasticSearch [indexName: {}, indexDocId: {}, key: {}, value: {}]", indexName, indexDocId, key, value);
+
+        // Validation
+        ValidatorUtils.rejectIfEmpty("indexName", indexName);
+        ValidatorUtils.rejectIfEmpty("indexDocId", indexDocId);
+        ValidatorUtils.rejectIfEmpty("key", key);
+
+        // Format index
+        indexName = indexName.toLowerCase();
+        
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("value", value);
+            
+            client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
+                .setRetryOnConflict(RETRY_ON_CONFLICT)
+                .setScript(new Script(
+                        ScriptType.INLINE,
+                        "painless",
+                        "ctx._source."+key+" = params.value",
+                        params
+                )).execute().actionGet();
+
+            log.debug("Field updated on document in ElasticSearch [indexName: {}, indexDocId: {}, key: {}, value: {}]", indexName, indexDocId, key, value);
+
+            this.refreshIndex(indexName);
+
+        } catch (Exception ex) {
+            log.error("Error while updating field [indexName: {}, indexDocId: {}, key: {}, value: {}]", indexName, indexDocId, key, value, ex);
+            throw new TechnicalException("Error while updating key " + key + " of doc indexDocId: " + indexDocId, ex);
+        }
     }
 
     @Override
@@ -371,6 +412,7 @@ public class ElasticSearchService implements IndexingService {
         String contentId = null;
         String contentType = null;
         byte[] content = null;
+        boolean pinned = false;
 
         if (sourceMap != null) {
             
@@ -404,10 +446,15 @@ public class ElasticSearchService implements IndexingService {
                 content = Base64.getDecoder().decode(sourceMap.get(CONTENT_INDEX_KEY).toString());
                 sourceMap.remove(CONTENT_INDEX_KEY);
             }
+            // Extract special key __pinned
+            if (sourceMap.containsKey(PINNED_KEY) && sourceMap.get(PINNED_KEY) != null) {
+                pinned = (boolean) sourceMap.get(PINNED_KEY);
+                sourceMap.remove(PINNED_KEY);
+            }
         }
         
         
-        return Metadata.of(indexName, documentId, contentId, contentType, content, sourceMap);
+        return Metadata.of(indexName, documentId, contentId, contentType, content, pinned, sourceMap);
     }
 
     private QueryBuilder buildQuery(Query query) {

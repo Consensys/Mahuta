@@ -235,6 +235,37 @@ public class ElasticSearchIndexerTest extends TestUtils  {
         assertEquals(builderAndResponse2.getBuilder().getRequest().getIndexFields().get(VIEWS_FIELD), metadata.getIndexFields().get(VIEWS_FIELD));
     }
 
+
+    @Test
+    public void updateField() throws Exception {
+        String indexName = mockNeat.strings().size(20).get();
+        String indexDocId = mockNeat.strings().size(50).get();
+        String titleNewValue = "test";
+              
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest(indexName, indexDocId);
+
+        IndexingService service = ElasticSearchService
+                .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
+        
+
+        //////////////////////////////
+        String docId = service.index(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse.getResponse().getContentId(), 
+                builderAndResponse.getBuilder().getRequest().getContentType(), 
+                builderAndResponse.getBuilder().getRequest().getIndexFields());
+
+        service.updateField(indexName, indexDocId, TITLE_FIELD, titleNewValue);
+        
+        Metadata metadata = service.getDocument(builderAndResponse.getBuilder().getRequest().getIndexName(), docId);
+        //////////////////////////////
+
+        assertEquals(indexDocId, docId);
+        assertEquals(titleNewValue, metadata.getIndexFields().get(TITLE_FIELD));
+    }
+
     @Test(expected=NotFoundException.class)
     public void deindex() throws Exception {
         
