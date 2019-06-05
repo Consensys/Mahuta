@@ -32,6 +32,8 @@ import net.consensys.mahuta.core.domain.indexing.OnylStoreIndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.StringIndexingRequest;
 import net.consensys.mahuta.core.domain.search.SearchRequest;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
+import net.consensys.mahuta.core.domain.updatefield.UpdateFieldRequest;
+import net.consensys.mahuta.core.domain.updatefield.UpdateFieldResponse;
 import net.consensys.mahuta.core.exception.ValidationException;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
@@ -88,7 +90,7 @@ public class MahutaServiceImpl implements MahutaService {
         if (request instanceof InputStreamIndexingRequest) {
             InputStream contentIS = ((InputStreamIndexingRequest) request).getContent();
             content = BytesUtils.convertToByteArray(contentIS);
-            contentId = storageService.write(content);
+            contentId = storageService.write(content, true);
             contentType = Optional.ofNullable(contentType)
                     .orElseGet(Throwing.rethrowSupplier(() -> URLConnection.guessContentTypeFromStream(contentIS)));
 
@@ -100,10 +102,10 @@ public class MahutaServiceImpl implements MahutaService {
         } else if (request instanceof StringIndexingRequest) {
             String contentStr = ((StringIndexingRequest) request).getContent();
             content = contentStr.getBytes();
-            contentId = storageService.write(contentStr.getBytes());
+            contentId = storageService.write(contentStr.getBytes(), true);
 
         } else if (request instanceof OnylStoreIndexingRequest) {
-            contentId = storageService.write(BytesUtils.convertToByteArray(((OnylStoreIndexingRequest) request).getContent()));
+            contentId = storageService.write(BytesUtils.convertToByteArray(((OnylStoreIndexingRequest) request).getContent()), false);
             
             return IndexingResponse.of(contentId);
 
@@ -125,15 +127,31 @@ public class MahutaServiceImpl implements MahutaService {
         // Pin content
         Content contentToPin = Content.of(contentId);
         storageService.getReplicaSet().forEach(pinningService ->
-            CompletableFuture.supplyAsync(() -> {
+            CompletableFuture.runAsync(() -> {
+                // Ping 
                 pinningService.pin(contentToPin.getContentId());
-                return true;
+                
+                // Set the flag __pinned to true
+                indexingService.updateField(request.getIndexName(), indexDocId, IndexingService.PINNED_KEY, true);
             })
         );
         
         // Result 
         return IndexingResponse.of(request.getIndexName(), indexDocId, contentId, contentType,
                 request.getIndexFields());
+    }
+
+    @Override
+    public UpdateFieldResponse updateField(UpdateFieldRequest request) {
+        ValidatorUtils.rejectIfNull(REQUEST, request);
+
+        indexingService.updateField(
+                request.getIndexName(), 
+                request.getIndexDocId(), 
+                request.getKey(), 
+                request.getValue());
+
+        return UpdateFieldResponse.of();
     }
 
     @Override

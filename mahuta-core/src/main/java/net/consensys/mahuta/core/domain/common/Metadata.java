@@ -16,10 +16,11 @@ public class Metadata {
     protected String contentId;
     protected String contentType;
     protected byte[] content;
+    protected boolean pinned;
     protected Map<String, Object> indexFields;
 
     public static Metadata of(String indexName, String indexDocId, String contentId, String contentType,
-            byte[] content, Map<String, Object> indexFields) {
-        return new Metadata(indexName, indexDocId, contentId, contentType, content, indexFields);
+            byte[] content, boolean pinned, Map<String, Object> indexFields) {
+        return new Metadata(indexName, indexDocId, contentId, contentType, content, pinned, indexFields);
     }
 }

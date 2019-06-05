@@ -159,6 +159,17 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
             .execute();
     }
 
+    @Override
+    public void updateIndexField(Serializable id, String field, Object value) {
+
+        log.debug("updateIndexField [id={}, field: {}, value: {}]", id, field, value);
+
+        mahuta.prepareUpdateField(indexName, id.toString(), field, value)
+                .execute();
+        
+        log.debug("Field [id={}, field: {}, value: {}] updated", id, field, value);
+    }
+
     /*
      * NOT IMPLEMENTED METHODS
      */

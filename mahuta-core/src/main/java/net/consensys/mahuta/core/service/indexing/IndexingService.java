@@ -14,6 +14,7 @@ public interface IndexingService {
     static final String HASH_INDEX_KEY = "__hash";
     static final String CONTENT_TYPE_INDEX_KEY = "__content_type";
     static final String CONTENT_INDEX_KEY = "__content";
+    static final String PINNED_KEY = "__pinned";
     
     void createIndex(String indexName);
     
@@ -24,6 +25,8 @@ public interface IndexingService {
     String index(String indexName, String indexDocId, String contentId, String contentType, Map<String, Object> indexFields);
     
     String index(String indexName, String indexDocId, String contentId, String contentType, byte[] content, Map<String, Object> indexFields);
+    
+    void updateField(String indexName, String indexDocId, String key, Object value);
     
     void deindex(String indexName, String indexDocId);
     
