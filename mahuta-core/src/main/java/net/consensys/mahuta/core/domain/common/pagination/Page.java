@@ -42,5 +42,19 @@ public class Page<T> {
     public boolean isEmpty() {
         return totalElements == 0;
     }
-    
+
+    @JsonIgnore
+    public boolean hasNext() {
+        return pageRequest.getPage() + 1 < getTotalPages();
+    }
+
+    @JsonIgnore
+    public boolean isLast() {
+        return !hasNext();
+    }
+
+    @JsonIgnore
+    public PageRequest nextPageRequest() {
+        return PageRequest.of(pageRequest.getPage()+1, pageRequest.getSize(), pageRequest.getSort(), pageRequest.getDirection());
+    }
 }
