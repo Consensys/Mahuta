@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.test.lamba;
+package net.consensys.mahuta.core.test;
 
 import java.util.Map;
 import java.util.Optional;

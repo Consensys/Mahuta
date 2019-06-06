@@ -1,4 +1,4 @@
-package net.consensys.mahuta.core.test.lamba;
+package net.consensys.mahuta.core.test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -54,6 +54,13 @@ public class AsynchonousPinningMahutaTest extends MahutaTestAbstract {
         mockIndex(builderAndResponse);
         mockGetIndexes(builderAndResponse.getBuilder().getRequest().getIndexName());
         
+        builderAndResponse.getResponse().setPinned(false);
+        mockSearchDocuments(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                1, 
+                Query.newQuery().equals(IndexingService.PINNED_KEY, false), 
+                builderAndResponse);
+        
         super.index(builderAndResponse);
         
         verify(indexingService, atLeast(1)).getIndexes();

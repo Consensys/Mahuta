@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+
+import com.google.common.collect.ImmutableMap;
 
 import io.ipfs.api.IPFS;
 import lombok.extern.slf4j.Slf4j;
@@ -43,14 +46,13 @@ import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
-import net.consensys.mahuta.springdata.MahutaRepository;
 
 @Slf4j
 public class MahutaRepositoryTest {
 
     private static final MockNeat mockNeat = MockNeat.threadLocal();
 
-    private MahutaRepository<Entity, String> underTest;
+    private TestRepository underTest;
 
     @BeforeClass
     public static void startContainers() throws IOException {
@@ -410,5 +412,25 @@ public class MahutaRepositoryTest {
         // #################################################
  
         assertFalse(result.isPresent());
+    }    
+    
+    @Test
+    public void updateField() throws Exception {
+        String id = mockNeat.strings().size(50).get();
+        Entity entity = Factory.getEntity(id);
+        Map<String, Object> externalField = ImmutableMap.of("attribute1", "value");
+
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateStringIndexingRequest(
+                entity.toJSON(), indexName, id, entity.toMap());
+        
+        // #################################################
+        underTest.save(entity, externalField);
+        underTest.updateIndexField(id, "attribute1", "edit");
+        Page<Entity> result1 = underTest.findByAttribute("attribute1", "value", PageRequest.of(0, 10));
+        Page<Entity> result2 = underTest.findByAttribute("attribute1", "edit", PageRequest.of(0, 10));
+        // #################################################
+
+        assertEquals(0, result1.getTotalElements());
+        assertEquals(1, result2.getTotalElements());
     }
 }
