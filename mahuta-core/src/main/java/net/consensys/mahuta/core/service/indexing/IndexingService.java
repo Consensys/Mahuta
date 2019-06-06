@@ -22,9 +22,8 @@ public interface IndexingService {
     
     List<String> getIndexes();
     
-    String index(String indexName, String indexDocId, String contentId, String contentType, Map<String, Object> indexFields);
-    
-    String index(String indexName, String indexDocId, String contentId, String contentType, byte[] content, Map<String, Object> indexFields);
+    String index(String indexName, String indexDocId, String contentId, String contentType, byte[] content, 
+            boolean pinned, Map<String, Object> indexFields);
     
     void updateField(String indexName, String indexDocId, String key, Object value);
     

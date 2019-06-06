@@ -43,7 +43,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         this.mahuta = new MahutaFactory()
                 .configureStorage(storageService)
                 .configureIndexer(indexingService)
-                .build();
+                .defaultImplementation();
     }
     
     protected void creatIndex(String indexName) throws Exception {
@@ -203,7 +203,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
 
     protected void mockGetIndexes(String indexName) {
         when(indexingService.getIndexes())
-        .thenReturn(Arrays.asList(mockNeat.strings().get(), mockNeat.strings().get(), indexName));
+        .thenReturn(Arrays.asList(indexName, mockNeat.strings().get(), mockNeat.strings().get()));
     } 
     
     protected void mockIndex(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
@@ -214,6 +214,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
                     eq(builderAndResponse.getResponse().getContentId()), 
                     eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
                     any(byte[].class),
+                    any(boolean.class),
                     eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
             .thenReturn(builderAndResponse.getResponse().getIndexDocId());
             
@@ -223,6 +224,8 @@ public abstract class MahutaTestAbstract extends TestUtils {
                     eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
                     eq(builderAndResponse.getResponse().getContentId()), 
                     eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                    eq(null),
+                    any(boolean.class),
                     eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
             .thenReturn(builderAndResponse.getResponse().getIndexDocId());
             

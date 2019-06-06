@@ -35,7 +35,7 @@ import net.consensys.mahuta.core.MahutaFactory;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
-import net.consensys.mahuta.core.service.MahutaServiceImpl;
+import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
@@ -74,9 +74,9 @@ public class MahutaRepositoryTest {
         mahuta = new MahutaFactory()
                 .configureIndexer(indexingService)
                 .configureStorage(storageService)
-                .build();
+                .defaultImplementation();
         
-        indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
+        indexingRequestUtils = new IndexingRequestUtils(new DefaultMahutaService(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     

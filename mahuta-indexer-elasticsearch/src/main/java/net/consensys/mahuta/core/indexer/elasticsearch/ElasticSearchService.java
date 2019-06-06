@@ -180,18 +180,12 @@ public class ElasticSearchService implements IndexingService {
     }
 
     @Override
-    public String index(String indexName, String indexDocId, String contentId, String contentType,
-            Map<String, Object> indexFields) {
-        return index(indexName, indexDocId, contentId, contentType, null, indexFields);
-    }
-
-    @Override
-    public String index(String indexName, String indexDocId, String contentId, String contentType, byte[] content,
-            Map<String, Object> indexFields) {
+    public String index(String indexName, String indexDocId, String contentId, String contentType, 
+            byte[] content, boolean pinned, Map<String, Object> indexFields) {
 
         log.debug(
-                "Index document in ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, content: {}, indexFields: {}]",
-                indexName, indexDocId, contentId, contentType, content!=null ? "present": "not present", indexFields);
+                "Index document in ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, content: {}, pinned: {}, indexFields: {}]",
+                indexName, indexDocId, contentId, contentType, content!=null ? "null": "not present", pinned, indexFields);
 
         // Validation
         ValidatorUtils.rejectIfEmpty("indexName", indexName);
@@ -208,7 +202,7 @@ public class ElasticSearchService implements IndexingService {
         Map<String, Object> source = new HashMap<>();
         source.put(HASH_INDEX_KEY, contentId);
         source.put(CONTENT_TYPE_INDEX_KEY, contentType);
-        source.put(PINNED_KEY, false);
+        source.put(PINNED_KEY, pinned);
         Optional.ofNullable(content)
             .map(bytearray -> Base64.getEncoder().encode(bytearray))
             .ifPresent(base64 -> source.put(CONTENT_INDEX_KEY, new String(base64)));

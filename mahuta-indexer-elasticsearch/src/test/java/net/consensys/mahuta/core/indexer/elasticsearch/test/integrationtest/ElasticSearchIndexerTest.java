@@ -123,6 +123,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
         //////////////////////////////
 
@@ -145,6 +146,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
                 builderAndResponse.getResponse().getContent(),
+                true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
         //////////////////////////////
 
@@ -167,6 +169,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
         //////////////////////////////
 
@@ -182,11 +185,12 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"));
         
         //////////////////////////////
-        String docId = service.index(
+        service.index(
                 builderAndResponse.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
         //////////////////////////////
     }
@@ -211,6 +215,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
 
         String docId2 = service.index(
@@ -218,6 +223,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         
         Metadata metadata = service.getDocument(builderAndResponse1.getBuilder().getRequest().getIndexName(), docId1);
@@ -255,6 +261,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
 
         service.updateField(indexName, indexDocId, TITLE_FIELD, titleNewValue);
@@ -282,6 +289,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
 
         service.deindex(builderAndResponse.getBuilder().getRequest().getIndexName(), docId);
@@ -306,6 +314,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
         
         Metadata metadata = service.getDocument(builderAndResponse.getBuilder().getRequest().getIndexName(), docId);
@@ -339,6 +348,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
                 builderAndResponse.getResponse().getContent(),
+                true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
         
         Metadata metadata = service.getDocument(builderAndResponse.getBuilder().getRequest().getIndexName(), docId);
@@ -374,6 +384,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse.getResponse().getContentId(), 
                 builderAndResponse.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse.getBuilder().getRequest().getIndexFields());
 
         IntStream.range(0, noDocs).forEach(i-> {
@@ -383,6 +394,7 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                     x.getBuilder().getRequest().getIndexDocId(), 
                     x.getResponse().getContentId(), 
                     x.getBuilder().getRequest().getContentType(), 
+                    null, true,
                     x.getBuilder().getRequest().getIndexFields());
         });
         
@@ -421,13 +433,15 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
-                builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                builderAndResponse1.getBuilder().getRequest().getContentType(),
+                null, true, 
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result = service.searchDocuments(
@@ -475,18 +489,21 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, Query.newQuery().fullText(AUTHOR_FIELD, "Jeanmart"), PageRequest.of(0, 10, "_id", SortDirection.ASC));
@@ -521,30 +538,35 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse4.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse4.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse4.getResponse().getContentId(), 
                 builderAndResponse4.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse4.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse5.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse5.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse5.getResponse().getContentId(), 
                 builderAndResponse5.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse5.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, Query.newQuery().lessThan(VIEWS_FIELD, 3), PageRequest.of(0, 10, "_id", SortDirection.ASC));
@@ -591,30 +613,35 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse4.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse4.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse4.getResponse().getContentId(), 
                 builderAndResponse4.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse4.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse5.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse5.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse5.getResponse().getContentId(), 
-                builderAndResponse5.getBuilder().getRequest().getContentType(), 
+                builderAndResponse5.getBuilder().getRequest().getContentType(),
+                null, true, 
                 builderAndResponse5.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, Query.newQuery().in(STATUS_FIELD, Arrays.asList(Status.DRAFT, Status.PUBLISHED)), PageRequest.of(0, 10, "_id", SortDirection.ASC));
@@ -641,18 +668,21 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, Query.newQuery().notEquals(STATUS_FIELD, Status.DRAFT.toString()), PageRequest.of(0, 10, "_id", SortDirection.ASC));
@@ -680,18 +710,21 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, 
@@ -724,18 +757,21 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, 
@@ -766,18 +802,21 @@ public class ElasticSearchIndexerTest extends TestUtils  {
                 builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse1.getResponse().getContentId(), 
                 builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse1.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse2.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse2.getResponse().getContentId(), 
                 builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse2.getBuilder().getRequest().getIndexFields());
         service.index(
                 builderAndResponse3.getBuilder().getRequest().getIndexName(), 
                 builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
                 builderAndResponse3.getResponse().getContentId(), 
                 builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
                 builderAndResponse3.getBuilder().getRequest().getIndexFields());
         
         Page<Metadata> result1 = service.searchDocuments(indexName, 

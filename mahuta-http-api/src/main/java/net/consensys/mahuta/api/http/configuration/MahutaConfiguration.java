@@ -44,7 +44,7 @@ public class MahutaConfiguration {
         return new MahutaFactory()
                 .configureStorage(storageService)
                 .configureIndexer(indexerService)
-                .build();
+                .defaultImplementation();
     }
 
 }

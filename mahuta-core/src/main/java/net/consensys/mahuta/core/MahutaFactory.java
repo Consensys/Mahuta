@@ -1,6 +1,7 @@
 package net.consensys.mahuta.core;
 
-import net.consensys.mahuta.core.service.MahutaServiceImpl;
+import net.consensys.mahuta.core.service.AsynchonousPinningMahutaService;
+import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.StorageService;
 
@@ -12,7 +13,7 @@ import net.consensys.mahuta.core.service.storage.StorageService;
  *
  */
 public class MahutaFactory {
-
+    
     private StorageService storageService;
     private IndexingService indexingService;
     
@@ -26,8 +27,12 @@ public class MahutaFactory {
         return this;
     }
 
-    public Mahuta build() {
-        return Mahuta.of(new MahutaServiceImpl(storageService, indexingService)); 
+    public Mahuta defaultImplementation() {
+        return Mahuta.of(new DefaultMahutaService(storageService, indexingService)); 
+    }
+
+    public Mahuta asynchronousPinningImplementation(long schedulerPeriod) {
+        return Mahuta.of(new AsynchonousPinningMahutaService(storageService, indexingService, schedulerPeriod)); 
     }
     
 }

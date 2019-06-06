@@ -318,7 +318,7 @@ public class IPFSService implements StorageService, PinningService {
         public String call() {
             try {
                 NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
-                MerkleNode response = add(file, noPin).get(0);
+                MerkleNode response = add(file).get(0);
                 return response.hash.toString();
             } catch (IOException ex) {
                 log.error("Exception while writing file on IPFS", ex);
@@ -326,9 +326,10 @@ public class IPFSService implements StorageService, PinningService {
             }
         }
         
-        private List<MerkleNode> add(NamedStreamable.ByteArrayWrapper file, boolean pin) throws IOException {
-            
-            Multipart m = new Multipart("http" + "://" + settings.getHost() + ":" + settings.getPort() + "/api/v0/" + "add?stream-channels=true&pin="+!noPin, "UTF-8");
+        private List<MerkleNode> add(NamedStreamable.ByteArrayWrapper file) throws IOException {
+            String url = "http" + "://" + settings.getHost() + ":" + settings.getPort() + "/api/v0/" + "add?stream-channels=true&pin="+!noPin;
+            log.trace("url: {}", url);
+            Multipart m = new Multipart(url, "UTF-8");
             m.addFilePart("file", Paths.get(""), file);
             String res = m.finish();
             return JSONParser.parseStream(res).stream()

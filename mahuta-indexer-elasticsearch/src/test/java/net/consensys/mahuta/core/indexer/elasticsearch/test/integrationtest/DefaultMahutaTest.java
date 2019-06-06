@@ -24,7 +24,7 @@ import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
-import net.consensys.mahuta.core.service.MahutaServiceImpl;
+import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
@@ -33,7 +33,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndRespo
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 import net.consensys.mahuta.core.utils.BytesUtils;
 
-public class MahutaTest extends MahutaTestAbstract {
+public class DefaultMahutaTest extends MahutaTestAbstract {
     
     private static IndexingRequestUtils indexingRequestUtils;
     
@@ -50,11 +50,11 @@ public class MahutaTest extends MahutaTestAbstract {
     
     private String indexName;
     
-    public MahutaTest () {
+    public DefaultMahutaTest () {
         super(ElasticSearchService.connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name")), 
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
         );
-        indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
+        indexingRequestUtils = new IndexingRequestUtils(new DefaultMahutaService(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
         
     }  

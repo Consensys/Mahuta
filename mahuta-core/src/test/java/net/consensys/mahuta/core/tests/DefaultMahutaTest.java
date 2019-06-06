@@ -21,7 +21,7 @@ import net.consensys.mahuta.core.domain.common.pagination.PageRequest;
 import net.consensys.mahuta.core.domain.common.query.Query;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
-import net.consensys.mahuta.core.service.MahutaServiceImpl;
+import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
@@ -32,7 +32,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 
-public class MahutaTest extends MahutaTestAbstract {
+public class DefaultMahutaTest extends MahutaTestAbstract {
 
     private static IndexingRequestUtils indexingRequestUtils;
     
@@ -46,11 +46,11 @@ public class MahutaTest extends MahutaTestAbstract {
         ContainerUtils.stopAll();
     }
     
-    public MahutaTest () {
+    public DefaultMahutaTest () {
         super(Mockito.mock(IndexingService.class), 
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
         );
-        indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
+        indexingRequestUtils = new IndexingRequestUtils(new DefaultMahutaService(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     
@@ -188,6 +188,18 @@ public class MahutaTest extends MahutaTestAbstract {
         
         IndexingResponse response = mahuta.prepareStorage(is).execute();
         assertEquals(file.getCid(), response.getContentId());
+    }
+    
+    @Test
+    public void prepareUpdateField() {        
+        String indexName = mockNeat.strings().size(20).get();
+    BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
+
+    mockIndex(builderAndResponse);
+    builderAndResponse.getResponse().getIndexFields().put(IndexingRequestUtils.AUTHOR_FIELD, "test");
+    mockGetDocument(builderAndResponse);
+
+    super.updateField(builderAndResponse, IndexingRequestUtils.AUTHOR_FIELD, "test");
     }
 
     
