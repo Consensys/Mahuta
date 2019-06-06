@@ -253,7 +253,7 @@ public class ElasticSearchService implements IndexingService {
         
         try {
             Map<String, Object> params = new HashMap<>();
-            params.put("value", value);
+            params.put("value", transformValue(value));
             
             client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
                 .setRetryOnConflict(RETRY_ON_CONFLICT)
