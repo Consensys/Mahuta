@@ -11,6 +11,9 @@
         "__content": {
           "type": "binary"
         },
+        "__pinned": {
+          "type": "boolean"
+        },
         "title": {
           "type": "text"
         },
