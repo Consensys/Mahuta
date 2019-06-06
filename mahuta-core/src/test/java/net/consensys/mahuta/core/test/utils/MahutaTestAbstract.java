@@ -158,6 +158,27 @@ public abstract class MahutaTestAbstract extends TestUtils {
         }
     }
     
+    protected void updateField(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse, String field, Object value) {
+        
+        ////////////////////////
+        builderAndResponse.getBuilder().execute();
+        
+        mahuta.prepareUpdateField(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
+                field, 
+                value).execute();
+
+        GetResponse getResponse = mahuta.prepareGet()
+                .indexName(builderAndResponse.getBuilder().getRequest().getIndexName())
+                .indexDocId(builderAndResponse.getBuilder().getRequest().getIndexDocId())
+                .loadFile(true)
+                .execute();
+        ////////////////////////
+
+        assertEquals(value, getResponse.getMetadata().getIndexFields().get(field));
+    }
+    
     public static void validateMetadata(BuilderAndResponse<IndexingRequest, IndexingResponse> builder, Metadata metadata) {
         assertTrue(builder.getResponse().getIndexName().equalsIgnoreCase(metadata.getIndexName()));
         
@@ -175,7 +196,6 @@ public abstract class MahutaTestAbstract extends TestUtils {
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD));
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD));
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.STATUS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.STATUS_FIELD));
-        
     }
     
     ////////////////////////////////

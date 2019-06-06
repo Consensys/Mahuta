@@ -5,6 +5,8 @@ import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.DATE_CRE
 import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IS_PUBLISHED_FIELD;
 import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.TITLE_FIELD;
 import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.VIEWS_FIELD;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,7 +18,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.ipfs.api.IPFS;
+import net.consensys.mahuta.core.domain.Response.ResponseStatus;
 import net.consensys.mahuta.core.domain.common.query.Query;
+import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
@@ -24,8 +28,8 @@ import net.consensys.mahuta.core.service.MahutaServiceImpl;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
-import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 import net.consensys.mahuta.core.utils.BytesUtils;
 
@@ -164,5 +168,33 @@ public class MahutaTest extends MahutaTestAbstract {
 
         super.search(Arrays.asList(builderAndResponse1, builderAndResponse2, builderAndResponse3), 
                 Query.newQuery().fullText(AUTHOR_FIELD, "Greg"), 1,  builderAndResponse1);
+    }
+    
+    @Test
+    public void updateField() {
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomStringIndexingRequest(indexName);
+        
+        super.updateField(builderAndResponse, AUTHOR_FIELD, "bob markey");
+    }
+    
+    @Test
+    public void checkPinned() throws Exception {
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse = indexingRequestUtils.generateRandomCIDIndexingRequest(indexName);
+        
+        ////////////////////////
+        IndexingResponse indexingResponse = builderAndResponse.getBuilder().execute();
+        assertEquals(ResponseStatus.SUCCESS, indexingResponse.getStatus());
+        
+        Thread.sleep(1000);
+        
+        GetResponse getResponse = mahuta.prepareGet()
+                .indexName(builderAndResponse.getBuilder().getRequest().getIndexName())
+                .indexDocId(builderAndResponse.getBuilder().getRequest().getIndexDocId())
+                .loadFile(true)
+                .execute();
+        assertEquals(ResponseStatus.SUCCESS, getResponse.getStatus());
+        ////////////////////////
+
+        assertTrue(getResponse.getMetadata().isPinned());
     }
 }
