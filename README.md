@@ -90,7 +90,7 @@ SearchResponse response = mahuta.prepareSearch()
     .execute();
 ```
 
-For more info, [Mahuta Java API](mahuta_java_api.md)
+For more info, [Mahuta Java API](mahuta-docs/mahuta_java_api.md)
 
 ### Spring-Data
 
@@ -116,7 +116,7 @@ public class ArticleRepository extends MahutaRepositoryImpl<Article, String> {
 ```
 
 
-For more info, [Mahuta Spring Data](mahuta_spring_data.md)
+For more info, [Mahuta Spring Data](mahuta-docs/mahuta_spring_data.md)
 
 
 ### HTTP API
