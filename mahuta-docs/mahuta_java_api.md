@@ -3,9 +3,16 @@ Mahuta Java API
 
 ## Configuration
 
-Before starting, the client needs to instantiate a Mahuta object.
+Before starting, the client needs to instantiate a Mahuta object:
 
-### Storage
+```
+Mahuta mahuta = new MahutaFactory()
+    .configureStorage(IPFSService.connect("localhost", 5001).configureThreadPool(2))
+    .configureIndexer(ElasticSearchService.connect("localhost", 9300, "cluster-name").withIndex("article"))
+    .defaultImplementation();
+```
+
+### Storage `configureStorage`
 
 Storage represents the storage layer (aka IPFS)
 
@@ -18,7 +25,7 @@ StorageService storage = IPFSService.connect(String host, Integer port) or .conn
     .addReplica(PinningService pinningService) // Another IPFSService or an IPFSClusterPinningService
 ```
 
-### Indexer
+### Indexer `configureIndexer`
 
 Indexer represents the indexing layer (ElasticSearch)
 
@@ -46,15 +53,6 @@ Select the service implementation to use:
     .asynchronousPinningImplementation(long schedulerPeriod)
 ```
 
-
-### Example
-
-```
-Mahuta mahuta = new MahutaFactory()
-    .configureStorage(IPFSService.connect("localhost", 5001).configureThreadPool(2))
-    .configureIndexer(ElasticSearchService.connect("localhost", 9300, "cluster-name").withIndex("article"))
-    .defaultImplementation();
-```
 
 ## Operations
 
