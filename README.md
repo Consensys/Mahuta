@@ -1,6 +1,10 @@
 Mahuta
 ======
 
+**Mahuta** (formerly known as IPFS-Store) is a convenient library to aggregate and consolidate files or documents stored by your application on the IPFS network. It provides a solution to collect, store, index and search data used.
+
+## Project status
+
 | Service | Master | Development |
 | -------- | -------- | -------- |
 | CI Status | ![](https://img.shields.io/circleci/project/github/ConsenSys/Mahuta/master.svg) | ![](https://img.shields.io/circleci/project/github/ConsenSys/Mahuta/development.svg) |
@@ -10,13 +14,16 @@ Mahuta
 | Sonar | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gjeanmart_IPFS-Store&metric=alert_status)](https://sonarcloud.io/dashboard?id=gjeanmart_IPFS-Store) |
 
 
-**Mahuta** (formerly known as IPFS-Store) is a adaptable search engine opensource tool aiming to collect, store and index data on the IPFS network. This is a convenient solution for any applications storing data on IPFS which require content discovery (complex queries or full text search with fuzziness).
+## Features
 
-It can be deployed as a simple embedded Java library for your Java application or a simple, scalable and configurable API.
+- **Indexation**: Mahuta stores documents or files on IPFS and index the hash with optional metadata.
+- **Discovery**: Documents and files indexed can be searched using complex logical queries or fuzzy/full text search)
+- **Scalable**: Optimised for large scale applications using asynchronous writing mechanism
+- **Replication**: Replica set can be configured to replicate (pin) content across multiple nodes (standard IPFS node or IPFS-cluster node)
+- **Multi-platform**: Mahuta can be used as a simple embedded Java library for your JVM-based application or run as a simple, scalable and configurable Rest API.
 
-This service offers functionnality to store content on IPFS, replicate it across multiple nodes (IPFS node or IPFS-cluster node) and index it locally using ElasticSearch or Lucene. 
 
-[![Mahuta.jpg](https://i.ibb.co/MMnvVmm/Untitled-New-frame-1.jpg)](https://i.ibb.co/MMnvVmm/Untitled-New-frame-1.jpg)
+![Mahuta.jpg](https://imgur.com/tIdQRD8.png)
 
 
 -------------------------------------------------------------------------
@@ -32,7 +39,7 @@ Mahuta depends of two components:
 - an IPFS node ([go](https://github.com/ipfs/go-ipfs) or [js](https://github.com/ipfs/js-ipfs) implementation)
 - a search engine (currently only ElasticSearch is supported)
 
-You will need to run those two components first. [see wiki page - run IPFS and ElasticSearch]
+You will need to run those two components first, see [run IPFS and ElasticSearch](mahuta-docs/run_ipfs_and_elasticsearch.md)
 
 ### Java library
 
@@ -40,51 +47,76 @@ You will need to run those two components first. [see wiki page - run IPFS and E
 
 
 ````
-    <dependency>
-        <groupId>net.consensys.mahuta</groupId>
-        <artifactId>mahuta-core</artifactId>
-        <version>${MAHUTA_VERSION}</version>
-    </dependency>
-    <dependency>
-        <groupId>net.consensys.mahuta</groupId>
-        <artifactId>mahuta-indexing-elasticsearch</artifactId>
-        <version>${MAHUTA_VERSION}</version>
-    </dependency>
+<dependency>
+    <groupId>net.consensys.mahuta</groupId>
+    <artifactId>mahuta-core</artifactId>
+    <version>${MAHUTA_VERSION}</version>
+</dependency>
+<dependency>
+    <groupId>net.consensys.mahuta</groupId>
+    <artifactId>mahuta-indexing-elasticsearch</artifactId>
+    <version>${MAHUTA_VERSION}</version>
+</dependency>
 ````
 
 2. Configure Mahuta to connect to an IPFS node and an indexer
 
 ```
-    Mahuta mahuta = new MahutaFactory()
-        .configureStorage(IPFSService.connect("localhost", 5001))
-        .configureIndexer(ElasticSearchService.connect("localhost", 9300, "cluster-name"))
-        .build();
+Mahuta mahuta = new MahutaFactory()
+    .configureStorage(IPFSService.connect("localhost", 5001))
+    .configureIndexer(ElasticSearchService.connect("localhost", 9300, "cluster-name"))
+    .defaultImplementation();
 ```
 
-For the full documentation, [see wiki page - Mahuta Java API]
+3. Execute high-level operations
+
+```
+IndexingResponse response = mahuta.prepareStringIndexing("article", "## This is my first article")
+    .contentType("text/markdown")
+    .indexDocId("article-1")
+    .indexFields(ImmutableMap.of("title", "First Article", "author", "greg"))
+    .execute();
+    
+GetResponse response = mahuta.prepareGet()
+    .indexName("article")
+    .indexDocId("article-1")
+    .loadFile(true)
+    .execute();
+    
+SearchResponse response = mahuta.prepareSearch()
+    .indexName("article")
+    .query(Query.newQuery().equals("author", "greg"))
+    .pageRequest(PageRequest.of(0, 20))
+    .execute();
+```
+
+For more info, [Mahuta Java API](mahuta_java_api.md)
 
 ### Spring-Data
 
 1. Import the Maven dependencies 
 
 ````
-    <dependency>
-        <groupId>net.consensys.mahuta</groupId>
-        <artifactId>mahuta-springdata</artifactId>
-        <version>${MAHUTA_VERSION}</version>
-    </dependency>
+<dependency>
+    <groupId>net.consensys.mahuta</groupId>
+    <artifactId>mahuta-springdata</artifactId>
+    <version>${MAHUTA_VERSION}</version>
+</dependency>
 ````
 
 2. Configure your spring-data repository
 
 ```
-public class MyRepository extends MahutaRepositoryImpl<MyEntity, String> {
+public class ArticleRepository extends MahutaRepositoryImpl<Article, String> {
 
+    public ArticleRepository(Mahuta mahuta) {
+        super(mahuta, "article", Sets.newSet("title", "author"), Sets.newSet("title"), Article.class);
+    }
 }
 ```
 
 
-[see wiki page - Mahuta Spring-Data]
+For more info, [Mahuta Spring Data](mahuta_spring_data.md)
 
 
 ### HTTP API
@@ -110,7 +142,7 @@ $ cd /path/to/mahuta/mahuta-http-api/
 $ mvn clean package
 ```
 
-3. Configure the service
+3. Configure environment variables
 
 ```
 $ export MAHUTA_IPFS_HOST=localhost
@@ -133,7 +165,7 @@ $ java -jar target/mahuta-http-api-exec.jar
 ##### Prerequisites
 
 - Docker
-- [see wiki page - run IPFS and ElasticSearch] 
+- [run IPFS and ElasticSearch with Docker](mahuta-docs/run_ipfs_and_elasticsearch.md#Docker)
 
 
 ##### Steps
@@ -148,102 +180,14 @@ $ docker run -it --name mahuta \
 
 ##### docker-compose
 
-[see wiki page - docker-compose]
+[Docker-compose](mahuta-docs/mahuta_docker-compose.md)
 
 
-For the full documentation including configuration and details of each method , [see wiki page - Mahuta HTTP API]
+#### API samples
 
+For the full documentation including configuration and details of each operation: [Mahuta HTTP API](mahuta-docs/mahuta_http-api.md)
 
--------------------------------------------------------------------------
-
-
-## API Documentation
-
-### Overview
-
-##### Persistence
-
-Represents the writting operations.
-
-
-| Operation | Description | Method | URI |
-| -------- | -------- | -------- | -------- |
-| index_simple | Stored and index a text content | POST | /index |
-| index_cid | Pin and index a CID | POST | /index/cid |
-| index_file  | Store and index a file via HTTP Multipart | POST | /index/file ||
-
-##### Query
-Represents the read operations.
-
-| Operation | Description | Method | URI |
-| -------- | -------- | -------- | -------- |
-| fetch | Get content | GET | /query/fetch/{hash} |
-| search | Search content | POST | /query/search |
-
-#### Delete
-
-Represents the deletion operations.
-
-| Operation | Description | Method | URI |
-| -------- | -------- | -------- | -------- |
-| delete_by_id | Unpin and deindex a file by ID | DELETE | /delete/id/{id} |
-| delete_by_hash | Unpin and deindex a file by Hash | DELETE | /delete/hash/{hash} |
-
-
-#### Configuration
-
-Represents the configuration operations.
-
-| Operation | Description | Method | URI |
-| -------- | -------- | -------- | -------- |
-| create_index | Create an index | POST | /config/index/{index} |
-| get_indexes | Get all indexes | GET | /config/index |
-
-
-### Details
-
-
-#### [Persistence] Store and Index text
-
-Store and Index a text
-
--   **URL** `/mahuta/index`
--   **Method:** `POST`
--   **Header:**  
-
-| Key | Value |
-| -------- | -------- |
-| content-type | application/json |
-
-
--   **URL Params** `N/A`
--   **Data Params**
-
-| Name | Type | Mandatory | Default | Description |
-| -------- | -------- | -------- | -------- | -------- |
-| content | String | yes |  | Content  |
-| indexName | String | yes |  | Index name |
-| indexDocId | String | no |  | Identifier of the document in the index. id null, autogenerated |
-| contentType | String | no |  | Content type (mimetype) |
-| indexFields | Object | no |  | Metadata can used to query the document |
-
-
-```
-{
-  "content": "# Hello world,\n this is my first file stored on **IPFS**",
-  "indexName": "articles",
-  "indexDocId": "hello_world",
-  "contentType": "text/markdown",
-  "indexFields": {
-      "title": "Hello world",
-      "description": "Hello world this is my first file stored on IPFS",
-      "author": "Gregoire Jeanmart",
-      "votes": 10,
-      "date_created": 1518700549,
-      "tags": ["general"]
-  }
-}
-```
+##### Store and index 
 
 -   **Sample Request:**
 
@@ -265,234 +209,9 @@ curl -X POST \
     "id": "hello_world",
     "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
 }
-```
 
----------------------------
+##### Search 
 
-#### [Persistence] Store and Index CID
-
-Store and Index a text
-
--   **URL** `/mahuta/index/cid`
--   **Method:** `POST`
--   **Header:**  
-
-| Key | Value |
-| -------- | -------- |
-| content-type | application/json |
-
-
--   **URL Params** `N/A`
--   **Data Params**
-
-| Name | Type | Mandatory | Default | Description |
-| -------- | -------- | -------- | -------- | -------- |
-| cid | String | yes |  | Content Hash |
-| indexName | String | yes |  | Index name |
-| indexDocId | String | no |  | Identifier of the document in the index. id null, autogenerated |
-| contentType | String | no |  | Content type (mimetype) |
-| indexFields | Object | no |  | Metadata can used to query the document |
-
-
-```
-{
-  "cid": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
-  "indexName": "articles",
-  "indexDocId": "hello_world",
-  "contentType": "text/markdown",
-  "indexFields": {
-      "title": "Hello world",
-      "description": "Hello world this is my first file stored on IPFS",
-      "author": "Gregoire Jeanmart",
-      "votes": 10,
-      "date_created": 1518700549,
-      "tags": ["general"]
-  }
-}
-```
-
--   **Sample Request:**
-
-```
-curl -X POST \
-    'http://localhost:8040/mahuta/index/cid' \
-    -H 'content-type: application/json' \  
-    -d '{"cid":"QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o","indexName":"articles","indexDocId":"hello_world","contentType":"text/markdown","index_fields":{"title":"Hello world","author":"Gregoire Jeanmart","votes":10,"date_created":1518700549,"tags":["general"]}}'
-```
-
--   **Success Response:**
-
-    -   **Code:** 200  
-        **Content:**
-```
-{
-    "status": "SUCCESS",
-    "indexName": "articles",
-    "id": "hello_world",
-    "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
-}
-```
-
----------------------------
-
-#### [Persistencd] Store and Index file
-
-Store content in IPFS and index it into the search engine
-
--   **URL** `/mahuta/index/file`
--   **Method:** `POST`
--   **Header:** `N/A`
--   **URL Params** `N/A`
--   **Data Params**
-
-
-    -   `file: [content]`
-    -   `request: `
-
-| Name | Type | Mandatory | Default | Description |
-| -------- | -------- | -------- | -------- | -------- |
-| indexName | String | yes |  | Index name |
-| indexDocId | String | no |  | Identifier of the document in the index. id null, autogenerated |
-| contentType | String | no |  | Content type (mimetype) |
-| indexFields | Object | no |  | Metadata can used to query the document |
-
-
-```
-{
-  "indexName": "articles",
-  "indexDocId": "hello_world",
-  "contentType": "text/markdown",
-  "indexFields": {
-      "title": "Hello world",
-      "description": "Hello world this is my first file stored on IPFS",
-      "author": "Gregoire Jeanmart",
-      "votes": 10,
-      "date_created": 1518700549,
-      "tags": ["general"]
-  }
-}
-```
-
--   **Sample Request:**
-
-```
-curl -X POST \
-  http://localhost:8040/mahuta/index/file \
-  -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
-  -F file=@/home/gjeanmart/hello.pdf \
-  -F 'request='{"indexName":"articles","indexDocId":"hello_world","contentType":"text/markdown","index_fields":{"title":"Hello world","author":"Gregoire Jeanmart","votes":10,"date_created":1518700549,"tags":["general"]}}'
-```
-
--   **Success Response:**
-
-    -   **Code:** 200  
-        **Content:**
-```
-{
-    "status": "SUCCESS",
-    "indexName": "articles",
-    "id": "hello_world",
-    "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
-}
-```
-
----------------------------
-
-#### [Query] Get content
-
-Get content on IPFS by hash
-
--   **URL** `http://localhost:8040/mahuta/query/fetch/{hash}`
--   **Method:** `GET`
--   **Header:**  `N/A`
--   **URL Params** `N/A`
-
--   **Sample Request:**
-
-```
-$ curl \
-    'http://localhost:8040/mahuta/query/fetch/QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o' \
-    -o hello_doc.pdf
-```
-
--   **Success Response:**
-
-    -   **Code:** 200  
-        **Content:** (file)
-
----------------------------
-
-#### [Query] Search contents
-
-Search content accross an index using a dedicated query language
-
--   **URL** `http://localhost:8040/mahuta/query/search`
--   **Method:** `GET` or `POST`
--   **Header:**  
-
-| Key | Value |
-| -------- | -------- |
-| content-type | application/json |
-
--   **URL Params**
-
-| Name | Type | Mandatory | Default | Description |
-| -------- | -------- | -------- | -------- | -------- |
-| index | String | no |  | Index to search (if null: all indexes) |
-| pageNo | Int | no | 0 | Page Number |
-| pageSize | Int | no | 20 | Page Size / Limit |
-| sort | String | no |  | Sorting attribute |
-| dir | ASC/DESC | no | ASC | Sorting direction |
-| query | String | no |  | Query |
-
-
--   **Data Params**
-
-The `search` operation allows to run a multi-criteria search against an index. The body combines a list of filters :
-
-| Name | Type | Description |
-| -------- | -------- | -------- |
-| name | String | Index field to perform the search |
-| names | String[] | Index fields to perform the search |
-| operation | See below | Operation to run against the index field |
-| value | Any | Value to compare with |
-
-
-
-| Operation | Description |
-| -------- | -------- |
-| FULL_TEXT | Full text search |
-| EQUALS | Equals |
-| NOT_EQUALS | Not equals |
-| CONTAINS | Contains the word/phrase |
-| IN | in the following list |
-| GT | Greater than |
-| GTE | Greater than or Equals |
-| LT | Less than  |
-| LTE | Less than or Equals |
-
-
-```
-{
-  "query": [
-    {
-      "name": "title",
-      "operation": "CONTAINS",
-      "value": "Hello"
-    },
-    {
-      "names": ["description", "title"],
-      "operation": "FULL_TEXT",
-      "value": "IPFS"
-    },
-    {
-      "name": "votes",
-      "operation": "LT",
-      "value": "5"
-    }
-  ]
-}
-```
 
 -   **Sample Request:**
 
@@ -535,3 +254,5 @@ curl -X POST \
 "totalPages": 1
 }
 ```
+
+
