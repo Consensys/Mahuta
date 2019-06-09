@@ -1,15 +1,16 @@
 package net.consensys.mahuta.springdata.impl;
 
+import static com.monitorjbl.json.Match.match;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +22,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.collect.Sets;
+import com.monitorjbl.json.JsonView;
+import com.monitorjbl.json.JsonViewSerializer;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.Mahuta;
@@ -37,9 +44,16 @@ import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.core.exception.TimeoutException;
+import net.consensys.mahuta.core.utils.BytesUtils;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 import net.consensys.mahuta.springdata.MahutaCustomRepository;
-import net.consensys.mahuta.springdata.exception.MahutaSpringDataException;
+import net.consensys.mahuta.springdata.annotation.Fulltext;
+import net.consensys.mahuta.springdata.annotation.Hash;
+import net.consensys.mahuta.springdata.annotation.IPFSDocument;
+import net.consensys.mahuta.springdata.annotation.Indexfield;
+import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
+import net.consensys.mahuta.springdata.model.EntityField;
+import net.consensys.mahuta.springdata.utils.EntityFieldUtils;
 import net.consensys.mahuta.springdata.utils.MahutaSpringDataUtils;
 
 @Slf4j
@@ -55,41 +69,94 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
     protected static final Class<?> ID_CLASS = String.class;
     protected static final Class<?> HASH_CLASS = String.class;
 
-    protected final Mahuta mahuta;
 
-    protected final String indexName;
+    protected final ObjectMapper mapper;
     
-    protected final boolean indexContent;
-
-    protected final Set<String> indexFields;
-    protected final Set<String> fullTextFields;
+    protected final Mahuta mahuta;
 
     protected final Class<E> entityClazz;
 
-    protected final ObjectMapper mapper;
+    protected final String indexName;
 
-    private final String attributeId;
+    protected final Set<EntityField> indexFields;
+    protected final Set<EntityField> fullTextFields;
 
-    private final String attributeHash;
+    protected final Optional<EntityField> attributeId;
+    protected final Optional<EntityField>  attributeHash;
+    
+    protected final boolean indexContent;
 
-    public MahutaCustomRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields,
-            Set<String> fullTextFields, Class<E> entityClazz, String attributeId, String attributeHash,
-            InputStream indexConfiguration, boolean indexContent) {
-        this.mahuta = mahuta;
-        this.indexName = indexName;
-        this.indexContent = indexContent;
-        this.entityClazz = entityClazz;
+    @SuppressWarnings("unchecked")
+    public MahutaCustomRepositoryImpl(Mahuta mahuta) {
+        InputStream indexConfiguration = null;
+        
+        try {
+            this.mahuta = mahuta;
+            
+            // Configure Jackson
+            this.mapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(JsonView.class, new JsonViewSerializer());
+            mapper.registerModule(module);
+            
+            
+            // Get Entity class
+            this.entityClazz = (Class<E>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            
+            // Check if annotation @IPFSDocument 
+            if (!entityClazz.isAnnotationPresent(IPFSDocument.class)) {
+                throw new MahutaSpringDataRuntimeException("The class " + entityClazz.getSimpleName() + " is not annotated with IPFSDocument");
+            }
+            IPFSDocument ipfsDocumentAnnotation = entityClazz.getAnnotation(IPFSDocument.class);
+            
+            // Extract indexName, if null, take class name
+            this.indexName = !StringUtils.isEmpty(ipfsDocumentAnnotation.index()) 
+                    ? ipfsDocumentAnnotation.index() : entityClazz.getSimpleName();
+                    
+            // Extract indexContent flag
+            this.indexContent = ipfsDocumentAnnotation.indexContent();
+            
+            // Extract indexConfiguration path and read file if presend
+            indexConfiguration = !StringUtils.isEmpty(ipfsDocumentAnnotation.indexConfiguration()) 
+                    ? BytesUtils.readFileInputStream(ipfsDocumentAnnotation.indexConfiguration()) : null;
 
-        this.mapper = new ObjectMapper();
+            // Find @Id annotation
+            attributeId = EntityFieldUtils.extractOptionalSingleAnnotatedField(entityClazz, Id.class, ID_CLASS);
+  
+            // Find @Hash annotation
+            attributeHash = EntityFieldUtils.extractOptionalSingleAnnotatedField(entityClazz, Hash.class, HASH_CLASS);
 
-        this.indexFields = (indexFields == null) ? Collections.emptySet() : indexFields;
-        this.fullTextFields = (fullTextFields == null) ? Collections.emptySet() : fullTextFields;
+            // Find @Fulltext annotation
+            List<EntityField> fulltextdAnnotation = EntityFieldUtils.extractMultipleAnnotatedFields(entityClazz, Fulltext.class);  
+            this.fullTextFields = Sets.newHashSet(fulltextdAnnotation);
+                    
+            // Find @Indexfield annotation
+            List<EntityField> indexfieldAnnotation = EntityFieldUtils.extractMultipleAnnotatedFields(entityClazz, Indexfield.class); 
+            this.indexFields = Sets.newHashSet(indexfieldAnnotation);
+            this.indexFields.addAll(fullTextFields);
 
-        this.attributeHash = attributeHash;
-        this.attributeId = attributeId;
-
-        if (indexName != null) {
+            // Create index
             mahuta.prepareCreateIndex(indexName).configuration(indexConfiguration).execute();
+            
+            log.info("MahutaRepository configured for class {}", entityClazz.getSimpleName());
+            log.trace("indexName: {}", indexName);
+            log.trace("indexContent: {}", indexContent);
+            log.trace("indexConfiguration: {}", ipfsDocumentAnnotation.indexConfiguration());
+            log.trace("attributeId: {}", attributeId);
+            log.trace("attributeHash: {}", attributeHash);
+            log.trace("indexfieldAnnotation: {}", indexfieldAnnotation);
+            log.trace("fullTextFields: {}", fullTextFields);
+            
+        } catch(Exception ex) {
+            if(indexConfiguration != null)
+                try {
+                    indexConfiguration.close();
+                } catch (IOException ioex) {
+                    log.error("Error while closing indexConfiguration", ioex);
+                }
+            
+            log.error("Error while instantiating the Mahuta repository", ex);
+            throw ex;
         }
     }
 
@@ -99,12 +166,12 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
         log.debug("Find all [criteria: {}, pagination: {}]", fullTextCriteria, pagination);
 
         if (ValidatorUtils.isEmpty(fullTextCriteria)) {
-            log.warn("Can't perform a full text search. no fields configured [fullTextFields]");
+            log.warn("Can't perform a full text search. no fields configured using annotation @Fulltext");
             return null;
         }
 
         Query query = Query.newQuery();
-        query.fullText(fullTextFields.toArray(new String[fullTextFields.size()]), fullTextCriteria);
+        query.fullText(fullTextFields.stream().map(EntityField::getName).toArray(size ->new String[size]), fullTextCriteria);
 
         Page<E> result = this.search(query, pagination);
 
@@ -168,31 +235,35 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
             entity = this.mapper.readValue(((ByteArrayOutputStream) content).toByteArray(), entityClazz);
         } catch (IOException ex) {
             log.error("Error while parsing json", ex);
-            throw new MahutaSpringDataException("Error while parsing json", ex);
+            throw new MahutaSpringDataRuntimeException("Error while parsing json", ex);
         }
 
         try {
-            this.setHash(entity, hash);
+            if(attributeHash.isPresent()) {
+                attributeHash.get().invokeSetter(entity, hash);
+            }
 
-            return entity;
-
-        } catch (NoSuchMethodException ex) {
-            log.warn("No method set{} in the entity", attributeHash);
             return entity;
 
         } catch (IllegalAccessException | InvocationTargetException ex) {
             log.error("Error while invoking set{}", attributeHash, ex);
-            throw new MahutaSpringDataException("Error while invoking set" + attributeHash, ex);
+            throw new MahutaSpringDataRuntimeException("Error while invoking set" + attributeHash, ex);
         }
     }
 
     protected InputStream serialize(E e) {
 
         try {
-            return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
+            // Programmatically JSONIgnore @Hash annotated field
+            JsonView<E> view = JsonView.with(e);
+            if(attributeHash.isPresent()) {
+                view.onClass(entityClazz, match().exclude(attributeHash.get().getName()));
+            }
+            
+            return new ByteArrayInputStream(this.mapper.writeValueAsString(view).getBytes(DEFAULT_ENCODING));
         } catch (JsonProcessingException ex) {
             log.error("Error while serialising the entity [entity={}]", e, ex);
-            throw new MahutaSpringDataException("Error while serialising the entity [entity="+e+"]", ex);
+            throw new MahutaSpringDataRuntimeException("Error while serialising the entity [entity="+e+"]", ex);
         }
     }
 
@@ -206,70 +277,12 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
     }
 
     /**
-     * Invoke the ID getter on the entity (using reflection)
-     *
-     * @param obj Entity
-     * @return ID
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws SecurityException
-     */
-    protected String getId(Object obj) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Method fieldGetter = entityClazz
-                .getMethod("get" + attributeId.substring(0, 1).toUpperCase() + attributeId.substring(1));
-        Object id = fieldGetter.invoke(obj);
-        if (id == null) {
-            return null;
-        } else {
-            return id.toString();
-        }
-    }
-
-    /**
-     * Invoke the ID setter on the entity (using reflection)
-     *
-     * @param obj Entity
-     * @param id  ID
-     * @throws NoSuchMethodException
-     * @throws SecurityException
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     * @throws InvocationTargetException
-     */
-    protected void setId(Object obj, String id)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method setter = entityClazz
-                .getMethod("set" + attributeId.substring(0, 1).toUpperCase() + attributeId.substring(1), ID_CLASS);
-        setter.invoke(obj, id);
-    }
-
-    /**
-     * Invoke the hash setter on the entity (using reflection)
-     *
-     * @param obj  Entity
-     * @param hash Hash
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws SecurityException
-     */
-    protected void setHash(Object obj, String hash)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Method setter = entityClazz.getMethod(
-                "set" + attributeHash.substring(0, 1).toUpperCase() + attributeHash.substring(1), HASH_CLASS);
-        setter.invoke(obj, hash);
-    }
-
-    /**
      * @param object
      * @param indexFields
      * @param externalIndexFields
      * @return
      */
-    protected Map<String, Object> buildIndexFields(E object, Set<String> indexFields,
+    protected Map<String, Object> buildIndexFields(E object, Set<EntityField> indexFields,
             Map<String, Object> externalIndexFields) {
 
         // Extract the indexable fields from the document
@@ -280,7 +293,9 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
         // Extract value from path in the object
         if (indexFields != null) {
             indexFieldsMap = indexFields.stream()
-                    .collect(Collectors.toMap(i -> i, i -> deserialize(jsonNode.at(formatIndexField(i)))));
+                    .collect(Collectors.toMap(
+                            EntityField::getName, 
+                            e -> deserialize(jsonNode.at(formatIndexField(e.getName())))));
         }
 
         // Add potential external index fields
