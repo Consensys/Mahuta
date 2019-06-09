@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.consensys.mahuta.core.utils.lamba.Throwing;
+import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
 import net.consensys.mahuta.springdata.model.EntityField;
 
 public class EntityFieldUtils {
@@ -19,19 +20,17 @@ public class EntityFieldUtils {
         Optional<EntityField> entityField = extractOptionalSingleAnnotatedField(entityClass, annotationClass);
         
         if(entityField.isPresent() && !entityField.get().getType().equals(expectedType)) {
-            throw new RuntimeException(String.format("Expected to find one annotation %s in the class %s typed %s (found type %s)", annotationClass.getSimpleName(), entityClass.getSimpleName(), expectedType.getSimpleName(), entityField.get().getType()));
+            throw new MahutaSpringDataRuntimeException(String.format("Expected to find one annotation %s in the class %s typed %s (found type %s)", annotationClass.getSimpleName(), entityClass.getSimpleName(), expectedType.getSimpleName(), entityField.get().getType()));
         }
         
         return entityField;
     }
     
-
-    
     public static <E, A extends Annotation> Optional<EntityField> extractOptionalSingleAnnotatedField(Class<E> entityClass, Class<A> annotationClass) {
         List<EntityField> entityFields = extractMultipleAnnotatedFields(entityClass, annotationClass);
                 
         if(entityFields.size() > 1) {
-            throw new RuntimeException(String.format("Expected to find only ONE annotation %s in the class %s (found %s)", annotationClass.getSimpleName(), entityClass.getSimpleName(), entityFields.size()));
+            throw new MahutaSpringDataRuntimeException(String.format("Expected to find only ONE annotation %s in the class %s (found %s)", annotationClass.getSimpleName(), entityClass.getSimpleName(), entityFields.size()));
         }
         
         if(entityFields.isEmpty()) {
@@ -46,7 +45,7 @@ public class EntityFieldUtils {
         Optional<EntityField> entityField = extractOptionalSingleAnnotatedField(entityClass, annotationClass);
         
         if(!entityField.isPresent()) {
-            throw new RuntimeException(String.format("Expected to find annotation %s in the class %s", annotationClass.getSimpleName(), entityClass.getSimpleName()));
+            throw new MahutaSpringDataRuntimeException(String.format("Expected to find annotation %s in the class %s", annotationClass.getSimpleName(), entityClass.getSimpleName()));
         }
         
         return entityField.get();

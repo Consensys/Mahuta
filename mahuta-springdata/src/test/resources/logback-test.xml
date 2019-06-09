@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="net.consensys.mahuta" level="trace" additivity="false">
+    <logger name="net.consensys.mahuta" level="info" additivity="false">
         <appender-ref ref="CONSOLE" />
     </logger>
 

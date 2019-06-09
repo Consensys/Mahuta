@@ -1,5 +1,6 @@
 package net.consensys.mahuta.springdata.impl;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -11,12 +12,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.springdata.MahutaRepository;
+import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
 
 @Slf4j
 public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCustomRepositoryImpl<E>
@@ -64,7 +68,7 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
 
             return entity;
 
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (JsonProcessingException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             log.error("Error while saving the entity [entity: {}, external_index_fields: {}]", entity,
                     externalIndexFields, e);
             return null;
@@ -91,6 +95,9 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
         } catch (NotFoundException e) {
             log.error("Entity not found [id={}]", id);
             return Optional.empty();
+        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+            log.error("Error while deserialising object", e);
+            throw new MahutaSpringDataRuntimeException("Error while deserialising object", e);
         }
     }
 

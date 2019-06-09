@@ -3,6 +3,8 @@ package net.consensys.mahuta.springdata.model;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
+
 public class EntityField {
 
     private String name;
@@ -39,7 +41,7 @@ public class EntityField {
     
     public void invokeSetter(Object entity, Object value) throws IllegalAccessException, InvocationTargetException {
         if(!type.isInstance(value)) {
-            throw new RuntimeException("invokeSetter - Expected value to set of type " + type.getSimpleName() + " but was " +value.getClass().getSimpleName());
+            throw new MahutaSpringDataRuntimeException("invokeSetter - Expected value to set of type " + type.getSimpleName() + " but was " +value.getClass().getSimpleName());
         }
         
         setter.invoke(entity, value);
@@ -53,7 +55,7 @@ public class EntityField {
         }
         
         if(!type.isInstance(value)) {
-            throw new RuntimeException("invokeGetter - Expected value retrieved of type " + type.getSimpleName() + " but was " + value.getClass().getSimpleName());
+            throw new MahutaSpringDataRuntimeException("invokeGetter - Expected value retrieved of type " + type.getSimpleName() + " but was " + value.getClass().getSimpleName());
         }
         return type.cast(value);
     }
