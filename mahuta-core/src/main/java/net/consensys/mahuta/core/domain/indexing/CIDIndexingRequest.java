@@ -8,5 +8,4 @@ import lombok.Setter;
 public class CIDIndexingRequest extends AbstractIndexingRequest {
     
     private String cid;
-
 }

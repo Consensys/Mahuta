@@ -10,7 +10,7 @@ import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.MahutaFactory;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 
 @Configuration
@@ -30,20 +30,21 @@ public class MahutaConfiguration {
                 .map(IPFSService::connect)
                 .orElseGet(() -> IPFSService.connect(settings.getIpfs().getHost(), settings.getIpfs().getPort()))
                 .configureThreadPool(settings.getIpfs().getThreadPool())
-                .configureTimeout(settings.getIpfs().getTimeout());
+                .configureReadTimeout(settings.getIpfs().getTimeout().getRead())
+                .configureWriteTimeout(settings.getIpfs().getTimeout().getWrite());
 
         ElasticSearchService indexerService = ElasticSearchService.connect(settings.getElasticSearch().getHost(),
                 settings.getElasticSearch().getPort(), settings.getElasticSearch().getClusterName());
 
         if (!ValidatorUtils.isEmpty(settings.getElasticSearch().getIndexConfigs())) {
             settings.getElasticSearch().getIndexConfigs()
-                    .forEach(config -> indexerService.withIndex(config.getName(), FileUtils.readFileInputStream(config.getMap())));
+                    .forEach(config -> indexerService.withIndex(config.getName(), BytesUtils.readFileInputStream(config.getMap())));
         }
         
         return new MahutaFactory()
                 .configureStorage(storageService)
                 .configureIndexer(indexerService)
-                .build();
+                .defaultImplementation();
     }
 
 }

@@ -39,7 +39,13 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
     @Autowired
     public MahutaRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields, Set<String> fullTextFields,
             Class<E> entityClazz, String attributeId, String attributeHash, InputStream indexConfiguration) {
-        super(mahuta, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash, indexConfiguration);
+        this(mahuta, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash, null, false);
+    }
+
+    @Autowired
+    public MahutaRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields, Set<String> fullTextFields,
+            Class<E> entityClazz, String attributeId, String attributeHash, InputStream indexConfiguration, boolean indexContent) {
+        super(mahuta, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash, indexConfiguration, indexContent);
     }
 
     @Override
@@ -69,6 +75,7 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
                     .contentType(DEFAULT_CONTENT_TYPE)
                     .indexDocId(id)
                     .indexFields(buildIndexFields(entity, indexFields, externalIndexFields))
+                    .indexContent(indexContent)
                     .execute();
 
             // Add the hash to the entity
@@ -150,6 +157,17 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
     public void deleteById(Serializable id) {
         mahuta.prepareDeindexing(indexName, id.toString())
             .execute();
+    }
+
+    @Override
+    public void updateIndexField(Serializable id, String field, Object value) {
+
+        log.debug("updateIndexField [id={}, field: {}, value: {}]", id, field, value);
+
+        mahuta.prepareUpdateField(indexName, id.toString(), field, value)
+                .execute();
+        
+        log.debug("Field [id={}, field: {}, value: {}] updated", id, field, value);
     }
 
     /*

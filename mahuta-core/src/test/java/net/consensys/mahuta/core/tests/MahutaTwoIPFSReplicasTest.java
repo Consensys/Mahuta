@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import io.ipfs.api.IPFS;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
-import net.consensys.mahuta.core.service.MahutaServiceImpl;
+import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
@@ -41,7 +41,7 @@ public class MahutaTwoIPFSReplicasTest extends MahutaTestAbstract {
                          .addReplica(IPFSService.connect(ContainerUtils.getHost("ipfs-replica1"), ContainerUtils.getPort("ipfs-replica1")))
                          .addReplica(IPFSService.connect(ContainerUtils.getHost("ipfs-replica2"), ContainerUtils.getPort("ipfs-replica2")))
         );
-        indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
+        indexingRequestUtils = new IndexingRequestUtils(new DefaultMahutaService(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     

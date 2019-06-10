@@ -12,12 +12,13 @@ logging:
     net.consensys.mahuta: ${LOG_LEVEL:INFO}
 
 mahuta:
-
   ipfs:
     host: localhost
     port: 5001
 #    multiaddress: 
-    timeout: 5000
+    timeout:
+       read: 5000
+       write: 2000
     threadPool: 10
     
   elasticsearch:

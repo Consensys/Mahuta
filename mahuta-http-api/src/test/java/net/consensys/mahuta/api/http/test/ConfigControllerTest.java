@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import net.consensys.mahuta.core.domain.getindexes.GetIndexesResponse;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -58,7 +58,7 @@ public class ConfigControllerTest extends WebTestUtils {
         String indexName = mockNeat.strings().size(20).get();
         
         // Create Index 
-        mockMvc.perform(post("/config/index/" + indexName).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
+        mockMvc.perform(post("/config/index/" + indexName).contentType(MediaType.APPLICATION_JSON).content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
         

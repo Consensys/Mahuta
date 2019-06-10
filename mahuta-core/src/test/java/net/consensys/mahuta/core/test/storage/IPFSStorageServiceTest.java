@@ -17,6 +17,7 @@ import io.ipfs.api.IPFS;
 import io.ipfs.api.NamedStreamable;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.exception.ConnectionException;
+import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.exception.TimeoutException;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
@@ -50,8 +51,10 @@ public class IPFSStorageServiceTest extends TestUtils {
     @Test
     public void connection() throws Exception {
         //////////////////////////////
-        IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1")).configureThreadPool(20)
-                .configureTimeout(5000);
+        IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"))
+                .configureThreadPool(20)
+                .configureReadTimeout(5000)
+                .configureWriteTimeout(2000);
         //////////////////////////////
     }
 
@@ -84,7 +87,7 @@ public class IPFSStorageServiceTest extends TestUtils {
         IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
-        String hash = service.write(file.getIs());
+        String hash = service.write(file.getIs(), true);
         //////////////////////////////
 
         assertEquals(file.getCid(), hash);
@@ -96,7 +99,19 @@ public class IPFSStorageServiceTest extends TestUtils {
         IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
-        String hash = service.write(file.getBytearray());
+        String hash = service.write(file.getBytearray(), true);
+        //////////////////////////////
+
+        assertEquals(file.getCid(), hash);
+    }
+
+    @Test
+    public void writeNoPin() throws Exception {
+        FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+
+        //////////////////////////////
+        String hash = service.write(file.getBytearray(), false);
         //////////////////////////////
 
         assertEquals(file.getCid(), hash);
@@ -108,7 +123,7 @@ public class IPFSStorageServiceTest extends TestUtils {
         IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
 
         //////////////////////////////
-        String hash = service.write(file.getIs());
+        String hash = service.write(file.getIs(), false);
         List<String> hashes = service.getTracked();
         log.debug("hashes: {}", hashes);
         //////////////////////////////
@@ -129,6 +144,15 @@ public class IPFSStorageServiceTest extends TestUtils {
         assertTrue(hashes.stream().anyMatch(h -> h.equals(file.getCid())));
     }
 
+    @Test(expected = TechnicalException.class)
+    public void pinFileException() throws Exception {
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+
+        //////////////////////////////
+        service.pin("dfdfdf");
+        //////////////////////////////
+    }
+
     @Test @Ignore("Fail randomly") //TODO investigate why
     public void unpinFile() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
@@ -146,7 +170,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     public void read() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
         IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
-        service.write(file.getIs());
+        service.write(file.getIs(), true);
 
         //////////////////////////////
         ByteArrayOutputStream content = (ByteArrayOutputStream) service.read(file.getCid());
@@ -160,8 +184,8 @@ public class IPFSStorageServiceTest extends TestUtils {
     public void readTimeoutException() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
         IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"))
-                .configureTimeout(1);
-        service.write(file.getIs());
+                .configureReadTimeout(1);
+        service.write(file.getIs(), true);
 
         //////////////////////////////
         service.read(file.getCid(), new ByteArrayOutputStream());

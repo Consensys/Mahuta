@@ -18,7 +18,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.ipfs.api.IPFS;
 import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
-import net.consensys.mahuta.core.service.MahutaServiceImpl;
+import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.pinning.ipfs.IPFSClusterPinningService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
@@ -59,7 +59,7 @@ public class MahutaIPFSClusterReplicasTest extends MahutaTestAbstract {
               IPFSService.connect(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs"))
                          .addReplica(IPFSClusterPinningService.connect(WIREMOCK_HOST, WIREMOCK_PORT))
         );
-        indexingRequestUtils = new IndexingRequestUtils(new MahutaServiceImpl(storageService, indexingService), 
+        indexingRequestUtils = new IndexingRequestUtils(new DefaultMahutaService(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
     

@@ -52,4 +52,9 @@ public class InputStreamIndexingRequestBuilder extends AbstractBuilder implement
         return this;
     }
 
+    public InputStreamIndexingRequestBuilder indexContent(boolean indexContent) {
+        request.setIndexContent(indexContent);
+        return this;
+    }
+
 }

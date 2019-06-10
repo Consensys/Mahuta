@@ -115,6 +115,14 @@ public class IndexingRequestUtils extends TestUtils{
         return this.generateRandomStringIndexingRequest(indexName);
     }
     
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(boolean indexContent) {
+        String indexName = mockNeat.strings().size(20).get();
+        String indexDocId = mockNeat.strings().size(50).get();
+        Map<String, Object> fields = generateRamdomFields();
+        
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields, indexContent);
+    }
+    
     public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName) {
         String indexDocId = mockNeat.strings().size(50).get();
         
@@ -134,6 +142,10 @@ public class IndexingRequestUtils extends TestUtils{
     }
     
     public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+        return this.generateRandomStringIndexingRequest(indexName, indexDocId, fields, false);
+    }
+    
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomStringIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields, boolean indexContent) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
@@ -144,7 +156,8 @@ public class IndexingRequestUtils extends TestUtils{
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)
-                .indexFields(fields);
+                .indexFields(fields)
+                .indexContent(indexContent);
         
         IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
         
@@ -172,6 +185,10 @@ public class IndexingRequestUtils extends TestUtils{
     }
     
     public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomCIDIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+        return this.generateRandomCIDIndexingRequest(indexName, indexDocId, fields, false);
+    }
+    
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomCIDIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields, boolean indexContent) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
@@ -182,7 +199,8 @@ public class IndexingRequestUtils extends TestUtils{
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)
-                .indexFields(fields);
+                .indexFields(fields)
+                .indexContent(indexContent);
         
         IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
         
@@ -210,6 +228,11 @@ public class IndexingRequestUtils extends TestUtils{
     }
     
     public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomInputStreamIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields) {
+        
+        return this.generateRandomInputStreamIndexingRequest(indexName, indexDocId, fields, false);
+    }
+    
+    public BuilderAndResponse<IndexingRequest, IndexingResponse> generateRandomInputStreamIndexingRequest(String indexName, String indexDocId, Map<String, Object> fields, boolean indexContent) {
 
         FileInfo file = FileTestUtils.newRandomPlainText(ipfs);
         String contentId = file.getCid();
@@ -220,7 +243,8 @@ public class IndexingRequestUtils extends TestUtils{
                 .indexName(indexName)
                 .indexDocId(indexDocId)
                 .contentType(contentType)
-                .indexFields(fields);
+                .indexFields(fields)
+                .indexContent(indexContent);
         
         IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
         

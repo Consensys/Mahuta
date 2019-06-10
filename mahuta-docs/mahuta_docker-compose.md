@@ -1,3 +1,9 @@
+Mahuta Docker-compose
+======
+
+*docker-compose.yml*
+
+```
 version: '2'
 
 services:
@@ -19,7 +25,7 @@ services:
       - default
 
   elasticsearch:
-    image:  docker.elastic.co/elasticsearch/elasticsearch-oss:6.4.2 
+    image:  docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.0 
     ports:
           - "9200:9200"
           - "9300:9300"
@@ -43,4 +49,11 @@ services:
           - "4001:4001"
           - "5001:5001"
           - "8081:8080"
+```
+
+
+```
+$ docker-compose up
+Ctrl+C to stop
+```
 

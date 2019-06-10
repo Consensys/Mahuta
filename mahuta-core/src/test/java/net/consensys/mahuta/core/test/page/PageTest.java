@@ -1,6 +1,8 @@
 package net.consensys.mahuta.core.test.page;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +67,33 @@ public class PageTest {
         /////////////////////////////
 
         assertEquals(Integer.valueOf(1), page.getTotalPages());
+    }
+
+    @Test
+    public void getNextPageRequest() {
+        Integer pageNo = 0;
+        Integer size = 10;
+
+        PageRequest pageRequest1 = PageRequest.of(pageNo, size);
+        List<Integer> elements1 = IntStream.range(0, size).boxed().collect(Collectors.toList());
+        List<Integer> elements2 = IntStream.range(0, 2).boxed().collect(Collectors.toList());
+        Integer totalElements = 12;
+        
+        /////////////////////////////
+        Page<Integer> page1 = Page.of(pageRequest1, elements1, totalElements);
+        /////////////////////////////
+        assertEquals(Integer.valueOf(0), pageRequest1.getPage());
+        assertFalse(page1.isLast());
+        assertTrue(page1.hasNext());
+
+
+        /////////////////////////////
+        PageRequest pageRequest2 = page1.nextPageRequest();
+        Page<Integer> page2 = Page.of(pageRequest2, elements2, totalElements);
+        /////////////////////////////
+        assertEquals(Integer.valueOf(1), pageRequest2.getPage());
+        assertTrue(page2.isLast());
+        assertFalse(page2.hasNext());
     }
 
     @Test(expected=IllegalArgumentException.class)

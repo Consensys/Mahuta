@@ -23,16 +23,18 @@ public interface StorageService {
     /**
      * Write content on the storage layer
      * @param content InputStream
+     * @param noPin Disable persistence, require to pin/persist asynchrounsly (can improve the writing performance)
      * @return Content ID (hash, CID)
      */
-    String write(InputStream content);
+    String write(InputStream content, boolean noPin);
 
     /**
      * Write content on the storage layer
      * @param content Byte array
-     * @return Content ID (hash, CID
+     * @param noPin Disable persistence, require to pin/persist asynchrounsly (can improve the writing performance)
+     * @return Content ID (hash, CID)
      */
-    String write(byte[] content);
+    String write(byte[] content, boolean noPin);
 
     /**
      * Read content from the storage layer and write it in a ByteArrayOutputStream

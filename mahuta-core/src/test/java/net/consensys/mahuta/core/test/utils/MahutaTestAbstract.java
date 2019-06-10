@@ -43,7 +43,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         this.mahuta = new MahutaFactory()
                 .configureStorage(storageService)
                 .configureIndexer(indexingService)
-                .build();
+                .defaultImplementation();
     }
     
     protected void creatIndex(String indexName) throws Exception {
@@ -158,6 +158,27 @@ public abstract class MahutaTestAbstract extends TestUtils {
         }
     }
     
+    protected void updateField(BuilderAndResponse<IndexingRequest,IndexingResponse> builderAndResponse, String field, Object value) {
+        
+        ////////////////////////
+        builderAndResponse.getBuilder().execute();
+        
+        mahuta.prepareUpdateField(
+                builderAndResponse.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse.getBuilder().getRequest().getIndexDocId(), 
+                field, 
+                value).execute();
+
+        GetResponse getResponse = mahuta.prepareGet()
+                .indexName(builderAndResponse.getBuilder().getRequest().getIndexName())
+                .indexDocId(builderAndResponse.getBuilder().getRequest().getIndexDocId())
+                .loadFile(true)
+                .execute();
+        ////////////////////////
+
+        assertEquals(value, getResponse.getMetadata().getIndexFields().get(field));
+    }
+    
     public static void validateMetadata(BuilderAndResponse<IndexingRequest, IndexingResponse> builder, Metadata metadata) {
         assertTrue(builder.getResponse().getIndexName().equalsIgnoreCase(metadata.getIndexName()));
         
@@ -166,7 +187,7 @@ public abstract class MahutaTestAbstract extends TestUtils {
         } else {
             assertNotNull(metadata.getIndexDocId());
         }
-        
+                
         assertEquals(builder.getResponse().getContentId(), metadata.getContentId());
         assertEquals(builder.getResponse().getContentType(), metadata.getContentType());
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.AUTHOR_FIELD));
@@ -175,7 +196,6 @@ public abstract class MahutaTestAbstract extends TestUtils {
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.DATE_CREATED_FIELD));
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.VIEWS_FIELD));
         assertEquals(builder.getResponse().getIndexFields().get(IndexingRequestUtils.STATUS_FIELD), metadata.getIndexFields().get(IndexingRequestUtils.STATUS_FIELD));
-        
     }
     
     ////////////////////////////////
@@ -183,17 +203,33 @@ public abstract class MahutaTestAbstract extends TestUtils {
 
     protected void mockGetIndexes(String indexName) {
         when(indexingService.getIndexes())
-        .thenReturn(Arrays.asList(mockNeat.strings().get(), mockNeat.strings().get(), indexName));
+        .thenReturn(Arrays.asList(indexName, mockNeat.strings().get(), mockNeat.strings().get()));
     } 
     
     protected void mockIndex(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {
-        when(indexingService.index(
-                eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
-                eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
-                eq(builderAndResponse.getResponse().getContentId()), 
-                eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
-                eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
-        .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+        if(builderAndResponse.getBuilder().getRequest().isIndexContent()) {
+            when(indexingService.index(
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
+                    eq(builderAndResponse.getResponse().getContentId()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                    any(byte[].class),
+                    any(boolean.class),
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
+            .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+            
+        } else {
+            when(indexingService.index(
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexName()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexDocId()), 
+                    eq(builderAndResponse.getResponse().getContentId()), 
+                    eq(builderAndResponse.getBuilder().getRequest().getContentType()), 
+                    eq(null),
+                    any(boolean.class),
+                    eq(builderAndResponse.getBuilder().getRequest().getIndexFields())))
+            .thenReturn(builderAndResponse.getResponse().getIndexDocId());
+            
+        }
     }  
     
     protected void mockGetDocument(BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse) {

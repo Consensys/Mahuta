@@ -16,7 +16,9 @@ mahuta:
     host: ${MAHUTA_IPFS_HOST}
     port: ${MAHUTA_IPFS_PORT}
 #    multiaddress: 
-    timeout: 5000
+    timeout:
+       read: 5000
+       write: 2000
     threadPool: 10
     
   elasticsearch:

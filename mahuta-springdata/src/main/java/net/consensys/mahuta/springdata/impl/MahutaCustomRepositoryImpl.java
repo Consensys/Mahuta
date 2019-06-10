@@ -58,6 +58,8 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
     protected final Mahuta mahuta;
 
     protected final String indexName;
+    
+    protected final boolean indexContent;
 
     protected final Set<String> indexFields;
     protected final Set<String> fullTextFields;
@@ -72,9 +74,10 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
 
     public MahutaCustomRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields,
             Set<String> fullTextFields, Class<E> entityClazz, String attributeId, String attributeHash,
-            InputStream indexConfiguration) {
+            InputStream indexConfiguration, boolean indexContent) {
         this.mahuta = mahuta;
         this.indexName = indexName;
+        this.indexContent = indexContent;
         this.entityClazz = entityClazz;
 
         this.mapper = new ObjectMapper();

@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.google.common.primitives.Longs;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
@@ -34,12 +34,15 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.primitives.Longs;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.domain.common.Metadata;
@@ -59,6 +62,7 @@ public class ElasticSearchService implements IndexingService {
     private static final String DEFAULT_TYPE = "_doc";
     private static final String ALL_INDICES = "_all";
     private static final String NULL = "null";
+    private static final Integer RETRY_ON_CONFLICT = 5;
 
     private final ElasticSearchSettings settings;
     private final TransportClient client;
@@ -176,12 +180,12 @@ public class ElasticSearchService implements IndexingService {
     }
 
     @Override
-    public String index(String indexName, String indexDocId, String contentId, String contentType,
-            Map<String, Object> indexFields) {
+    public String index(String indexName, String indexDocId, String contentId, String contentType, 
+            byte[] content, boolean pinned, Map<String, Object> indexFields) {
 
         log.debug(
-                "Index document in ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, indexFields: {}]",
-                indexName, indexDocId, contentId, contentType, indexFields);
+                "Index document in ElasticSearch [indexName: {}, indexDocId:{}, contentId: {}, contentType: {}, content: {}, pinned: {}, indexFields: {}]",
+                indexName, indexDocId, contentId, contentType, content!=null ? "null": "not present", pinned, indexFields);
 
         // Validation
         ValidatorUtils.rejectIfEmpty("indexName", indexName);
@@ -198,6 +202,11 @@ public class ElasticSearchService implements IndexingService {
         Map<String, Object> source = new HashMap<>();
         source.put(HASH_INDEX_KEY, contentId);
         source.put(CONTENT_TYPE_INDEX_KEY, contentType);
+        source.put(PINNED_KEY, pinned);
+        Optional.ofNullable(content)
+            .map(bytearray -> Base64.getEncoder().encode(bytearray))
+            .ifPresent(base64 -> source.put(CONTENT_INDEX_KEY, new String(base64)));
+        
         if (indexFields != null) {
             source.putAll(transformFields(indexFields));
         }
@@ -211,6 +220,7 @@ public class ElasticSearchService implements IndexingService {
 
         } else {
             response = client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
+                    .setRetryOnConflict(RETRY_ON_CONFLICT)
                     .setDoc(convertObjectToJsonString(source), XContentType.JSON).get();
         }
 
@@ -221,6 +231,41 @@ public class ElasticSearchService implements IndexingService {
         this.refreshIndex(indexName);
 
         return response.getId();
+    }
+
+    @Override
+    public void updateField(String indexName, String indexDocId, String key, Object value) {
+        log.debug("Update field on document in ElasticSearch [indexName: {}, indexDocId: {}, key: {}, value: {}]", indexName, indexDocId, key, value);
+
+        // Validation
+        ValidatorUtils.rejectIfEmpty("indexName", indexName);
+        ValidatorUtils.rejectIfEmpty("indexDocId", indexDocId);
+        ValidatorUtils.rejectIfEmpty("key", key);
+
+        // Format index
+        indexName = indexName.toLowerCase();
+        
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("value", transformValue(value));
+            
+            client.prepareUpdate(indexName, DEFAULT_TYPE, indexDocId)
+                .setRetryOnConflict(RETRY_ON_CONFLICT)
+                .setScript(new Script(
+                        ScriptType.INLINE,
+                        "painless",
+                        "ctx._source."+key+" = params.value",
+                        params
+                )).execute().actionGet();
+
+            log.debug("Field updated on document in ElasticSearch [indexName: {}, indexDocId: {}, key: {}, value: {}]", indexName, indexDocId, key, value);
+
+            this.refreshIndex(indexName);
+
+        } catch (Exception ex) {
+            log.error("Error while updating field [indexName: {}, indexDocId: {}, key: {}, value: {}]", indexName, indexDocId, key, value, ex);
+            throw new TechnicalException("Error while updating key " + key + " of doc indexDocId: " + indexDocId, ex);
+        }
     }
 
     @Override
@@ -359,19 +404,10 @@ public class ElasticSearchService implements IndexingService {
     private Metadata convert(String indexName, String documentId, Map<String, Object> sourceMap) {
         String contentId = null;
         String contentType = null;
+        byte[] content = null;
+        boolean pinned = false;
 
         if (sourceMap != null) {
-
-            // Extract special key __hash
-            if (sourceMap.containsKey(HASH_INDEX_KEY) && sourceMap.get(HASH_INDEX_KEY) != null) {
-                contentId = sourceMap.get(HASH_INDEX_KEY).toString();
-                sourceMap.remove(HASH_INDEX_KEY);
-            }
-            // Extract special key __content_type
-            if (sourceMap.containsKey(CONTENT_TYPE_INDEX_KEY) && sourceMap.get(CONTENT_TYPE_INDEX_KEY) != null) {
-                contentType = sourceMap.get(CONTENT_TYPE_INDEX_KEY).toString();
-                sourceMap.remove(CONTENT_TYPE_INDEX_KEY);
-            }
             
             // Cast from mapping
             Map<String, String> mapping = this.getMapping(indexName);
@@ -385,11 +421,33 @@ public class ElasticSearchService implements IndexingService {
                         }
                     }
                 }
+
             });
+            
+            // Extract special key __hash
+            if (sourceMap.containsKey(HASH_INDEX_KEY) && sourceMap.get(HASH_INDEX_KEY) != null) {
+                contentId = sourceMap.get(HASH_INDEX_KEY).toString();
+                sourceMap.remove(HASH_INDEX_KEY);
+            }
+            // Extract special key __content_type
+            if (sourceMap.containsKey(CONTENT_TYPE_INDEX_KEY) && sourceMap.get(CONTENT_TYPE_INDEX_KEY) != null) {
+                contentType = sourceMap.get(CONTENT_TYPE_INDEX_KEY).toString();
+                sourceMap.remove(CONTENT_TYPE_INDEX_KEY);
+            }
+            // Extract special key __content
+            if (sourceMap.containsKey(CONTENT_INDEX_KEY) && sourceMap.get(CONTENT_INDEX_KEY) != null) {
+                content = Base64.getDecoder().decode(sourceMap.get(CONTENT_INDEX_KEY).toString());
+                sourceMap.remove(CONTENT_INDEX_KEY);
+            }
+            // Extract special key __pinned
+            if (sourceMap.containsKey(PINNED_KEY) && sourceMap.get(PINNED_KEY) != null) {
+                pinned = (boolean) sourceMap.get(PINNED_KEY);
+                sourceMap.remove(PINNED_KEY);
+            }
         }
         
         
-        return Metadata.of(indexName, documentId, contentId, contentType, sourceMap);
+        return Metadata.of(indexName, documentId, contentId, contentType, content, pinned, sourceMap);
     }
 
     private QueryBuilder buildQuery(Query query) {

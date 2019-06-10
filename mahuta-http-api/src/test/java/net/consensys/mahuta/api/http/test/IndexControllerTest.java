@@ -33,7 +33,7 @@ import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
 import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
-import net.consensys.mahuta.core.utils.FileUtils;
+import net.consensys.mahuta.core.utils.BytesUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -60,7 +60,7 @@ public class IndexControllerTest extends WebTestUtils {
         InputStreamIndexingRequest request = (InputStreamIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
-        mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
+        mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
 
@@ -87,7 +87,7 @@ public class IndexControllerTest extends WebTestUtils {
         CIDIndexingRequest request = (CIDIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
-        mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
+        mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
 
@@ -109,7 +109,7 @@ public class IndexControllerTest extends WebTestUtils {
         StringIndexingRequest request = (StringIndexingRequest) builderAndResponse.getBuilder().getRequest();
         
         // Create Index 
-        mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(FileUtils.readFile("index_mapping.json")))
+        mockMvc.perform(post("/config/index/" + request.getIndexName()).contentType(MediaType.APPLICATION_JSON).content(BytesUtils.readFile("index_mapping.json")))
             .andExpect(status().isOk())
             .andDo(print());
 
