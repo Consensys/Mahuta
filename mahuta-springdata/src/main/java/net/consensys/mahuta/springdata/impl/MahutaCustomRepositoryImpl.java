@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -43,8 +44,8 @@ import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.domain.search.SearchResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
+import net.consensys.mahuta.core.exception.TechnicalException;
 import net.consensys.mahuta.core.exception.TimeoutException;
-import net.consensys.mahuta.core.utils.BytesUtils;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 import net.consensys.mahuta.core.utils.lamba.Throwing;
 import net.consensys.mahuta.springdata.MahutaCustomRepository;
@@ -122,8 +123,13 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
             
             // Extract indexConfiguration path and read file if present
             indexConfigurationPath = ipfsDocumentAnnotation.indexConfiguration();
-            indexConfiguration = !StringUtils.isEmpty(indexConfigurationPath) 
-                    ? BytesUtils.readFileInputStream(indexConfigurationPath) : null;
+            if(!StringUtils.isEmpty(indexConfigurationPath) ) {
+                try {
+                    indexConfiguration = new ClassPathResource(indexConfigurationPath).getInputStream();
+                } catch (IOException e) {
+                    throw new TechnicalException("Cannot read indexConfigutation file " + indexConfigurationPath, e);
+                }
+            }
         }
 
         

@@ -42,6 +42,7 @@ public class Entity {
     @Indexfield("_age")
     private int age;
 
+    @Fulltext("_tags")
     @JsonProperty("_tags")
     @Indexfield("_tags")
     private Set<String> tags;
