@@ -42,13 +42,6 @@
             <version>${spring-data.version}</version>
         </dependency>
 
-        <!-- Utils -->
-        <dependency>
-            <groupId>com.monitorjbl</groupId>
-            <artifactId>json-view</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
     </dependencies>
 
 </project>

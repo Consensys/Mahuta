@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
-
 public class EntityField {
 
     private String name;

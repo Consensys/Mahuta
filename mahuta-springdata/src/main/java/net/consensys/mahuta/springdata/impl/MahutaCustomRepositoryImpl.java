@@ -1,7 +1,5 @@
 package net.consensys.mahuta.springdata.impl;
 
-import static com.monitorjbl.json.Match.match;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,10 +30,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.Sets;
-import com.monitorjbl.json.JsonView;
-import com.monitorjbl.json.JsonViewSerializer;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.Mahuta;
@@ -56,6 +51,7 @@ import net.consensys.mahuta.springdata.annotation.Indexfield;
 import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
 import net.consensys.mahuta.springdata.model.EntityField;
 import net.consensys.mahuta.springdata.utils.EntityFieldUtils;
+import net.consensys.mahuta.springdata.utils.JsonIgnoreHashMixIn;
 import net.consensys.mahuta.springdata.utils.MahutaSpringDataUtils;
 
 @Slf4j
@@ -91,12 +87,6 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
     public MahutaCustomRepositoryImpl(Mahuta mahuta) {
         
         this.mahuta = mahuta;
-        
-        // Configure Jackson
-        this.mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(JsonView.class, new JsonViewSerializer());
-        mapper.registerModule(module);
         
         
         // Get Entity class
@@ -153,6 +143,13 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
         // Create index
         mahuta.prepareCreateIndex(indexName).configuration(indexConfiguration).execute();
         
+
+        
+        // Configure Jackson
+        this.mapper = new ObjectMapper();
+        if(attributeHash.isPresent()) {
+            mapper.addMixIn(entityClazz, JsonIgnoreHashMixIn.class);
+        }
         
         log.info("MahutaRepository configured for class {}", entityClazz.getSimpleName());
         log.trace("indexName: {}", indexName);
@@ -255,13 +252,7 @@ public abstract class MahutaCustomRepositoryImpl<E> implements MahutaCustomRepos
 
     protected InputStream serialize(E e) throws JsonProcessingException {
 
-        // Programmatically JSONIgnore @Hash annotated field
-        JsonView<E> view = JsonView.with(e);
-        if(attributeHash.isPresent()) {
-            view.onClass(entityClazz, match().exclude(attributeHash.get().getName()));
-        }
-        
-        return new ByteArrayInputStream(this.mapper.writeValueAsString(view).getBytes(DEFAULT_ENCODING));
+        return new ByteArrayInputStream(this.mapper.writeValueAsString(e).getBytes(DEFAULT_ENCODING));
     }
 
     /**

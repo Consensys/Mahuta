@@ -1,7 +1,5 @@
 package net.consensys.mahuta.client.springdata.test.sample;
 
-import static com.monitorjbl.json.Match.match;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -12,8 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
-import com.monitorjbl.json.JsonView;
-import com.monitorjbl.json.JsonViewSerializer;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +18,7 @@ import net.consensys.mahuta.springdata.annotation.Fulltext;
 import net.consensys.mahuta.springdata.annotation.Hash;
 import net.consensys.mahuta.springdata.annotation.IPFSDocument;
 import net.consensys.mahuta.springdata.annotation.Indexfield;
+import net.consensys.mahuta.springdata.utils.JsonIgnoreHashMixIn;
 
 @ToString @Getter @Setter
 @IPFSDocument(index = "entity", indexConfiguration = "index_mapping.json", indexContent = true)
@@ -49,13 +46,8 @@ public class Entity {
     
     public String toJSON() throws JsonProcessingException {
 
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(JsonView.class, new JsonViewSerializer());
-        mapper.registerModule(module);
-        
-        JsonView<Entity> view = JsonView.with(this).onClass(this.getClass(), match().exclude("hash"));
-        
-        return mapper.writeValueAsString(view);
+        mapper.addMixIn(this.getClass(), JsonIgnoreHashMixIn.class);
+        return mapper.writeValueAsString(this);
     }
     
     public Map<String, Object> toMap() {
