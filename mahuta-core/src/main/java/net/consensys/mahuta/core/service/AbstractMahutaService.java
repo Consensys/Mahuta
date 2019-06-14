@@ -137,7 +137,7 @@ public abstract class AbstractMahutaService implements MahutaService {
 
         // Result 
         return IndexingResponse.of(request.getIndexName(), indexDocId, contentId, contentType,
-                request.getIndexFields());
+                !noPin, request.getIndexFields());
     }
 
     @Override
