@@ -148,7 +148,11 @@ public class ElasticSearchService implements IndexingService {
                 if (configuration != null) {
                     request.setSource(IOUtils.toString(configuration, StandardCharsets.UTF_8), XContentType.JSON);
                 } else {
-                    request.addMapping(DEFAULT_TYPE, HASH_INDEX_KEY, "type=keyword", CONTENT_TYPE_INDEX_KEY, "type=keyword");
+                    request.addMapping(
+                            DEFAULT_TYPE, HASH_INDEX_KEY, "type=keyword", 
+                            CONTENT_TYPE_INDEX_KEY, "type=keyword", 
+                            CONTENT_INDEX_KEY, "type=binary", 
+                            PINNED_KEY, "type=boolean");
                 }
                 
                 request.get();

@@ -15,10 +15,10 @@
           "type": "text",
           "fielddata": true
         },
-        "age": {
+        "_age": {
           "type": "long"
         },
-        "tags": {
+        "_tags": {
             "type": "keyword"
         }
       }

@@ -107,10 +107,34 @@ For more info, [Mahuta Java API](mahuta-docs/mahuta_java_api.md)
 2. Configure your spring-data repository
 
 ```
+@IPFSDocument(index = "article", indexConfiguration = "article_mapping.json", indexContent = true)
+public class Article {
+    
+    @Id
+    private String id;
+
+    @Hash
+    private String hash;
+
+    @Fulltext
+    private String title;
+
+    @Fulltext
+    private String content;
+
+    @Indexfield
+    private Date createdAt;
+
+    @Indexfield
+    private String createdBy;
+}
+
+
+
 public class ArticleRepository extends MahutaRepositoryImpl<Article, String> {
 
     public ArticleRepository(Mahuta mahuta) {
-        super(mahuta, "article", Sets.newSet("title", "author"), Sets.newSet("title"), Article.class);
+        super(mahuta);
     }
 }
 ```
@@ -209,6 +233,7 @@ curl -X POST \
     "id": "hello_world",
     "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
 }
+```
 
 ##### Search 
 

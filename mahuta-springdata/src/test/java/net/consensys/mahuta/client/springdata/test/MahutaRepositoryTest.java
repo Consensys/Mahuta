@@ -7,17 +7,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.IntStream;
 
+import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
@@ -53,6 +52,9 @@ public class MahutaRepositoryTest {
     private static final MockNeat mockNeat = MockNeat.threadLocal();
 
     private TestRepository underTest;
+    private final String indexName = "entity";
+    private Mahuta mahuta;
+    private static IndexingRequestUtils indexingRequestUtils;
 
     @BeforeClass
     public static void startContainers() throws IOException {
@@ -64,9 +66,6 @@ public class MahutaRepositoryTest {
     public static void stopContainers() {
         ContainerUtils.stopAll();
     }
-
-    private Mahuta mahuta;
-    private static IndexingRequestUtils indexingRequestUtils;
     
     public MahutaRepositoryTest() {
         
@@ -78,20 +77,15 @@ public class MahutaRepositoryTest {
                 .configureStorage(storageService)
                 .defaultImplementation();
         
+        underTest = new TestRepository(mahuta);
+        
         indexingRequestUtils = new IndexingRequestUtils(new DefaultMahutaService(storageService, indexingService), 
                 new IPFS(ContainerUtils.getHost("ipfs"), ContainerUtils.getPort("ipfs")));
     }
-    
-    private String indexName;
 
-    @Before
-    public void setup() {
-        indexName = mockNeat.strings().size(20).get();
-
-        Set<String> indexFields = new HashSet<>();
-        indexFields.add("name");
-
-        underTest = new TestRepository(mahuta, indexName, indexFields, Entity.class);
+    @After
+    public void clean() throws UnknownHostException {
+        underTest.findAll().forEach(e->underTest.deleteById(e.getId()));
     }
 
 

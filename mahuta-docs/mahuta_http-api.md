@@ -5,7 +5,7 @@ Mahuta HTTP API
 
 ##### Persistence
 
-Represents the writting operations.
+Represents the writing operations.
 
 
 | Operation | Description | Method | URI |
@@ -15,6 +15,7 @@ Represents the writting operations.
 | index_file  | Store and index a file via HTTP Multipart | POST | /index/file ||
 
 ##### Query
+
 Represents the read operations.
 
 | Operation | Description | Method | URI |
