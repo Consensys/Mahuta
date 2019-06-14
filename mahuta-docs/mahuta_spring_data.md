@@ -55,8 +55,8 @@ Setup the repository:
 
 | Operation | 
 | -------- |
-| <E> S save(S entity) |
-| <E> S save(S entity, Map<String, Object> externalIndexFields) |
+| E save(E entity) |
+| E save(E entity, Map<String, Object> externalIndexFields) |
 | Optional<E> findById(ID id) |
 | Iterable<E> findAll() |
 | Iterable<E> findAll(Sort sort) |
