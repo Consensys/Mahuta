@@ -14,11 +14,12 @@ Mahuta
 | Sonar | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gjeanmart_IPFS-Store&metric=alert_status)](https://sonarcloud.io/dashboard?id=gjeanmart_IPFS-Store) |
 
 
+
 ## Features
 
 - **Indexation**: Mahuta stores documents or files on IPFS and index the hash with optional metadata.
 - **Discovery**: Documents and files indexed can be searched using complex logical queries or fuzzy/full text search)
-- **Scalable**: Optimised for large scale applications using asynchronous writing mechanism
+- **Scalable**: Optimised for large scale applications using asynchronous writing mechanism and caching
 - **Replication**: Replica set can be configured to replicate (pin) content across multiple nodes (standard IPFS node or IPFS-cluster node)
 - **Multi-platform**: Mahuta can be used as a simple embedded Java library for your JVM-based application or run as a simple, scalable and configurable Rest API.
 
@@ -39,9 +40,9 @@ Mahuta depends of two components:
 - an IPFS node ([go](https://github.com/ipfs/go-ipfs) or [js](https://github.com/ipfs/js-ipfs) implementation)
 - a search engine (currently only ElasticSearch is supported)
 
-You will need to run those two components first, see [run IPFS and ElasticSearch](mahuta-docs/run_ipfs_and_elasticsearch.md)
+See how to run those two components first [run IPFS and ElasticSearch](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/run_ipfs_and_elasticsearch.md)
 
-### Java library
+## Java library
 
 1. Import the Maven dependencies (core module + indexer)
 
@@ -90,9 +91,9 @@ SearchResponse response = mahuta.prepareSearch()
     .execute();
 ```
 
-For more info, [Mahuta Java API](mahuta-docs/mahuta_java_api.md)
+For more info, [Mahuta Java API](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/mahuta_java_api.md)
 
-### Spring-Data
+## Spring-Data
 
 1. Import the Maven dependencies 
 
@@ -140,59 +141,18 @@ public class ArticleRepository extends MahutaRepositoryImpl<Article, String> {
 ```
 
 
-For more info, [Mahuta Spring Data](mahuta-docs/mahuta_spring_data.md)
+For more info, [Mahuta Spring Data](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/mahuta_spring_data.md)
 
 
-### HTTP API
+## HTTP API with Docker
 
-#### From source
-
-##### Prerequisites
-
-- Java 8
-- Maven
-
-##### Steps
-
-1. After checking out the code, navigate to the root directory
-
-```
-$ cd /path/to/mahuta/mahuta-http-api/
-```
-
-2. Compile, test and package the project
-
-```
-$ mvn clean package
-```
-
-3. Configure environment variables
-
-```
-$ export MAHUTA_IPFS_HOST=localhost
-$ export MAHUTA_IPFS_PORT=5001
-$ export MAHUTA_ELASTICSEARCH_HOST=localhost
-$ export MAHUTA_ELASTICSEARCH_PORT=9300
-$ export MAHUTA_ELASTICSEARCH_CLUSTERNAME=cluster_name
-```
-
-
-4. Run the service
-
-```
-$ java -jar target/mahuta-http-api-exec.jar
-```
-
-#### Docker
-
-
-##### Prerequisites
+### Prerequisites
 
 - Docker
-- [run IPFS and ElasticSearch with Docker](mahuta-docs/run_ipfs_and_elasticsearch.md#Docker)
+- [run IPFS and ElasticSearch with Docker](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/run_ipfs_and_elasticsearch.md#Docker)
 
 
-##### Steps
+### Docker
 
 ```
 $ docker run -it --name mahuta \ 
@@ -202,82 +162,121 @@ $ docker run -it --name mahuta \
     gjeanmart/mahuta
 ```
 
-##### docker-compose
+### Docker Compose
 
-[Docker-compose](mahuta-docs/mahuta_docker-compose.md)
+[Docker-compose sample file](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/mahuta_docker-compose.md)
 
+### Examples
 
-#### API samples
+To access the API documentation, go to [Mahuta HTTP API](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/mahuta_http-api.md)
 
-For the full documentation including configuration and details of each operation: [Mahuta HTTP API](mahuta-docs/mahuta_http-api.md)
+#### Create the index `article` 
 
-##### Store and index 
-
--   **Sample Request:**
+-   *Sample Request:*
 
 ```
 curl -X POST \
-    'http://localhost:8040/mahuta/index' \
-    -H 'content-type: application/json' \  
-    -d '{"content":"# Hello world,\n this is my first file stored on **IPFS**","indexName":"articles","indexDocId":"hello_world","contentType":"text/markdown","index_fields":{"title":"Hello world","author":"Gregoire Jeanmart","votes":10,"date_created":1518700549,"tags":["general"]}}'
+  http://localhost:8040/mahuta/config/index/article \
+  -H 'Content-Type: application/json' 
 ```
 
--   **Success Response:**
+-   *Success Response:*
 
-    -   **Code:** 200  
-        **Content:**
+    -   Code: 200  
+        Content:
 ```
 {
-    "status": "SUCCESS",
-    "indexName": "articles",
-    "id": "hello_world",
-    "hash": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o"
+    "status": "SUCCESS"
 }
 ```
 
-##### Search 
+#### Store and index an article and its metadata
 
-
--   **Sample Request:**
+-   *Sample Request:*
 
 ```
 curl -X POST \
-    'http://localhost:8040/mahuta/query/search?index=articles' \
-    -H 'content-type: application/json' \  
-    -d '{"query":[{"name":"title","operation":"CONTAINS","value":"Hello"},{"name":"author","operation":"EQUALS","value":"Gregoire Jeanmart"},{"name":"votes","operation":"LT","value":"5"}]}'
+  'http://localhost:8040/mahuta/index' \
+  -H 'content-type: application/json' \
+  -d '{"content":"# Hello world,\n this is my first file stored on **IPFS**","indexName":"article","indexDocId":"hello_world","contentType":"text/markdown","index_fields":{"title":"Hello world","author":"Gregoire Jeanmart","votes":10,"date_created":1518700549,"tags":["general"]}}'
 ```
 
--   **Success Response:**
+-   *Success Response:*
 
-    -   **Code:** 200  
-        **Content:**
+    -   Code: 200  
+        Content:
+```
+{
+  "indexName": "article",
+  "indexDocId": "hello_world",
+  "contentId": "QmWHR4e1JHMs2h7XtbDsS9r2oQkyuzVr5bHdkEMYiqfeNm",
+  "contentType": "text/markdown",
+  "content": null,
+  "pinned": true,
+  "indexFields": {
+    "title": "Hello world",
+    "author": "Gregoire Jeanmart",
+    "votes": 10,
+    "createAt": 1518700549,
+    "tags": [
+      "general"
+    ]
+  },
+  "status": "SUCCESS"
+}
+```
+
+#### Search by query
+
+
+-   *Sample Request:*
+
+```
+curl -X POST \
+ 'http://localhost:8040/mahuta/query/search?index=article' \
+ -H 'content-type: application/json' \
+ -d '{"query":[{"name":"title","operation":"CONTAINS","value":"Hello"},{"name":"author.keyword","operation":"EQUALS","value":"Gregoire Jeanmart"},{"name":"votes","operation":"GT","value":"5"}]}'
+```
+
+-   *Success Response:*
+
+    -   Code: 200  
+        Content:
 
 ```
 {
-  "elements": [
-    {
+  "status": "SUCCESS",
+  "page": {
+    "pageRequest": {
+      "page": 0,
+      "size": 20,
+      "sort": null,
+      "direction": "ASC"
+    },
+    "elements": [
+      {
         "metadata": {
-          "indexName": "articles",
+          "indexName": "article",
           "indexDocId": "hello_world",
-          "contentId": "QmWPCRv8jBfr9sDjKuB5sxpVzXhMycZzwqxifrZZdQ6K9o",
-          "contentType": "application/pdf",
+          "contentId": "Qmd6VkHiLbLPncVQiewQe3SBP8rrG96HTkYkLbMzMe6tP2",
+          "contentType": "text/markdown",
+          "content": null,
+          "pinned": true,
           "indexFields": {
-              "title": "Hello world",
-              "description": "Hello world this is my first file stored on IPFS",
-              "author": "Gregoire Jeanmart",
-              "votes": 10,
-              "date_created": 1518700549,
-              "tags": ["general"]
+            "author": "Gregoire Jeanmart",
+            "votes": 10,
+            "title": "Hello world",
+            "createAt": 1518700549,
+            "tags": [
+              "general"
+            ]
           }
         },
-        "payload": "# Hello world,\n this is my first file stored on **IPFS**"
-    }
-  ]
-}
-],,
-"totalElements": 4,
-"totalPages": 1
+        "payload": null
+      }
+    ],
+    "totalElements": 1,
+    "totalPages": 1
+  }
 }
 ```
-
-
