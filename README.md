@@ -1,7 +1,7 @@
 Mahuta
 ======
 
-**Mahuta** (formerly known as IPFS-Store) is a convenient library to aggregate and consolidate files or documents stored by your application on the IPFS network. It provides a solution to collect, store, index and search data used.
+**Mahuta** (formerly known as IPFS-Store) is a library to aggregate and consolidate files or documents stored by your application on the IPFS network. It provides a solution to collect, store, index, cache and search IPFS data handled by your system in a convenient way.
 
 ## Project status
 
@@ -164,7 +164,7 @@ $ docker run -it --name mahuta \
 
 ### Docker Compose
 
-[Docker-compose sample file](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/mahuta_docker-compose.md)
+Check out the [documentation](https://github.com/ConsenSys/Mahuta/blob/master/mahuta-docs/mahuta_docker-compose.md) to configure Mahuta HTTP-API with Docker.
 
 ### Examples
 
