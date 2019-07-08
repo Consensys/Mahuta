@@ -7,16 +7,15 @@ services:
     image: gjeanmart/mahuta:latest
     ports:
     - "8040:8040"
+    volumes:
+      - ./external-conf.yml:/data/conf.yml
     depends_on:
       - ipfs
       - elasticsearch
     environment:
       WAIT_HOSTS: elasticsearch:9300, ipfs:5001
+      CONF: file:///data/conf.yml
       LOG_LEVEL: TRACE
-      MAHUTA_ELASTICSEARCH_HOST: elasticsearch
-      MAHUTA_ELASTICSEARCH_PORT: 9300
-      MAHUTA_IPFS_HOST: ipfs
-      MAHUTA_IPFS_REPLICAIPFS_0_MULTIADDRESS: /dnsaddr/ipfs.infura.io/tcp/5001/https
     networks:
       - default
 
