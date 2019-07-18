@@ -4,7 +4,7 @@
 
     <groupId>net.consensys.mahuta</groupId>
     <artifactId>mahuta-parent</artifactId>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.3.8</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -189,7 +189,7 @@
     <scm>
         <connection>scm:git:git:@github.com:ConsenSys/mahuta.git</connection>
         <developerConnection>scm:git:git@github.com:ConsenSys/mahuta.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.3.8</tag>
     </scm>
 
     <distributionManagement>
