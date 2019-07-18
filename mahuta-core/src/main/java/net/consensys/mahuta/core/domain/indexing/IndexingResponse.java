@@ -16,7 +16,7 @@ public class IndexingResponse extends Metadata implements Response {
 
     private @Getter ResponseStatus status;
 
-    public static IndexingResponse of(String indexName, String indexDocId, String contentId, String contentType,
+    public static IndexingResponse of(String indexName, String indexDocId, String contentId, String contentType, boolean pinned,
             Map<String, Object> indexFields) {
 
         IndexingResponse response = new IndexingResponse(ResponseStatus.SUCCESS);
@@ -25,6 +25,7 @@ public class IndexingResponse extends Metadata implements Response {
         response.setContentType(contentType);
         response.setContentId(contentId);
         response.setIndexFields(indexFields);
+        response.setPinned(pinned);
 
         return response;
     }

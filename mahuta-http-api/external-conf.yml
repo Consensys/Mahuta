@@ -1,0 +1,19 @@
+logging:
+  level:
+    net.consensys.mahuta: ${LOG_LEVEL:INFO}
+
+mahuta:
+  ipfs:
+    host: ipfs
+    port: 5001
+    replicaIPFS:
+    - multiaddress: /dnsaddr/ipfs.infura.io/tcp/5001/https
+      port: 5001
+    
+  elasticsearch:
+    host: elasticsearch
+    port: 9300
+    clusterName: docker-cluster
+    indexNullValue: "true"
+    indexConfigs:
+    - name: test

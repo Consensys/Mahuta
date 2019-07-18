@@ -1,7 +1,3 @@
-app:
-  version: "@project.version@"
-  name: "@project.name@"
-  
 server:
   port: 8040
   servlet:
@@ -9,6 +5,7 @@ server:
 
 logging:
   level:
+    ROOT: ERROR
     net.consensys.mahuta: ${LOG_LEVEL:INFO}
 
 mahuta:
@@ -20,6 +17,12 @@ mahuta:
        read: 5000
        write: 2000
     threadPool: 10
+    replicaIPFS:
+    - host: 
+      port: 
+    replicaIPFSCluster:
+    - host: 
+      port: 
     
   elasticsearch:
     host: localhost
@@ -27,11 +30,7 @@ mahuta:
     clusterName: docker-cluster
     indexNullValue: "true"
     indexConfigs:
-    - name: test
-#      map:
-    - name: test2
-#      map:
-    
+    - name: 
     
   security:
     cors:
