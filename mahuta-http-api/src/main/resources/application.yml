@@ -20,7 +20,7 @@ mahuta:
     replicaIPFS:
     - host: 
       port: 
-    replicaClusterIPFS:
+    replicaIPFSCluster:
     - host: 
       port: 
     
