@@ -1,74 +1,92 @@
 version: '3'
 
-networks:
-  vpcbr:
-    driver: bridge
-    ipam:
-     config:
-       - subnet: 10.5.0.0/16
 
 services:
+
+  mahuta:
+    image: gjeanmart/mahuta:snapshot
+    ports:
+    - "8040:8040"
+    depends_on:
+      - ipfs0
+      - ipfs1
+      - ipfs-cluster0
+      - ipfs-cluster1
+      - elasticsearch
+    environment:
+      WAIT_HOSTS: elasticsearch:9300, ipfs0:5001, ipfs-cluster0:9094
+      LOG_LEVEL: TRACE
+      MAHUTA_ELASTICSEARCH_HOST: elasticsearch
+      MAHUTA_ELASTICSEARCH_PORT: 9300
+      MAHUTA_IPFS_HOST: ipfs0
+      MAHUTA_IPFS_PORT: 5001
+      MAHUTA_IPFS_REPLICAIPFSCLUSTER_0_HOST: ipfs-cluster0
+      MAHUTA_IPFS_REPLICAIPFSCLUSTER_0_PORT: 9094
+    networks:
+      - default
+
+  elasticsearch:
+    image:  docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.0
+    ports:
+          - "9200:9200"
+          - "9300:9300"
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - default
+
   ipfs0:
-    container_name: ipfs0
     image: ipfs/go-ipfs
     ports:
           - "4001:4001"
           - "5001:5001"
           - "8081:8080"
-    volumes:
-      - ./var/ipfs0-docker-data:/data/ipfs/
-      - ./var/ipfs0-docker-staging:/export
     networks:
-      vpcbr:
-        ipv4_address: 10.5.0.5
+      - default
 
   ipfs1:
-    container_name: ipfs1
     image: ipfs/go-ipfs
     ports:
           - "4101:4001"
           - "5101:5001"
           - "8181:8080"
-    volumes:
-      - ./var/ipfs1-docker-data:/data/ipfs/
-      - ./var/ipfs1-docker-staging:/export
     networks:
-      vpcbr:
-        ipv4_address: 10.5.0.7
+      - default
 
   ipfs-cluster0:
-    container_name: ipfs-cluster0
     image: ipfs/ipfs-cluster
     depends_on:
       - ipfs0
     environment:
       CLUSTER_SECRET: 1aebe6d1ff52d96241e00d1abbd1be0743e3ccd0e3f8a05e3c8dd2bbbddb7b93
-      IPFS_API: /ip4/10.5.0.5/tcp/5001
+      IPFS_API: /dns4/ipfs0/tcp/5001
     ports:
           - "9094:9094"
           - "9095:9095"
           - "9096:9096"
-    volumes:
-      - ./var/ipfs-cluster0:/data/ipfs-cluster/
     networks:
-      vpcbr:
-        ipv4_address: 10.5.0.6
+      - default
 
   ipfs-cluster1:
-    container_name: ipfs-cluster1
     image: ipfs/ipfs-cluster
     depends_on:
       - ipfs1
       - ipfs-cluster0
     environment:
       CLUSTER_SECRET: 1aebe6d1ff52d96241e00d1abbd1be0743e3ccd0e3f8a05e3c8dd2bbbddb7b93
-      IPFS_API: /ip4/10.5.0.7/tcp/5001
+      IPFS_API: /dns4/ipfs1/tcp/5001
     ports:
           - "9194:9094"
           - "9195:9095"
           - "9196:9096"
-    volumes:
-      - ./var/ipfs-cluster1:/data/ipfs-cluster/
     networks:
-      vpcbr:
-        ipv4_address: 10.5.0.8
+      - default

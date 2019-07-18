@@ -4,7 +4,6 @@ services:
 
   mahuta:
     build: ./
-    image: gjeanmart/mahuta:latest
     ports:
     - "8040:8040"
     depends_on:

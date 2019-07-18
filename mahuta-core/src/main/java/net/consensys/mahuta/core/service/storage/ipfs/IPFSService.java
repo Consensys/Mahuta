@@ -28,6 +28,7 @@ import io.ipfs.api.IPFS.PinType;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.Multipart;
 import io.ipfs.api.NamedStreamable;
+import io.ipfs.multiaddr.MultiAddress;
 import io.ipfs.multihash.Multihash;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -67,21 +68,34 @@ public class IPFSService implements StorageService, PinningService {
     public static IPFSService connect(String host, Integer port) {
         ValidatorUtils.rejectIfEmpty("host", host);
         ValidatorUtils.rejectIfNegative("port", port);
-        return connect(host, port, null);
+        return connect(IPFSSettings.DEFAULT_PROTOCOL, host, port, null);
+    }
+
+    public static IPFSService connect(String protocol, String host, Integer port) {
+        ValidatorUtils.rejectIfEmpty("host", host);
+        ValidatorUtils.rejectIfNegative("port", port);
+        ValidatorUtils.rejectIfDifferentThan("protocol", protocol, "http", "https");
+        return connect(protocol, host, port, null);
     }
 
     public static IPFSService connect(String multiaddress) {
         ValidatorUtils.rejectIfEmpty("multiaddress", multiaddress);
 
-        return connect(null, null, multiaddress);
+        MultiAddress m = new MultiAddress(multiaddress);
+        
+        return connect(
+                multiaddress.contains("https") ? "https":"http", 
+                m.getHost(), 
+                m.getTCPPort(), 
+                multiaddress);
     }
 
-    private static IPFSService connect(String host, Integer port, String multiaddress) {
-        IPFSSettings settings = IPFSSettings.of(host, port, multiaddress);
+    private static IPFSService connect(String protocol, String host, Integer port, String multiaddress) {
+        IPFSSettings settings = IPFSSettings.of(protocol, host, port, multiaddress);
 
         try {
             IPFS ipfs = Optional.ofNullable(multiaddress).map(IPFS::new).orElseGet(() -> new IPFS(host, port));
-            log.info("Connected to ipfs [host: {}, port: {}, multiaddress: {}]: Node v.{}", host, port, multiaddress,
+            log.info("Connected to ipfs [protocol: {}, host: {}, port: {}, multiaddress: {}]: Node v.{}", protocol, host, port, multiaddress,
                     ipfs.version());
 
             return new IPFSService(settings, ipfs);
@@ -327,7 +341,7 @@ public class IPFSService implements StorageService, PinningService {
         }
         
         private List<MerkleNode> add(NamedStreamable.ByteArrayWrapper file) throws IOException {
-            String url = "http" + "://" + settings.getHost() + ":" + settings.getPort() + "/api/v0/" + "add?stream-channels=true&pin="+!noPin;
+            String url = settings.getProtocol() + "://" + settings.getHost() + ":" + settings.getPort() + "/api/v0/" + "add?stream-channels=true&pin="+!noPin;
             log.trace("url: {}", url);
             Multipart m = new Multipart(url, "UTF-8");
             m.addFilePart("file", Paths.get(""), file);
