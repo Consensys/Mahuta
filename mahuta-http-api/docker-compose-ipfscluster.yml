@@ -4,7 +4,7 @@ version: '3'
 services:
 
   mahuta:
-    image: gjeanmart/mahuta:snapshot
+    image: gjeanmart/mahuta
     ports:
     - "8040:8040"
     depends_on:

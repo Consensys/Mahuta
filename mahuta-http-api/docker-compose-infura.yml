@@ -3,8 +3,7 @@ version: '2'
 services:
 
   mahuta:
-    build: ./
-    #image: gjeanmart/mahuta
+    image: gjeanmart/mahuta
     ports:
     - "8040:8040"
     depends_on:
