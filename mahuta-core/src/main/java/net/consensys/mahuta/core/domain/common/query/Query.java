@@ -85,6 +85,11 @@ public class Query {
         return this;
     }
 
+    public Query notIn(String name, Collection<?> values) {
+        this.filterClauses.add(new Filter(name, QueryOperation.NOT_IN, values));
+        return this;
+    }
+
     public Query lessThan(String name, Object value) {
         this.filterClauses.add(new Filter(name, QueryOperation.LT, value));
         return this;
