@@ -44,6 +44,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.Longs;
 
+import io.opentracing.contrib.elasticsearch6.TracingPreBuiltTransportClient;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.domain.common.Metadata;
 import net.consensys.mahuta.core.domain.common.pagination.Page;
@@ -82,12 +83,26 @@ public class ElasticSearchService implements IndexingService {
     }
 
     public static ElasticSearchService connect(String host, Integer port, String clusterName) {
+        ValidatorUtils.rejectIfEmpty("clusterName", clusterName);
+        return connect(ElasticSearchSettings.DEFAULT_HOST, ElasticSearchSettings.DEFAULT_PORT, clusterName);
+    }
+
+    public static ElasticSearchService connect(String host, Integer port, String clusterName, boolean enableOpenTracing) {
         ElasticSearchSettings settings = ElasticSearchSettings.of(host, port, clusterName);
+        settings.setEnableOpenTracing(enableOpenTracing);
 
         try {
             // WARNING pbtc is never closed -> Close the transportClient as well...
-            PreBuiltTransportClient pbtc = new PreBuiltTransportClient(
-                    Settings.builder().put("cluster.name", clusterName).build());
+            PreBuiltTransportClient pbtc = null;
+            if(enableOpenTracing) {
+                pbtc = new TracingPreBuiltTransportClient(
+                        Settings.builder().put("cluster.name", clusterName).build());
+                
+            } else {
+                pbtc = new PreBuiltTransportClient(
+                        Settings.builder().put("cluster.name", clusterName).build());
+                
+            }
             TransportClient transportClient = pbtc
                     .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
 
