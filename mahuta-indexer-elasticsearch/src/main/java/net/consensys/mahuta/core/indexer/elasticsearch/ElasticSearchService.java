@@ -103,6 +103,13 @@ public class ElasticSearchService implements IndexingService {
         }
     }
 
+    public static ElasticSearchService connect(TransportClient transportClient) {
+
+        log.info("Connected to ElasticSearch [via transportClient] : {}", transportClient.listedNodes().toString());
+
+        return new ElasticSearchService(ElasticSearchSettings.of(), transportClient);
+    }
+
     public ElasticSearchService configureIndexNullValue(boolean indexNullValue) {
         this.settings.setIndexNullValue(indexNullValue);
         return this;

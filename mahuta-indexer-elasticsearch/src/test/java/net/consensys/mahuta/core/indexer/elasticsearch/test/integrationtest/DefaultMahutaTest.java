@@ -6,12 +6,18 @@ import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.IS_PUBLI
 import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.TITLE_FIELD;
 import static net.consensys.mahuta.core.test.utils.IndexingRequestUtils.VIEWS_FIELD;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,6 +31,7 @@ import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.indexer.elasticsearch.ElasticSearchService;
 import net.consensys.mahuta.core.service.DefaultMahutaService;
+import net.consensys.mahuta.core.service.indexing.IndexingService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
@@ -64,6 +71,23 @@ public class DefaultMahutaTest extends MahutaTestAbstract {
         indexName = mockNeat.strings().size(20).get();
         indexingService.createIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
         
+    }
+    
+    @Test
+    public void connectViaTransportClient() throws Exception {
+
+        String host = ContainerUtils.getHost("elasticsearch");
+        Integer port = ContainerUtils.getPort("elasticsearch");
+        String clusterName = ContainerUtils.getConfig("elasticsearch", "cluster-name");
+                
+        PreBuiltTransportClient pbtc = new PreBuiltTransportClient(
+                Settings.builder().put("cluster.name", clusterName).build());
+        TransportClient transportClient = pbtc
+                .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
+        
+        IndexingService esService = ElasticSearchService.connect(transportClient).withIndex("test");
+        
+        assertNotNull( esService.getIndexes());
     }
     
     @Test
