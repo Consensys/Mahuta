@@ -103,6 +103,13 @@ public class ElasticSearchService implements IndexingService {
         }
     }
 
+    public static ElasticSearchService connect(TransportClient transportClient) {
+
+        log.info("Connected to ElasticSearch [via transportClient] : {}", transportClient.listedNodes().toString());
+
+        return new ElasticSearchService(ElasticSearchSettings.of(), transportClient);
+    }
+
     public ElasticSearchService configureIndexNullValue(boolean indexNullValue) {
         this.settings.setIndexNullValue(indexNullValue);
         return this;
@@ -489,7 +496,18 @@ public class ElasticSearchService implements IndexingService {
                         Collection<String> terms = values.stream()
                                 .map(Object::toString)
                                 .collect(Collectors.toList());
-                        elasticSearchQuery.filter(QueryBuilders.termsQuery(f.getName(), terms));
+                        elasticSearchQuery.must(QueryBuilders.termsQuery(f.getName(), terms));
+                    } else {
+                        throw new IllegalArgumentException("in operation: expected type Collection<?>");
+                    }
+                    break;
+                case NOT_IN:
+                    if (value instanceof Collection<?>) {
+                        Collection<?> values = (Collection<?>) value;
+                        Collection<String> terms = values.stream()
+                                .map(Object::toString)
+                                .collect(Collectors.toList());
+                        elasticSearchQuery.mustNot(QueryBuilders.termsQuery(f.getName(), terms));
                     } else {
                         throw new IllegalArgumentException("in operation: expected type Collection<?>");
                     }

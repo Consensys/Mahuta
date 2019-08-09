@@ -691,6 +691,47 @@ public class ElasticSearchIndexerTest extends TestUtils  {
     }
 
     @Test
+    public void searchDocumentsWithNotInFilter() throws Exception {
+        
+        String indexName = mockNeat.strings().size(20).get();
+
+        IndexingService service = ElasticSearchService
+                .connect(ContainerUtils.getHost("elasticsearch"), ContainerUtils.getPort("elasticsearch"), ContainerUtils.getConfig("elasticsearch", "cluster-name"))
+                .withIndex(indexName, BytesUtils.readFileInputStream("index_mapping.json"));
+
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse1 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DRAFT);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse2 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.DELETED);
+        BuilderAndResponse<IndexingRequest, IndexingResponse> builderAndResponse3 = indexingRequestUtils.generateRandomStringIndexingRequest(indexName,null,  STATUS_FIELD, Status.PUBLISHED);
+        
+        //////////////////////////////
+        service.index(
+                builderAndResponse1.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse1.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse1.getResponse().getContentId(), 
+                builderAndResponse1.getBuilder().getRequest().getContentType(), 
+                null, true,
+                builderAndResponse1.getBuilder().getRequest().getIndexFields());
+        service.index(
+                builderAndResponse2.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse2.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse2.getResponse().getContentId(), 
+                builderAndResponse2.getBuilder().getRequest().getContentType(), 
+                null, true,
+                builderAndResponse2.getBuilder().getRequest().getIndexFields());
+        service.index(
+                builderAndResponse3.getBuilder().getRequest().getIndexName(), 
+                builderAndResponse3.getBuilder().getRequest().getIndexDocId(), 
+                builderAndResponse3.getResponse().getContentId(), 
+                builderAndResponse3.getBuilder().getRequest().getContentType(), 
+                null, true,
+                builderAndResponse3.getBuilder().getRequest().getIndexFields());
+        
+        Page<Metadata> result1 = service.searchDocuments(indexName, Query.newQuery().notIn(STATUS_FIELD, Arrays.asList(Status.PUBLISHED.toString(), Status.DRAFT.toString())), PageRequest.of(0, 10, "_id", SortDirection.ASC));
+        assertEquals(Integer.valueOf(1), result1.getTotalElements());
+        //////////////////////////////
+    }
+
+    @Test
     public void searchDocumentsWithOr() throws Exception {
         
         String indexName = mockNeat.strings().size(20).get();
