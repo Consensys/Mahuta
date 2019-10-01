@@ -3,19 +3,19 @@ version: '2'
 services:
 
   mahuta:
-    image: gjeanmart/mahuta
+    build: ./
+    image: gjeanmart/mahuta:latest
     ports:
     - "8040:8040"
+    volumes:
+      - ./external-conf.yml:/data/conf.yml
     depends_on:
+      - ipfs
       - elasticsearch
     environment:
-      WAIT_HOSTS: elasticsearch:9300
+      WAIT_HOSTS: elasticsearch:9300, ipfs:5001
+      CONF: file:///data/conf.yml
       LOG_LEVEL: TRACE
-      MAHUTA_ELASTICSEARCH_HOST: elasticsearch
-      MAHUTA_ELASTICSEARCH_PORT: 9300
-      MAHUTA_IPFS_MULTIADDRESS: /dnsaddr/ipfs.infura.io/tcp/5001/https
-      MAHUTA_IPFS_TIMEOUT_WRITE: 10000
-      MAHUTA_IPFS_TIMEOUT_READ: 10000
     networks:
       - default
 
@@ -37,5 +37,10 @@ services:
         hard: 65536
     networks:
       - default
-
-
+          
+  ipfs:
+    image: ipfs/go-ipfs
+    ports:
+          - "4001:4001"
+          - "5001:5001"
+          - "8081:8080"

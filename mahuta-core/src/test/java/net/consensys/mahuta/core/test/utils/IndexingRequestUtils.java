@@ -102,7 +102,7 @@ public class IndexingRequestUtils extends TestUtils{
                 .contentType(contentType)
                 .indexFields(fields);
         
-        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, true, fields);
         
         return new BuilderAndResponse<>(builder, response);
     }
@@ -159,7 +159,7 @@ public class IndexingRequestUtils extends TestUtils{
                 .indexFields(fields)
                 .indexContent(indexContent);
         
-        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, true, fields);
         
         return new BuilderAndResponse<>(builder, response);
     }
@@ -202,7 +202,7 @@ public class IndexingRequestUtils extends TestUtils{
                 .indexFields(fields)
                 .indexContent(indexContent);
         
-        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, true, fields);
         
         return new BuilderAndResponse<>(builder, response);
     }
@@ -246,7 +246,7 @@ public class IndexingRequestUtils extends TestUtils{
                 .indexFields(fields)
                 .indexContent(indexContent);
         
-        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, fields);
+        IndexingResponse response = IndexingResponse.of(indexName, indexDocId, contentId, contentType, true, fields);
         
         return new BuilderAndResponse<>(builder, response);
     }

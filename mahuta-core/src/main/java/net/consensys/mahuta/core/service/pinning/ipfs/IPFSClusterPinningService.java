@@ -82,11 +82,51 @@ public class IPFSClusterPinningService implements PinningService {
             throw new TechnicalException(msg, ex);
         }
     }
+    
+    @Override
+    public void pin(String cid) {
+        log.debug("pin CID {} on IPFS-cluster", cid);
+
+        try {
+            ValidatorUtils.rejectIfEmpty("cid", cid);
+            
+            log.trace("call POST {}://{}:{}/pins/{}", protocol, host, port, cid);
+            
+            Unirest.post(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid)).asString();
+            
+            log.debug("CID {} pinned on IPFS-cluster", cid);
+            
+        } catch (UnirestException ex) {
+            String msg = String.format("Error whilst sending request to IPFS-Cluster [host: %s, port: %s]", host, port);
+            log.error(msg, ex);
+            throw new TechnicalException(msg, ex);
+        }
+    }
 
     @Override
     public void unpin(String cid) {
         log.debug("unpin CID {} on IPFS-cluster", cid);
 
+        try {
+            ValidatorUtils.rejectIfEmpty("cid", cid);
+
+            log.trace("call DELETE {}://{}:{}/pins/{}", protocol, host, port, cid);
+            
+            Unirest.delete(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid)).asString();
+
+            log.debug("unpin {} pinned on IPFS-cluster", cid);
+        } catch (UnirestException ex) {
+            String msg = String.format("Error whilst sending request to IPFS-Cluster [host: %s, port: %s]", host, port);
+            log.error(msg, ex);
+            throw new TechnicalException(msg, ex);
+        }
+        
+    }
+
+    @Override
+    public List<String> getTracked() {
+        log.debug("get pinned files on IPFS-cluster");
+        
         try {
             ValidatorUtils.rejectIfEmpty("cid", cid);
 

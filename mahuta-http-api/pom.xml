@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.mahuta</groupId>
         <artifactId>mahuta-parent</artifactId>
-        <version>0.3.6-hf2</version>
+        <version>0.3.10-SNAPSHOT</version>
     </parent>
     <artifactId>mahuta-http-api</artifactId>
 
@@ -105,6 +105,19 @@
                     <forkCount>1</forkCount>
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

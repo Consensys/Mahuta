@@ -1,11 +1,10 @@
 package net.consensys.mahuta.springdata.impl;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,39 +12,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.Mahuta;
 import net.consensys.mahuta.core.domain.get.GetResponse;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.exception.NotFoundException;
 import net.consensys.mahuta.springdata.MahutaRepository;
+import net.consensys.mahuta.springdata.exception.MahutaSpringDataRuntimeException;
 
 @Slf4j
 public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCustomRepositoryImpl<E>
         implements MahutaRepository<E, I> {
 
     @Autowired
-    public MahutaRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields, Set<String> fullTextFields,
-            Class<E> entityClazz) {
-        this(mahuta, indexName, indexFields, fullTextFields, entityClazz, DEFAULT_ATTRIBUTE_ID, DEFAULT_ATTRIBUTE_HASH);
-    }
-
-    @Autowired
-    public MahutaRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields, Set<String> fullTextFields,
-            Class<E> entityClazz, String attributeId, String attributeHash) {
-        this(mahuta, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash, null);
-    }
-
-    @Autowired
-    public MahutaRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields, Set<String> fullTextFields,
-            Class<E> entityClazz, String attributeId, String attributeHash, InputStream indexConfiguration) {
-        this(mahuta, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash, null, false);
-    }
-
-    @Autowired
-    public MahutaRepositoryImpl(Mahuta mahuta, String indexName, Set<String> indexFields, Set<String> fullTextFields,
-            Class<E> entityClazz, String attributeId, String attributeHash, InputStream indexConfiguration, boolean indexContent) {
-        super(mahuta, indexName, indexFields, fullTextFields, entityClazz, attributeId, attributeHash, indexConfiguration, indexContent);
+    public MahutaRepositoryImpl(Mahuta mahuta) {
+        super(mahuta);
     }
 
     @Override
@@ -60,17 +43,14 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
 
             // Identifier
             String id = null;
-            try {
-                id = this.getId(entity);
-                if (id == null) {
+            if(attributeId.isPresent()) {
+                id = (String) attributeId.get().invokeGetter(entity, ID_CLASS);
+                if(id == null) {
                     id = generateID();
-                    this.setId(entity, id);
+                    attributeId.get().invokeSetter(entity, id);
                 }
-
-            } catch (NoSuchMethodException e) {
-                log.warn("No method getId() in the entity");
             }
-
+            
             IndexingResponse response = mahuta.prepareInputStreamIndexing(indexName, serialize(entity))
                     .contentType(DEFAULT_CONTENT_TYPE)
                     .indexDocId(id)
@@ -79,10 +59,8 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
                     .execute();
 
             // Add the hash to the entity
-            try {
-                this.setHash(entity, response.getContentId());
-            } catch (NoSuchMethodException e) {
-                log.warn("No method setHash(hash) in the entity");
+            if(attributeHash.isPresent()) {
+                attributeHash.get().invokeSetter(entity, response.getContentId());
             }
 
             log.debug("Entity [entity: {}, external_index_fields: {}] saved. hash={}", entity, externalIndexFields,
@@ -90,7 +68,7 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
 
             return entity;
 
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (JsonProcessingException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             log.error("Error while saving the entity [entity: {}, external_index_fields: {}]", entity,
                     externalIndexFields, e);
             return null;
@@ -117,6 +95,9 @@ public class MahutaRepositoryImpl<E, I extends Serializable> extends MahutaCusto
         } catch (NotFoundException e) {
             log.error("Entity not found [id={}]", id);
             return Optional.empty();
+        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+            log.error("Error while deserialising object", e);
+            throw new MahutaSpringDataRuntimeException("Error while deserialising object", e);
         }
     }
 

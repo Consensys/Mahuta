@@ -81,6 +81,7 @@ public class QueryController {
             @RequestParam(value = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
             @RequestParam(value = "sort", required = false) Optional<String> sortAttribute,
             @RequestParam(value = "dir", required = false, defaultValue = "ASC") SortDirection sortDirection,
+            @RequestParam(value = "loadFile", required = false, defaultValue = "false") boolean loadFile,
             @RequestBody Query query) {
 
         PageRequest pageRequest = sortAttribute
@@ -91,6 +92,7 @@ public class QueryController {
                 .indexName(indexName)
                 .pageRequest(pageRequest)
                 .query(query)
+                .loadFile(loadFile)
                 .execute();
     }
 

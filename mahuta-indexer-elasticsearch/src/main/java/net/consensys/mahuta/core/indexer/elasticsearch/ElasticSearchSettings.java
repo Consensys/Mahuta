@@ -13,6 +13,10 @@ public class ElasticSearchSettings {
     private @Setter @Getter Integer port = DEFAULT_PORT;
     private @Setter @Getter String clusterName;
     private @Setter @Getter boolean indexNullValue = DEFAULT_INDEX_NULL_VALUES;
+
+    public static ElasticSearchSettings of() {
+        return new ElasticSearchSettings();
+    }
     
     public static ElasticSearchSettings of(String host, Integer port, String clusterName) {
         ElasticSearchSettings s = new ElasticSearchSettings();

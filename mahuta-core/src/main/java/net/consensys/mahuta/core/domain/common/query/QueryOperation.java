@@ -12,6 +12,7 @@ public enum QueryOperation {
     NOT_EQUALS, // Not equals
     CONTAINS, // Contains the word/phrase
     IN, // in the following list
+    NOT_IN, // not in the following list
     GT, // Greater than
     GTE, // Greater than or Equals
     LT, // Less than

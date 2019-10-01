@@ -43,6 +43,7 @@ public class AsynchonousPinningMahutaService extends AbstractMahutaService {
      */
     public void run() {
         log.debug("Run asynchromous pinning process");
+
         try {
 
             final Query query = Query.newQuery().equals(IndexingService.PINNED_KEY, false);
@@ -76,7 +77,7 @@ public class AsynchonousPinningMahutaService extends AbstractMahutaService {
                     });
                 } while(!page.isLast());
             });
-
+            
         } catch(Exception ex) {
         	log.error("Error while running the asynchromous pinning process", ex);
         }
