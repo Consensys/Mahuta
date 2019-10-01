@@ -79,7 +79,7 @@ public class AsynchonousPinningMahutaService extends AbstractMahutaService {
             });
             
         } catch(Exception ex) {
-        	log.error("Error while running the asynchromous pinning proces", ex);
+        	log.error("Error while running the asynchromous pinning process", ex);
         }
         
 
