@@ -2,8 +2,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mahuta-core</artifactId>
-    <name>Mahuta IPFS Core</name>
-    <description>Mahuta IPFS - Core module</description>
 
     <parent>
         <groupId>net.consensys.mahuta</groupId>
