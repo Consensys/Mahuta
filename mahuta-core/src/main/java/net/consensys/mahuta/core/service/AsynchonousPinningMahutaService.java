@@ -43,29 +43,42 @@ public class AsynchonousPinningMahutaService extends AbstractMahutaService {
      */
     public void run() {
         log.debug("Run asynchromous pinning process");
-        
-        final Query query = Query.newQuery().equals(IndexingService.PINNED_KEY, false);
-        
-        indexingService.getIndexes().forEach(indexName -> {
-            log.trace("indexName: {}", indexName);
-            Page<Metadata> page = null;
-            do {
-                PageRequest pageReq = Optional.ofNullable(page)
-                    .map(Page::nextPageRequest)
-                    .orElse(PageRequest.of(0, PAGE_SIZE));
-                
-                page = indexingService.searchDocuments(indexName, query, pageReq);
-                
-                page.getElements().forEach(m -> 
-                    storageService.getReplicaSet().forEach(pinningService -> {
-                        // Pin
-                        pinningService.pin(m.getContentId());
-                        
-                        // Set the flag __pinned to true
-                        indexingService.updateField(indexName, m.getIndexDocId(), IndexingService.PINNED_KEY, true);
-                    })
-                );
-            } while(!page.isLast());
-        });
+        try {
+
+            final Query query = Query.newQuery().equals(IndexingService.PINNED_KEY, false);
+
+            indexingService.getIndexes().forEach(indexName -> {
+                log.trace("indexName: {}", indexName);
+                Page<Metadata> page = null;
+                do {
+                    PageRequest pageReq = Optional.ofNullable(page)
+                        .map(Page::nextPageRequest)
+                        .orElse(PageRequest.of(0, PAGE_SIZE));
+
+                    page = indexingService.searchDocuments(indexName, query, pageReq);
+
+                    page.getElements().forEach(m -> {
+                		String[] current = new String[1];
+                    	try {
+                    		// Pin each replica node
+                            storageService.getReplicaSet().forEach(pinningService -> {
+                            	current[0] = pinningService.getName();
+                                pinningService.pin(m.getContentId());
+                            });
+
+                            // Set the flag __pinned to true
+                            indexingService.updateField(indexName, m.getIndexDocId(), IndexingService.PINNED_KEY, true);
+
+                    	} catch(Exception ex) {
+                    		log.warn("Error while pinning content during the asynchromous pinning process [node: {}, cid {}]: {} - retry soon", 
+                    				current[0], m.getContentId(), ex.getMessage());
+                    	}
+                    });
+                } while(!page.isLast());
+            });
+
+        } catch(Exception ex) {
+        	log.error("Error while running the asynchromous pinning process", ex);
+        }
     }
 }

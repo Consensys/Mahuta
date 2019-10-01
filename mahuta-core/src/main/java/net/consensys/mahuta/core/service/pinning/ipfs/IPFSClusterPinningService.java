@@ -123,4 +123,8 @@ public class IPFSClusterPinningService implements PinningService {
 		}
 	}
 
+	@Override
+	public String getName() {
+		return "ipfs-cluster ["+host + ":" + port +"]";
+	}
 }
