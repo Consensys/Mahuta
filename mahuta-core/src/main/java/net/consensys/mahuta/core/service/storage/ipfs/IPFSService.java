@@ -202,19 +202,15 @@ public class IPFSService implements StorageService, PinningService {
         
         ValidatorUtils.rejectIfEmpty("cid", cid);
         
-        Failsafe.with(retryPolicy)
-            .onFailure(event -> log.error("Exception pinning cid {} on IPFS after {} attemps", cid, event.getAttemptCount()))
-            .onSuccess(event -> log.debug("CID {} pinned on IPFS", cid))
-            .run(() -> {
-                try {
-                    Multihash hash = Multihash.fromBase58(cid);
-                    this.ipfs.pin.add(hash);
-                } catch (Exception ex) {
-                    log.error("Exception pinning cid [cid: {}]", cid, ex);
-                    throw new TechnicalException("Exception pinning cid  [cid: " + cid + "]", ex);
-                }
-            });   
-    }
+        try {
+            Multihash hash = Multihash.fromBase58(cid);
+            this.ipfs.pin.add(hash);
+        	
+        } catch (IOException ex) {
+        	log.error("Exception pinning cid {} on IPFS", cid, ex);
+        	throw new TechnicalException("Exception pinning cid " +cid+ " on IPFS", ex);
+        }
+    } 
 
     @Override
     public void unpin(String cid) {
@@ -222,13 +218,14 @@ public class IPFSService implements StorageService, PinningService {
         
         ValidatorUtils.rejectIfEmpty("cid", cid);
         
-        Failsafe.with(retryPolicy)
-            .onFailure(event -> log.error("Exception unpinning cid {} on IPFS after {} attemps", cid, event.getAttemptCount()))
-            .onSuccess(event -> log.debug("CID {} unpinned on IPFS", cid))
-            .run(() -> {
-                Multihash hash = Multihash.fromBase58(cid);
-                this.ipfs.pin.rm(hash);
-            }); 
+        try {
+            Multihash hash = Multihash.fromBase58(cid);
+            this.ipfs.pin.rm(hash);
+        	
+        } catch (IOException ex) {
+        	log.error("Exception unpinning cid {} on IPFS", cid, ex);
+        	throw new TechnicalException("Exception unpinning cid " +cid+ " on IPFS", ex);
+        }  
     }
     
     @Override
@@ -236,16 +233,19 @@ public class IPFSService implements StorageService, PinningService {
 
         log.debug("Get pinned files on IPFS");
         
-        return Failsafe.with(retryPolicy)
-            .onFailure(event -> log.error("Exception getting pinned files on IPFS after {} attemps", event.getAttemptCount()))
-            .onSuccess(event -> log.debug("Get pinned files on IPFS: {}", event.getResult()))
-            .get(() -> {
-                Map<Multihash, Object> cids = this.ipfs.pin.ls(PinType.all);
+        try {
+            Map<Multihash, Object> cids = this.ipfs.pin.ls(PinType.all);
 
-                return cids.entrySet().stream()
-                        .map(e-> e.getKey().toBase58())
-                        .collect(Collectors.toList());
-            }); 
+            return cids.entrySet().stream()
+                    .map(e-> e.getKey().toBase58())
+                    .collect(Collectors.toList());
+        	
+        } catch (IOException ex) {
+        	log.error("Exception getting pinned files on IPFS", ex);
+        	throw new TechnicalException("Exception getting pinned files on IPFS", ex);
+        } 
+        
+
     }
 
     @Override
@@ -351,4 +351,11 @@ public class IPFSService implements StorageService, PinningService {
                     .collect(Collectors.toList());
         }
     }
+    
+
+
+	@Override
+	public String getName() {
+		return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
+	}
 }
