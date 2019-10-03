@@ -4,6 +4,6 @@ import java.util.List;
 
 import lombok.Getter;
 
-public class TrackedResponse {
+public class IPFSClusterTrackedResponse {
     private @Getter List<String> pins;
 }
