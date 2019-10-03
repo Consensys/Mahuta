@@ -101,8 +101,8 @@ public class IPFSService implements StorageService, PinningService {
             return new IPFSService(settings, ipfs);
 
         } catch (Exception ex) {
-            String msg = String.format("Error whilst connecting to IPFS [host: %s, port: %s, multiaddress: %s]", host,
-                    port, multiaddress);
+            String msg = String.format("Error whilst connecting to IPFS [protocol: {}, host: %s, port: %s, multiaddress: %s]", 
+            		protocol, host, port, multiaddress);
 
             log.error(msg, ex);
             throw new ConnectionException(msg, ex);
@@ -207,7 +207,6 @@ public class IPFSService implements StorageService, PinningService {
             this.ipfs.pin.add(hash);
         	
         } catch (Exception ex) {
-        	log.error("Exception pinning cid {} on IPFS", cid, ex);
         	throw new TechnicalException("Exception pinning cid " +cid+ " on IPFS", ex);
         }
     } 
@@ -223,7 +222,6 @@ public class IPFSService implements StorageService, PinningService {
             this.ipfs.pin.rm(hash);
         	
         } catch (Exception ex) {
-        	log.error("Exception unpinning cid {} on IPFS", cid, ex);
         	throw new TechnicalException("Exception unpinning cid " +cid+ " on IPFS", ex);
         }  
     }
@@ -241,7 +239,6 @@ public class IPFSService implements StorageService, PinningService {
                     .collect(Collectors.toList());
         	
         } catch (Exception ex) {
-        	log.error("Exception getting pinned files on IPFS", ex);
         	throw new TechnicalException("Exception getting pinned files on IPFS", ex);
         } 
         
