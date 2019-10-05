@@ -106,7 +106,7 @@ public class IPFSClusterPinningService implements PinningService {
 		log.debug("get pinned files on IPFS-cluster");
 
 		try {
-			log.trace("GET GET {}://{}:{}/pins", protocol, host, port);
+			log.trace("GET {}://{}:{}/pins", protocol, host, port);
 			HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/pins", protocol, host, port))
 					.asString();
 			log.debug("response: {}", response);
