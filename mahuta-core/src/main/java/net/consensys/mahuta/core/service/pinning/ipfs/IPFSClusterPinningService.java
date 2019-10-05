@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.exception.ConnectionException;
 import net.consensys.mahuta.core.exception.TechnicalException;
@@ -17,7 +17,7 @@ import net.consensys.mahuta.core.utils.ValidatorUtils;
 @Slf4j
 public class IPFSClusterPinningService implements PinningService {
 
-	private static final String BASE_URI = "%s://%s:%s/";
+	private static final String BASE_URI = "%s://%s:%s";
 	private static final String DEFAULT_PROTOCOL = "http";
 	private static final String DEFAULT_HOST = "localhost";
 	private static final int DEFAULT_PORT = 9094;
@@ -49,7 +49,8 @@ public class IPFSClusterPinningService implements PinningService {
 		try {
 			log.trace("call GET {}://{}:{}/id", protocol, host, port);
 			HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/id", protocol, host, port))
-					.asString();
+					.asString()
+					.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
 			log.info("Connected to IPFS-Cluster [protocol: {}, host: {}, port: {}]: Info {}", protocol, host, port,
 					response.getBody());
 
@@ -71,7 +72,9 @@ public class IPFSClusterPinningService implements PinningService {
             
             log.trace("call POST {}://{}:{}/pins/{}", protocol, host, port, cid);
             
-            Unirest.post(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid)).asString();
+            Unirest.post(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid))
+            	.asString()
+				.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
             
             log.debug("CID {} pinned on IPFS-cluster", cid);
             
@@ -91,7 +94,9 @@ public class IPFSClusterPinningService implements PinningService {
 
             log.trace("call DELETE {}://{}:{}/pins/{}", protocol, host, port, cid);
             
-            Unirest.delete(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid)).asString();
+            Unirest.delete(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid))
+            	.asString()
+				.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
 
             log.debug("unpin {} pinned on IPFS-cluster", cid);
         } catch (UnirestException ex) {
@@ -108,7 +113,8 @@ public class IPFSClusterPinningService implements PinningService {
 		try {
 			log.trace("GET {}://{}:{}/pins", protocol, host, port);
 			HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/pins", protocol, host, port))
-					.asString();
+					.asString()
+					.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
 			log.debug("response: {}", response);
 			IPFSClusterTrackedResponse result = mapper.readValue(response.getBody(), IPFSClusterTrackedResponse.class);
 
