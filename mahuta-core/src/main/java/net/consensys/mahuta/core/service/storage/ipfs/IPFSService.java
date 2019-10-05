@@ -102,7 +102,7 @@ public class IPFSService implements StorageService, PinningService {
 
         } catch (Exception ex) {
             String msg = String.format("Error whilst connecting to IPFS [protocol: {}, host: %s, port: %s, multiaddress: %s]", 
-            		protocol, host, port, multiaddress);
+                    protocol, host, port, multiaddress);
 
             log.error(msg, ex);
             throw new ConnectionException(msg, ex);
@@ -205,9 +205,9 @@ public class IPFSService implements StorageService, PinningService {
         try {
             Multihash hash = Multihash.fromBase58(cid);
             this.ipfs.pin.add(hash);
-        	
+            
         } catch (Exception ex) {
-        	throw new TechnicalException("Exception pinning cid " +cid+ " on IPFS", ex);
+            throw new TechnicalException("Exception pinning cid " +cid+ " on IPFS", ex);
         }
     } 
 
@@ -220,9 +220,9 @@ public class IPFSService implements StorageService, PinningService {
         try {
             Multihash hash = Multihash.fromBase58(cid);
             this.ipfs.pin.rm(hash);
-        	
+            
         } catch (Exception ex) {
-        	throw new TechnicalException("Exception unpinning cid " +cid+ " on IPFS", ex);
+            throw new TechnicalException("Exception unpinning cid " +cid+ " on IPFS", ex);
         }  
     }
     
@@ -237,9 +237,9 @@ public class IPFSService implements StorageService, PinningService {
             return cids.entrySet().stream()
                     .map(e-> e.getKey().toBase58())
                     .collect(Collectors.toList());
-        	
+            
         } catch (Exception ex) {
-        	throw new TechnicalException("Exception getting pinned files on IPFS", ex);
+            throw new TechnicalException("Exception getting pinned files on IPFS", ex);
         } 
         
 
@@ -349,9 +349,9 @@ public class IPFSService implements StorageService, PinningService {
         }
     }
 
-	@Override
-	public String getName() {
-		return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
-	}
+    @Override
+    public String getName() {
+        return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
+    }
 
 }

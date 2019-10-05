@@ -59,27 +59,27 @@ public class AsynchonousPinningMahutaService extends AbstractMahutaService {
                     page = indexingService.searchDocuments(indexName, query, pageReq);
 
                     page.getElements().forEach(m -> {
-                		String[] current = new String[1];
-                    	try {
-                    		// Pin each replica node
+                        String[] current = new String[1];
+                        try {
+                            // Pin each replica node
                             storageService.getReplicaSet().forEach(pinningService -> {
-                            	current[0] = pinningService.getName();
+                                current[0] = pinningService.getName();
                                 pinningService.pin(m.getContentId());
                             });
 
                             // Set the flag __pinned to true
                             indexingService.updateField(indexName, m.getIndexDocId(), IndexingService.PINNED_KEY, true);
 
-                    	} catch(Exception ex) {
-                    		log.warn("Error while pinning content during the asynchromous pinning process [node: {}, cid {}]: {} - retry soon", 
-                    				current[0], m.getContentId(), ex.getMessage());
-                    	}
+                        } catch(Exception ex) {
+                            log.warn("Error while pinning content during the asynchromous pinning process [node: {}, cid {}]: {} - retry soon", 
+                                    current[0], m.getContentId(), ex.getMessage());
+                        }
                     });
                 } while(!page.isLast());
             });
             
         } catch(Exception ex) {
-        	log.error("Error while running the asynchromous pinning process", ex);
+            log.error("Error while running the asynchromous pinning process", ex);
         }
     }
 }
