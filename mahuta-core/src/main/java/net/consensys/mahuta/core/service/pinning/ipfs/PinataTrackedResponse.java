@@ -13,7 +13,7 @@ import lombok.ToString;
 @AllArgsConstructor @NoArgsConstructor
 @ToString
 public class PinataTrackedResponse {
-	
-	private @Getter Long count;
+    
+    private @Getter Long count;
     private @Getter List<PinataTrackedRowResponse> rows;
 }

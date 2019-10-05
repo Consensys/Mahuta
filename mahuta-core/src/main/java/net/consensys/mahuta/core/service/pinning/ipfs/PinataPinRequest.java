@@ -14,13 +14,13 @@ import lombok.ToString;
 @ToString
 public class PinataPinRequest {
 
-	@JsonProperty("hashToPin")
-	private @Getter String hash;
-	
-	@JsonProperty("host_nodes")
-	private @Getter List<String> hostNodes;
-	
-	@JsonProperty("pinataMetadata")
-	private Map<String, String> metadata;
-	
+    @JsonProperty("hashToPin")
+    private @Getter String hash;
+    
+    @JsonProperty("host_nodes")
+    private @Getter List<String> hostNodes;
+    
+    @JsonProperty("pinataMetadata")
+    private Map<String, String> metadata;
+    
 }

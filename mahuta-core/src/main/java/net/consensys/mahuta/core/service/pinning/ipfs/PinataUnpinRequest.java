@@ -11,9 +11,9 @@ import lombok.ToString;
 @ToString
 public class PinataUnpinRequest {
 
-	@JsonProperty("ipfs_pin_hash")
-	private @Getter String h;
-	
-	
-	
+    @JsonProperty("ipfs_pin_hash")
+    private @Getter String h;
+    
+    
+    
 }

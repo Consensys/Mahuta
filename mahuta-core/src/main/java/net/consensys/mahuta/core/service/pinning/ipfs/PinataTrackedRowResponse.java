@@ -12,11 +12,11 @@ import lombok.ToString;
 @AllArgsConstructor @NoArgsConstructor
 @ToString
 public class PinataTrackedRowResponse {
-	
-	@JsonProperty("id")
-	private @Getter String id;
-	
-	@JsonProperty("ipfs_pin_hash")
-	private @Getter String hash;
+    
+    @JsonProperty("id")
+    private @Getter String id;
+    
+    @JsonProperty("ipfs_pin_hash")
+    private @Getter String hash;
     
 }

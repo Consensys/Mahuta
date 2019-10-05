@@ -17,51 +17,51 @@ import net.consensys.mahuta.core.utils.ValidatorUtils;
 @Slf4j
 public class IPFSClusterPinningService implements PinningService {
 
-	private static final String BASE_URI = "%s://%s:%s";
-	private static final String DEFAULT_PROTOCOL = "http";
-	private static final String DEFAULT_HOST = "localhost";
-	private static final int DEFAULT_PORT = 9094;
-	private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String BASE_URI = "%s://%s:%s";
+    private static final String DEFAULT_PROTOCOL = "http";
+    private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 9094;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-	private final String protocol;
-	private final String host;
-	private final Integer port;
+    private final String protocol;
+    private final String host;
+    private final Integer port;
 
-	private IPFSClusterPinningService(String host, Integer port, String protocol) {
-		this.host = host;
-		this.port = port;
-		this.protocol = protocol;
-	}
+    private IPFSClusterPinningService(String host, Integer port, String protocol) {
+        this.host = host;
+        this.port = port;
+        this.protocol = protocol;
+    }
 
-	public static IPFSClusterPinningService connect() {
-		return connect(DEFAULT_HOST, DEFAULT_PORT);
-	}
+    public static IPFSClusterPinningService connect() {
+        return connect(DEFAULT_HOST, DEFAULT_PORT);
+    }
 
-	public static IPFSClusterPinningService connect(String host, Integer port) {
-		return connect(host, port, DEFAULT_PROTOCOL);
-	}
+    public static IPFSClusterPinningService connect(String host, Integer port) {
+        return connect(host, port, DEFAULT_PROTOCOL);
+    }
 
-	public static IPFSClusterPinningService connect(String host, Integer port, String protocol) {
-		ValidatorUtils.rejectIfEmpty("host", host);
-		ValidatorUtils.rejectIfNegative("port", port);
-		ValidatorUtils.rejectIfDifferentThan("protocol", protocol, "http", "https");
+    public static IPFSClusterPinningService connect(String host, Integer port, String protocol) {
+        ValidatorUtils.rejectIfEmpty("host", host);
+        ValidatorUtils.rejectIfNegative("port", port);
+        ValidatorUtils.rejectIfDifferentThan("protocol", protocol, "http", "https");
 
-		try {
-			log.trace("call GET {}://{}:{}/id", protocol, host, port);
-			HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/id", protocol, host, port))
-					.asString()
-					.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
-			log.info("Connected to IPFS-Cluster [protocol: {}, host: {}, port: {}]: Info {}", protocol, host, port,
-					response.getBody());
+        try {
+            log.trace("call GET {}://{}:{}/id", protocol, host, port);
+            HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/id", protocol, host, port))
+                    .asString()
+                    .ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
+            log.info("Connected to IPFS-Cluster [protocol: {}, host: {}, port: {}]: Info {}", protocol, host, port,
+                    response.getBody());
 
-			return new IPFSClusterPinningService(host, port, protocol);
+            return new IPFSClusterPinningService(host, port, protocol);
 
-		} catch (UnirestException ex) {
-			String msg = String.format("Error whilst connecting to IPFS-Cluster [host: %s, port: %s]", host, port);
-			log.error(msg, ex);
-			throw new ConnectionException(msg, ex);
-		}
-	}
+        } catch (UnirestException ex) {
+            String msg = String.format("Error whilst connecting to IPFS-Cluster [host: %s, port: %s]", host, port);
+            log.error(msg, ex);
+            throw new ConnectionException(msg, ex);
+        }
+    }
 
     @Override
     public void pin(String cid) {
@@ -73,8 +73,8 @@ public class IPFSClusterPinningService implements PinningService {
             log.trace("call POST {}://{}:{}/pins/{}", protocol, host, port, cid);
             
             Unirest.post(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid))
-            	.asString()
-				.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
+                .asString()
+                .ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
             
             log.debug("CID {} pinned on IPFS-cluster", cid);
             
@@ -95,8 +95,8 @@ public class IPFSClusterPinningService implements PinningService {
             log.trace("call DELETE {}://{}:{}/pins/{}", protocol, host, port, cid);
             
             Unirest.delete(String.format(BASE_URI + "/pins/%s", protocol, host, port, cid))
-            	.asString()
-				.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
+                .asString()
+                .ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
 
             log.debug("unpin {} pinned on IPFS-cluster", cid);
         } catch (UnirestException ex) {
@@ -106,29 +106,29 @@ public class IPFSClusterPinningService implements PinningService {
         }
     }
 
-	@Override
-	public List<String> getTracked() {
-		log.debug("get pinned files on IPFS-cluster");
+    @Override
+    public List<String> getTracked() {
+        log.debug("get pinned files on IPFS-cluster");
 
-		try {
-			log.trace("GET {}://{}:{}/pins", protocol, host, port);
-			HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/pins", protocol, host, port))
-					.asString()
-					.ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
-			log.debug("response: {}", response);
-			IPFSClusterTrackedResponse result = mapper.readValue(response.getBody(), IPFSClusterTrackedResponse.class);
+        try {
+            log.trace("GET {}://{}:{}/pins", protocol, host, port);
+            HttpResponse<String> response = Unirest.get(String.format(BASE_URI + "/pins", protocol, host, port))
+                    .asString()
+                    .ifFailure(r -> { throw new UnirestException(r.getStatus() + " - " + r.getBody()); });
+            log.debug("response: {}", response);
+            IPFSClusterTrackedResponse result = mapper.readValue(response.getBody(), IPFSClusterTrackedResponse.class);
 
-			log.debug("get pinned files on IPFS-cluster");
-			return result.getPins();
+            log.debug("get pinned files on IPFS-cluster");
+            return result.getPins();
 
-		} catch (UnirestException | IOException ex) {
-			log.error("Exception converting HTTP response to JSON", ex);
-			throw new TechnicalException("Exception converting HTTP response to JSON", ex);
-		}
-	}
+        } catch (UnirestException | IOException ex) {
+            log.error("Exception converting HTTP response to JSON", ex);
+            throw new TechnicalException("Exception converting HTTP response to JSON", ex);
+        }
+    }
 
-	@Override
-	public String getName() {
-		return "ipfs-cluster ["+host + ":" + port +"]";
-	}
+    @Override
+    public String getName() {
+        return "ipfs-cluster ["+host + ":" + port +"]";
+    }
 }

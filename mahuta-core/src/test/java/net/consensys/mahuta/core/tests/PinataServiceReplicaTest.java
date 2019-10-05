@@ -32,7 +32,7 @@ import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndRespo
 
 public class PinataServiceReplicaTest extends MahutaTestAbstract {
 
-	private static IndexingRequestUtils indexingRequestUtils;
+    private static IndexingRequestUtils indexingRequestUtils;
 
     private static final String WIREMOCK_HOST = "localhost";
     private static final Integer WIREMOCK_PORT = 9523;
