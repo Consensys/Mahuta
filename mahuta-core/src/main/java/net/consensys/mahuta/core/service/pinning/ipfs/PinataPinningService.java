@@ -1,7 +1,11 @@
 package net.consensys.mahuta.core.service.pinning.ipfs;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,12 +82,24 @@ public class PinataPinningService implements PinningService {
 
     @Override
     public void pin(String cid) {
-        log.debug("pin CID {} on Pinata", cid);
+        this.pin(cid, null, null);
+    }
+    
+    @Override
+    public void pin(String cid, String name, Map<String, Object> metadata) {
+        log.debug("pin CID {} on Pinata [name: {}, metadata: {}]", cid, name, metadata);
 
         try {
             ValidatorUtils.rejectIfEmpty("cid", cid);
             
-            PinataPinRequest request = new PinataPinRequest(cid, addresses, null);
+            // Transform metadata
+            Map<String, String> keyvalues = Optional.ofNullable(metadata).orElseGet(() -> new HashMap<String, Object>())
+                    .entrySet()
+                    .stream()
+                    .collect (Collectors.toMap(Entry::getKey, Object::toString));
+            
+            PinataPinRequest request = new PinataPinRequest(cid, addresses, 
+                    new PinataMetadata(name, keyvalues));
             log.trace("call POST {}/pinning/pinHashToIPFS {}", endpoint, mapper.writeValueAsString(request));
             
             HttpResponse<String> response = Unirest.post(endpoint + "/pinning/pinHashToIPFS")

@@ -1,6 +1,6 @@
 package net.consensys.mahuta.core.service.pinning.ipfs;
 
-import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,15 +11,12 @@ import lombok.ToString;
 
 @AllArgsConstructor @NoArgsConstructor
 @ToString
-public class PinataPinRequest {
+public class PinataMetadata {
 
-    @JsonProperty("hashToPin")
-    private @Getter String hash;
-    
-    @JsonProperty("host_nodes")
-    private @Getter List<String> hostNodes;
-    
-    @JsonProperty("pinataMetadata")
-    private PinataMetadata metadata;
+    @JsonProperty("name")
+    private @Getter String name;
+
+    @JsonProperty("keyvalues")
+    private Map<String, String> metadata;
     
 }
