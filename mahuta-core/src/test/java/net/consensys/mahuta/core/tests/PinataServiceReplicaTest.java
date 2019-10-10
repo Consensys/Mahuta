@@ -1,6 +1,5 @@
 package net.consensys.mahuta.core.tests;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -20,15 +19,13 @@ import net.consensys.mahuta.core.domain.indexing.IndexingRequest;
 import net.consensys.mahuta.core.domain.indexing.IndexingResponse;
 import net.consensys.mahuta.core.service.DefaultMahutaService;
 import net.consensys.mahuta.core.service.indexing.IndexingService;
-import net.consensys.mahuta.core.service.pinning.ipfs.IPFSClusterPinningService;
 import net.consensys.mahuta.core.service.pinning.ipfs.PinataPinningService;
-import net.consensys.mahuta.core.service.storage.StorageService;
 import net.consensys.mahuta.core.service.storage.ipfs.IPFSService;
 import net.consensys.mahuta.core.test.utils.ContainerUtils;
-import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
-import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 import net.consensys.mahuta.core.test.utils.ContainerUtils.ContainerType;
+import net.consensys.mahuta.core.test.utils.IndexingRequestUtils;
 import net.consensys.mahuta.core.test.utils.IndexingRequestUtils.BuilderAndResponse;
+import net.consensys.mahuta.core.test.utils.MahutaTestAbstract;
 
 public class PinataServiceReplicaTest extends MahutaTestAbstract {
 

@@ -1,6 +1,7 @@
 package net.consensys.mahuta.core.service.pinning;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface representing a pinning service.
@@ -21,6 +22,17 @@ public interface PinningService {
      * @param id Content ID (hash, CID)
      */
     void pin(String id);
+    
+    /**
+     * Pin content with metadata
+     * default implement only pin CID
+     * @param id Content ID (hash, CID)
+     * @param name Content name
+     * @param metadata Content metadata
+     */
+    default void pin(String id, String name, Map<String, Object> metadata) { 
+        pin(id);
+    } 
     
     /**
      * unpin content
