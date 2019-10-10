@@ -292,6 +292,26 @@ public class IPFSService implements StorageService, PinningService {
         
     }
 
+    @Override
+    public String getName() {
+        return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
+    }
+
+    /**
+     * Get IPFS Config
+     * @param key
+     * @return Config associated to the key
+     */
+    public Object getPeerConfig(String key) {
+        
+        try {
+            return ipfs.id().get(key);
+        } catch (IOException ex) {
+            log.error("Exception while fetching config from IPFS [key: {}]", key, ex);
+            throw new TechnicalException("Exception while fetching config from IPFS. key:" + key, ex);
+        }
+    }
+
     private class IPFSContentFetcher implements Callable<byte[]> {
 
         private final IPFS ipfs;
@@ -347,11 +367,6 @@ public class IPFSService implements StorageService, PinningService {
                     .map(x -> MerkleNode.fromJSON((Map<String, Object>) x))
                     .collect(Collectors.toList());
         }
-    }
-
-    @Override
-    public String getName() {
-        return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
     }
 
 }
