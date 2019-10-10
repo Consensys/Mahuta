@@ -2,6 +2,7 @@ package net.consensys.mahuta.core.test.storage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -79,6 +80,19 @@ public class IPFSStorageServiceTest extends TestUtils {
         //////////////////////////////
         IPFSService.connect();
         //////////////////////////////
+    }
+
+    @Test
+    public void getConfig() throws Exception {
+        IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"));
+
+        //////////////////////////////
+        String id = service.getPeerConfig("ID").toString();
+        log.info("id: {}", id);
+        List<String> addresses = (List<String>) service.getPeerConfig("Addresses");
+        log.info("addresses: {}", addresses.get(addresses.size()-1));
+        //////////////////////////////
+        assertNotNull(id);
     }
 
     @Test
