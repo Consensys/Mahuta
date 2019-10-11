@@ -96,7 +96,7 @@ public class PinataPinningService implements PinningService {
             Map<String, String> keyvalues = Optional.ofNullable(metadata).orElseGet(() -> new HashMap<String, Object>())
                     .entrySet()
                     .stream()
-                    .collect (Collectors.toMap(Entry::getKey, Object::toString));
+                    .collect (Collectors.toMap(Entry::getKey, e->e.getValue().toString()));
             
             PinataPinRequest request = new PinataPinRequest(cid, addresses, 
                     new PinataMetadata(name, keyvalues));
