@@ -46,8 +46,15 @@ See how to run those two components first [run IPFS and ElasticSearch](https://g
 
 1. Import the Maven dependencies (core module + indexer)
 
+```xml
+<repository>
+    <id>consensys-kauri</id>
+    <name>consensys-kauri</name>
+    <url>https://consensys.bintray.com/kauri/</url>
+</repository>
+```    
 
-````
+````xml
 <dependency>
     <groupId>net.consensys.mahuta</groupId>
     <artifactId>mahuta-core</artifactId>

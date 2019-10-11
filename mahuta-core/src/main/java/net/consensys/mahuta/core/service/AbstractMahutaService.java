@@ -131,7 +131,9 @@ public abstract class AbstractMahutaService implements MahutaService {
         if(!noPin) {
             Content contentToPin = Content.of(contentId);
             storageService.getReplicaSet().forEach(pinningService ->
-                CompletableFuture.runAsync(() -> pinningService.pin(contentToPin.getContentId()))
+                CompletableFuture.runAsync(() -> pinningService.pin(contentToPin.getContentId(), 
+                        request.getIndexName() + "-" + indexDocId, 
+                        request.getIndexFields()))
             );
         }
 

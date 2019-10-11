@@ -101,8 +101,8 @@ public class IPFSService implements StorageService, PinningService {
             return new IPFSService(settings, ipfs);
 
         } catch (Exception ex) {
-            String msg = String.format("Error whilst connecting to IPFS [host: %s, port: %s, multiaddress: %s]", host,
-                    port, multiaddress);
+            String msg = String.format("Error whilst connecting to IPFS [protocol: {}, host: %s, port: %s, multiaddress: %s]", 
+                    protocol, host, port, multiaddress);
 
             log.error(msg, ex);
             throw new ConnectionException(msg, ex);
@@ -205,10 +205,9 @@ public class IPFSService implements StorageService, PinningService {
         try {
             Multihash hash = Multihash.fromBase58(cid);
             this.ipfs.pin.add(hash);
-        	
+            
         } catch (Exception ex) {
-        	log.error("Exception pinning cid {} on IPFS", cid, ex);
-        	throw new TechnicalException("Exception pinning cid " +cid+ " on IPFS", ex);
+            throw new TechnicalException("Exception pinning cid " +cid+ " on IPFS", ex);
         }
     } 
 
@@ -221,10 +220,9 @@ public class IPFSService implements StorageService, PinningService {
         try {
             Multihash hash = Multihash.fromBase58(cid);
             this.ipfs.pin.rm(hash);
-        	
+            
         } catch (Exception ex) {
-        	log.error("Exception unpinning cid {} on IPFS", cid, ex);
-        	throw new TechnicalException("Exception unpinning cid " +cid+ " on IPFS", ex);
+            throw new TechnicalException("Exception unpinning cid " +cid+ " on IPFS", ex);
         }  
     }
     
@@ -239,10 +237,9 @@ public class IPFSService implements StorageService, PinningService {
             return cids.entrySet().stream()
                     .map(e-> e.getKey().toBase58())
                     .collect(Collectors.toList());
-        	
+            
         } catch (Exception ex) {
-        	log.error("Exception getting pinned files on IPFS", ex);
-        	throw new TechnicalException("Exception getting pinned files on IPFS", ex);
+            throw new TechnicalException("Exception getting pinned files on IPFS", ex);
         } 
         
 
@@ -293,6 +290,26 @@ public class IPFSService implements StorageService, PinningService {
                     }
                 });
         
+    }
+
+    @Override
+    public String getName() {
+        return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
+    }
+
+    /**
+     * Get IPFS Config
+     * @param key
+     * @return Config associated to the key
+     */
+    public Object getPeerConfig(String key) {
+        
+        try {
+            return ipfs.id().get(key);
+        } catch (IOException ex) {
+            log.error("Exception while fetching config from IPFS [key: {}]", key, ex);
+            throw new TechnicalException("Exception while fetching config from IPFS. key:" + key, ex);
+        }
     }
 
     private class IPFSContentFetcher implements Callable<byte[]> {
@@ -351,10 +368,5 @@ public class IPFSService implements StorageService, PinningService {
                     .collect(Collectors.toList());
         }
     }
-
-	@Override
-	public String getName() {
-		return "ipfs node [" + settings.getHost() + ":" + settings.getPort() + "]";
-	}
 
 }
