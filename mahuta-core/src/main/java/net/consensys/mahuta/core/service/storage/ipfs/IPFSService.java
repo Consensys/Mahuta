@@ -10,12 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -23,8 +17,8 @@ import org.apache.commons.io.IOUtils;
 import com.google.common.collect.Sets;
 
 import io.ipfs.api.IPFS;
-import io.ipfs.api.JSONParser;
 import io.ipfs.api.IPFS.PinType;
+import io.ipfs.api.JSONParser;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.Multipart;
 import io.ipfs.api.NamedStreamable;
@@ -34,19 +28,18 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.mahuta.core.exception.ConnectionException;
 import net.consensys.mahuta.core.exception.TechnicalException;
-import net.consensys.mahuta.core.exception.TimeoutException;
 import net.consensys.mahuta.core.service.pinning.PinningService;
 import net.consensys.mahuta.core.service.storage.StorageService;
 import net.consensys.mahuta.core.utils.ValidatorUtils;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
+import net.jodah.failsafe.Timeout;
 
 @Slf4j
 public class IPFSService implements StorageService, PinningService {
 
     private final IPFSSettings settings;
     private final IPFS ipfs;
-    private ExecutorService pool;
     private RetryPolicy<Object> retryPolicy;
     private @Getter Set<PinningService> replicaSet;
 
@@ -57,8 +50,7 @@ public class IPFSService implements StorageService, PinningService {
         this.settings = settings;
         this.ipfs = ipfs;
         this.replicaSet = Sets.newHashSet(this); // IPFSService is a PinningService
-        this.configureThreadPool(10);
-        this.configureRetry(3);
+        this.configureRetry(2);
     }
 
     public static IPFSService connect() {
@@ -121,9 +113,8 @@ public class IPFSService implements StorageService, PinningService {
         return this;
     }
 
+    @Deprecated
     public IPFSService configureThreadPool(Integer poolSize) {
-        ValidatorUtils.rejectIfNegative("poolSize", poolSize);
-        this.pool = Executors.newFixedThreadPool(poolSize);
         return this;
     }
 
@@ -136,9 +127,6 @@ public class IPFSService implements StorageService, PinningService {
         ValidatorUtils.rejectIfNull("delay", delay);
 
         this.retryPolicy = new RetryPolicy<>()
-                .handle(IOException.class)
-                .handle(ExecutionException.class)
-                .handle(TimeoutException.class)
                 .withDelay(delay)
                 .withMaxRetries(maxRetry);
         
@@ -170,28 +158,17 @@ public class IPFSService implements StorageService, PinningService {
 
         ValidatorUtils.rejectIfNull("content", content);
 
-        return Failsafe.with(retryPolicy)
-                .onFailure(event -> log.error("Exception writing file on IPFS after {} attemps. {}", event.getAttemptCount(), event.getResult()))
+        return Failsafe.with(retryPolicy, Timeout.of(Duration.ofMillis(settings.getWriteTimeout())))
+                .onFailure(event -> log.error("Exception writing file on IPFS after {} attemps.", event.getAttemptCount()))
                 .onSuccess(event -> log.debug("File written on IPFS: [id: {}, noPin: {}] ", event.getResult(), noPin))
                 .get(() -> {
                     try {
-                        Future<String> ipfsContentResult = pool.submit(new IPFSContentWritter(ipfs, content, noPin));
-
-                        return ipfsContentResult.get(settings.getWriteTimeout(), TimeUnit.MILLISECONDS);
-
-                    } catch (java.util.concurrent.TimeoutException ex) {
-                        log.error("Timeout Exception while writing file on IPFS [timeout: {} ms]", settings.getWriteTimeout());
-                        throw new TimeoutException("Timeout Exception while while writing file on IPFS");
-
-                    } catch (InterruptedException ex) {
-                        log.error("Interrupted Exception while writing file on IPFS");
-                        Thread.currentThread().interrupt();
-                        throw new TechnicalException("Interrupted Exception while writing file on IPFS", ex);
-
-                    } catch (ExecutionException ex) {
-                        log.error("Execution Exception while writing file on IPFS", ex);
-                        throw new TechnicalException("Execution Exception while writing file on IPFS", ex);
-
+                        NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
+                        MerkleNode response = add(file, noPin).get(0);
+                        return response.hash.toString();
+                    } catch (IOException ex) {
+                        log.error("Exception while writing file on IPFS", ex);
+                        throw new TechnicalException("Exception while writing file on IPFS", ex);
                     }
                 });
     }
@@ -241,8 +218,6 @@ public class IPFSService implements StorageService, PinningService {
         } catch (Exception ex) {
             throw new TechnicalException("Exception getting pinned files on IPFS", ex);
         } 
-        
-
     }
 
     @Override
@@ -256,40 +231,21 @@ public class IPFSService implements StorageService, PinningService {
 
         ValidatorUtils.rejectIfEmpty("id", id);
 
-        return Failsafe.with(retryPolicy)
-                .onFailure(event -> log.error("Exception reading file [id: {}] on IPFS after {} attemps. {}", id, event.getAttemptCount(), event.getResult()))
+        return Failsafe.with(retryPolicy, Timeout.of(Duration.ofMillis(settings.getReadTimeout())))
+                .onFailure(event -> log.error("Exception reading file [id: {}] on IPFS after {} attemps.", id, event.getAttemptCount()))
                 .onSuccess(event -> log.debug("File read on IPFS: [id: {}] ", id))
                 .get(() -> {
                     try {
-                        Multihash filePointer = Multihash.fromBase58(id);
-
-                        Future<byte[]> ipfsFetcherResult = pool.submit(new IPFSContentFetcher(ipfs, filePointer));
-
-                        byte[] content = ipfsFetcherResult.get(settings.getReadTimeout(), TimeUnit.MILLISECONDS);
+                        Multihash multihash = Multihash.fromBase58(id);
+                        byte[] content =  this.ipfs.cat(multihash);
                         IOUtils.write(content, output);
 
                         return output;
-
-                    } catch (java.util.concurrent.TimeoutException ex) {
-                        log.error("Timeout Exception while fetching file from IPFS [id: {}, timeout: {} ms]", id,
-                                settings.getReadTimeout());
-                        throw new TimeoutException("Timeout Exception while fetching file from IPFS [id: " + id + "]");
-
-                    } catch (InterruptedException ex) {
-                        log.error("Interrupted Exception while fetching file from IPFS [id: {}]", id);
-                        Thread.currentThread().interrupt();
-                        throw new TechnicalException("Interrupted Exception while fetching file from IPFS [id: " + id + "]", ex);
-
-                    } catch (ExecutionException ex) {
-                        log.error("Execution Exception while fetching file from IPFS [id: {}]", id, ex);
-                        throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
-
                     } catch (IOException ex) {
-                        log.error("IOException while fetching file from IPFS [id: {}]", id, ex);
-                        throw new TechnicalException("Execution Exception while fetching file from IPFS [id: " + id + "]", ex);
+                        log.error("Exception while fetching file from IPFS [id: {}]", id, ex);
+                        throw new TechnicalException("Exception while fetching file from IPFS " + id, ex);
                     }
                 });
-        
     }
 
     @Override
@@ -311,62 +267,22 @@ public class IPFSService implements StorageService, PinningService {
             throw new TechnicalException("Exception while fetching config from IPFS. key:" + key, ex);
         }
     }
-
-    private class IPFSContentFetcher implements Callable<byte[]> {
-
-        private final IPFS ipfs;
-        private final Multihash multihash;
-
-        public IPFSContentFetcher(IPFS ipfs, Multihash multihash) {
-            this.ipfs = ipfs;
-            this.multihash = multihash;
-        }
-
-        @Override
-        public byte[] call() {
-            try {
-                return this.ipfs.cat(multihash);
-            } catch (IOException ex) {
-                log.error("Exception while fetching file from IPFS [hash: {}]", multihash, ex);
-                throw new TechnicalException("Exception while fetching file from IPFS " + multihash, ex);
-            }
-        }
+    
+    /**
+     * Special method to add content with extra flag not implemented in java-ipfs
+     * @param file Content to add
+     * @param noPin Add flag pin=!noPin to the request
+     * @return List<MerkleNode>
+     * @throws IOException
+     */
+    private List<MerkleNode> add(NamedStreamable.ByteArrayWrapper file, boolean noPin) throws IOException {
+        String url = settings.getProtocol() + "://" + settings.getHost() + ":" + settings.getPort() + "/api/v0/" + "add?stream-channels=true&pin="+!noPin;
+        log.trace("url: {}", url);
+        Multipart m = new Multipart(url, "UTF-8");
+        m.addFilePart("file", Paths.get(""), file);
+        String res = m.finish();
+        return JSONParser.parseStream(res).stream()
+                .map(x -> MerkleNode.fromJSON((Map<String, Object>) x))
+                .collect(Collectors.toList());
     }
-
-    private class IPFSContentWritter implements Callable<String> {
-
-        private final IPFS ipfs;
-        private final byte[] content;
-        private final boolean noPin;
-
-        public IPFSContentWritter(IPFS ipfs, byte[] content, boolean noPin) {
-            this.ipfs = ipfs;
-            this.content = content;
-            this.noPin = noPin;
-        }
-
-        @Override
-        public String call() {
-            try {
-                NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(content);
-                MerkleNode response = add(file).get(0);
-                return response.hash.toString();
-            } catch (IOException ex) {
-                log.error("Exception while writing file on IPFS", ex);
-                throw new TechnicalException("Exception while writing file on IPFS", ex);
-            }
-        }
-        
-        private List<MerkleNode> add(NamedStreamable.ByteArrayWrapper file) throws IOException {
-            String url = settings.getProtocol() + "://" + settings.getHost() + ":" + settings.getPort() + "/api/v0/" + "add?stream-channels=true&pin="+!noPin;
-            log.trace("url: {}", url);
-            Multipart m = new Multipart(url, "UTF-8");
-            m.addFilePart("file", Paths.get(""), file);
-            String res = m.finish();
-            return JSONParser.parseStream(res).stream()
-                    .map(x -> MerkleNode.fromJSON((Map<String, Object>) x))
-                    .collect(Collectors.toList());
-        }
-    }
-
 }
