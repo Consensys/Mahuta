@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +43,8 @@ public class IPFSService implements StorageService, PinningService {
     private final IPFS ipfs;
     private RetryPolicy<Object> retryPolicy;
     private @Getter Set<PinningService> replicaSet;
+    private Timeout<Object> readTimeout;
+    private Timeout<Object> writeTimeout;
 
     private IPFSService(IPFSSettings settings, IPFS ipfs) {
         ValidatorUtils.rejectIfNull("settings", settings);
@@ -51,6 +54,8 @@ public class IPFSService implements StorageService, PinningService {
         this.ipfs = ipfs;
         this.replicaSet = Sets.newHashSet(this); // IPFSService is a PinningService
         this.configureRetry(2);
+        this.configureReadTimeout(settings.getReadTimeout());
+        this.configureWriteTimeout(settings.getWriteTimeout());
     }
 
     public static IPFSService connect() {
@@ -101,15 +106,17 @@ public class IPFSService implements StorageService, PinningService {
         }
     }
 
-    public IPFSService configureReadTimeout(Integer readTtimeout) {
-        ValidatorUtils.rejectIfNegative("readTtimeout", readTtimeout);
-        this.settings.setReadTimeout(readTtimeout);
+    public IPFSService configureReadTimeout(Integer readTimeout) {
+        ValidatorUtils.rejectIfNegative("readTimeout", readTimeout);
+        this.settings.setReadTimeout(readTimeout);
+        this.readTimeout = Timeout.of(Duration.of(readTimeout, ChronoUnit.MILLIS)).withCancel(true);
         return this;
     }
 
     public IPFSService configureWriteTimeout(Integer writeTimeout) {
         ValidatorUtils.rejectIfNegative("writeTimeout", writeTimeout);
         this.settings.setWriteTimeout(writeTimeout);
+        this.writeTimeout = Timeout.of(Duration.of(writeTimeout, ChronoUnit.MILLIS)).withCancel(true);
         return this;
     }
 
@@ -158,7 +165,7 @@ public class IPFSService implements StorageService, PinningService {
 
         ValidatorUtils.rejectIfNull("content", content);
 
-        return Failsafe.with(retryPolicy, Timeout.of(Duration.ofMillis(settings.getWriteTimeout())))
+        return Failsafe.with(retryPolicy, writeTimeout)
                 .onFailure(event -> log.error("Exception writing file on IPFS after {} attemps.", event.getAttemptCount()))
                 .onSuccess(event -> log.debug("File written on IPFS: [id: {}, noPin: {}] ", event.getResult(), noPin))
                 .get(() -> {
@@ -230,9 +237,15 @@ public class IPFSService implements StorageService, PinningService {
         log.debug("Read file on IPFS [id: {}]", id);
 
         ValidatorUtils.rejectIfEmpty("id", id);
-
-        return Failsafe.with(retryPolicy, Timeout.of(Duration.ofMillis(settings.getReadTimeout())))
-                .onFailure(event -> log.error("Exception reading file [id: {}] on IPFS after {} attemps.", id, event.getAttemptCount()))
+        
+        Timeout<Object> tp = Timeout.of(Duration.ofSeconds(3));
+        
+        RetryPolicy<Object> rp = new RetryPolicy<>()
+            .withDelay(Duration.ofMillis(500))
+            .withMaxRetries(2);
+        
+        return Failsafe.with(tp, rp)
+                .onFailure(event -> log.error("Exception reading file [id: {}] on IPFS after {} attempts.", id, event.getAttemptCount(), event.getFailure()))
                 .onSuccess(event -> log.debug("File read on IPFS: [id: {}] ", id))
                 .get(() -> {
                     try {
