@@ -53,9 +53,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     public void connection() throws Exception {
         //////////////////////////////
         IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"))
-                .configureThreadPool(20)
-                .configureReadTimeout(5000)
-                .configureWriteTimeout(2000);
+                .configureTimeout(5000);
         //////////////////////////////
     }
 
@@ -198,7 +196,7 @@ public class IPFSStorageServiceTest extends TestUtils {
     public void readTimeoutException() throws Exception {
         FileInfo file = mockNeat.fromValues(FileTestUtils.files).get();
         IPFSService service = IPFSService.connect(ContainerUtils.getHost("ipfs1"), ContainerUtils.getPort("ipfs1"))
-                .configureReadTimeout(1);
+                .configureTimeout(1);
         service.write(file.getIs(), true);
 
         //////////////////////////////
