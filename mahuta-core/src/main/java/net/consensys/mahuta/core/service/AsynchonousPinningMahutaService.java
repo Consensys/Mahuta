@@ -64,8 +64,9 @@ public class AsynchonousPinningMahutaService extends AbstractMahutaService {
                             // Pin each replica node
                             storageService.getReplicaSet().forEach(pinningService -> {
                                 current[0] = pinningService.getName();
-                                pinningService.pin(m.getContentId(), 
-                                        m.getIndexName() + "-" + m.getIndexDocId(), 
+                                pinningService.pin(
+                                        m.getContentId(), 
+                                        m.getIndexName() + "_" + m.getIndexDocId(), 
                                         m.getIndexFields());
                             });
                             
