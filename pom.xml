@@ -178,6 +178,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>bintray-consensys-kauri</id>
+            <url>https://consensys.bintray.com/kauri</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
