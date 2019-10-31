@@ -163,14 +163,12 @@ public class IPFSService implements StorageService, PinningService {
                         MerkleNode response = add(file, noPin).get(0);
                         return response.hash.toString();
                     } catch (RuntimeException ex) {
-                        log.error("Exception while writing file on IPFS", ex);
                         if(ex.getMessage().contains("timeout")) { //TODO find something more elegant
                             throw new TimeoutException("Exception while writing file on IPFS", ex);
                         } else {
                             throw ex;
                         }
                     } catch (IOException ex) {
-                        log.error("Exception while writing file on IPFS", ex);
                         throw new TechnicalException("Exception while writing file on IPFS", ex);
                     }
                 });
@@ -243,14 +241,12 @@ public class IPFSService implements StorageService, PinningService {
 
                         return output;
                     } catch (RuntimeException ex) {
-                        log.error("Exception while fetching file from IPFS [id: {}]", id, ex);
                         if(ex.getMessage().contains("timeout")) { //TODO find something more elegant
                             throw new TimeoutException("Exception while fetching file from IPFS [id: {}]", ex);
                         } else {
                             throw ex;
                         }
                     } catch (IOException ex) {
-                        log.error("Exception while fetching file from IPFS [id: {}]", id, ex);
                         throw new TechnicalException("Exception while fetching file from IPFS " + id, ex);
                     }
                 });
