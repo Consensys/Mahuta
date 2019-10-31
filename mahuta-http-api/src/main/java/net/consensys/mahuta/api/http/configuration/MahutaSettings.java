@@ -18,24 +18,17 @@ public class MahutaSettings {
     private static final int IPFS_PORT = 5001;
     private static final int IPFSCLUSTER_PORT = 8084;
     private static final String IPFSCLUSTER_PROTOCOL = "http";
-    private static final int IPFS_TIMEOUT_READ_MS = 5000;
-    private static final int IPFS_TIMEOUT_WRITE_MS = 5000;
+    private static final int IPFS_TIMEOUT_MS = 5000;
     private static final int IPFS_THREAD_POOL = 10;
     private static final int ELATIC_PORT = 9200;
     
     private @Setter @Getter IPFS ipfs;
     private @Setter @Getter ElasticSearch elasticSearch;
-
-    public static class Timeout {
-        private @Getter @Setter int write = IPFS_TIMEOUT_WRITE_MS;
-        private @Getter @Setter int read = IPFS_TIMEOUT_READ_MS;
-    }
-    
     public static class IPFS {
         private @Getter @Setter String host;
         private @Getter @Setter Integer port = IPFS_PORT;
         private @Getter @Setter String multiaddress;
-        private @Getter @Setter Timeout timeout = new Timeout();
+        private @Getter @Setter Integer timeout = IPFS_TIMEOUT_MS;
         private @Getter @Setter int threadPool = IPFS_THREAD_POOL;
         private @Getter @Setter List<IPFS> replicaIPFS = new ArrayList<>();
         private @Getter @Setter List<IPFSCluster> replicaIPFSCluster = new ArrayList<>();

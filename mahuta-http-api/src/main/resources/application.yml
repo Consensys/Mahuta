@@ -13,10 +13,7 @@ mahuta:
     host: localhost
     port: 5001
 #    multiaddress: 
-    timeout:
-       read: 5000
-       write: 2000
-    threadPool: 10
+    timeout: 5000
     replicaIPFS:
     - host: 
       port: 
