@@ -19,9 +19,7 @@ Storage represents the storage layer (aka IPFS)
 
 ```
 StorageService storage = IPFSService.connect(host, port) or .connect(multiaddress)
-    .configureReadTimeout(readTtimeout)
-    .configureWriteTimeout(writeTimeout) 
-    .configureThreadPool(poolSize)
+    .configureTimeout(timeout) 
     .configureRetry(maxRetry, delay) 
     .addReplica(pinningService)
 ```
@@ -30,9 +28,7 @@ StorageService storage = IPFSService.connect(host, port) or .connect(multiaddres
 | -------- | -------- | -------- | -------- |  -------- |
 | connect(host, port) | String, Integer | false | localhost, 5001 | connect to the IPFS node via it HTTP address `host:port`|
 | connect(multiaddress) | String | false |  | connect to the IPFS node via its multiaddress |
-| configureReadTimeout(readTtimeout) | Integer | true | 5000 | Configure timeout to read (in milliseconds) |
-| configureWriteTimeout(writeTimeout) | Integer | true | 5000 | Configure timeout to write (in milliseconds) |
-| configureThreadPool(poolSize) | Integer | true | 10 | Configure thread pool size |
+| configureTimeout(timeout) | Integer | true | 5000 | Configure timeout (in milliseconds) |
 | configureRetry(maxRetry, delay) | Integer, Duration | true | 3, 0 (sec) | Configure retry on error with delay between each retry attempt|
 | addReplica(pinningService) | PinningService | true |  | Add Replica service. files are pinned on the connection node (`connect`)and on each replica service (can be another IPFS node or a IPFS-cluster node |
 

@@ -70,9 +70,7 @@ public class MahutaConfiguration {
         return Optional.ofNullable(ipfs.getMultiaddress())
                 .map(IPFSService::connect)
                 .orElseGet(() -> IPFSService.connect(ipfs.getHost(), ipfs.getPort()))
-                .configureThreadPool(ipfs.getThreadPool())
-                .configureReadTimeout(ipfs.getTimeout().getRead())
-                .configureWriteTimeout(ipfs.getTimeout().getWrite());
+                .configureTimeout(ipfs.getTimeout());
     }
     
     private IPFSClusterPinningService readSettings(IPFSCluster ipfsCluster) {

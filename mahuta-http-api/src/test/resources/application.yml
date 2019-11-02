@@ -12,10 +12,7 @@ mahuta:
     host: ${MAHUTA_IPFS_HOST:localhost}
     port: ${MAHUTA_IPFS_PORT:5001}
 #    multiaddress: 
-    timeout:
-       read: 5000
-       write: 2000
-    threadPool: 10
+    timeout: 5000
     replicaIPFS:
     - host: ${MAHUTA_IPFS_REPLICAIPFS_0_HOST:}
       port: ${MAHUTA_IPFS_REPLICAIPFS_0_PORT:5001}

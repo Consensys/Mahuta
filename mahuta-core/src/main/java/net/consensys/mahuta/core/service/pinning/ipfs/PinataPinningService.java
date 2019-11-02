@@ -29,6 +29,7 @@ public class PinataPinningService implements PinningService {
     private static final String HEADER_CONTENT_TYPE_VAL = "application/json";
     private static final String HEADER_API_KEY = "pinata_api_key";
     private static final String HEADER_SECRET_API_KEY = "pinata_secret_api_key";
+    private static final int MAX_METADATA = 10;
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private final String endpoint;
@@ -96,7 +97,8 @@ public class PinataPinningService implements PinningService {
             Map<String, String> keyvalues = Optional.ofNullable(metadata).orElseGet(() -> new HashMap<String, Object>())
                     .entrySet()
                     .stream()
-                    .collect (Collectors.toMap(Entry::getKey, Object::toString));
+                    .limit(MAX_METADATA)
+                    .collect (Collectors.toMap(Entry::getKey, e->e.getValue().toString()));
             
             PinataPinRequest request = new PinataPinRequest(cid, addresses, 
                     new PinataMetadata(name, keyvalues));
