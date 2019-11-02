@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.mahuta</groupId>
         <artifactId>mahuta-parent</artifactId>
-        <version>0.3.12-SNAPSHOT</version>
+        <version>0.3.13-SNAPSHOT</version>
     </parent>
     <artifactId>mahuta-http-api</artifactId>
 
