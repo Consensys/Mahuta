@@ -10,7 +10,7 @@ Mahuta
 | CI Status | ![](https://img.shields.io/circleci/project/github/ConsenSys/Mahuta/master.svg) | ![](https://img.shields.io/circleci/project/github/ConsenSys/Mahuta/development.svg) |
 | Test Coverage | [![Coverage](https://coveralls.io/repos/github/ConsenSys/Mahuta/badge.svg?branch=master)](https://coveralls.io/github/ConsenSys/Mahuta?branch=master) | [![Coverage](https://coveralls.io/repos/github/ConsenSys/Mahuta/badge.svg?branch=development)](https://coveralls.io/github/ConsenSys/Mahuta?branch=development) |
 | Bintray | [ ![Bintray](https://api.bintray.com/packages/consensys/kauri/mahuta/images/download.svg) ](https://bintray.com/consensys/kauri/mahuta/_latestVersion) |
-| Docker | [![](https://img.shields.io/docker/pulls/gjeanmart/mahuta.svg?style=flat)](https://cloud.docker.com/repository/docker/gjeanmart/mahuta)|
+| Docker | [![](https://img.shields.io/docker/pulls/gjeanmart/mahuta.svg?style=flat)](https://hub.docker.com/r/gjeanmart/mahuta)|
 | Sonar | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gjeanmart_IPFS-Store&metric=alert_status)](https://sonarcloud.io/dashboard?id=gjeanmart_IPFS-Store) |
 
 
