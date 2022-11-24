@@ -11,8 +11,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
-        <java-ipfs.version>v1.2.4</java-ipfs.version>
-        <lombok.version>1.18.4</lombok.version>
+        <java-ipfs.version>v1.3.3</java-ipfs.version>
+        <lombok.version>1.18.24</lombok.version>
         <guava.version>27.0.1-jre</guava.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -20,7 +20,7 @@
         <testcontainers.version>1.10.4</testcontainers.version>
         <jackson.version>2.9.10</jackson.version>
         <powermock.version>2.0.0</powermock.version>
-        <mockneat.version>0.3.0</mockneat.version>
+        <mockneat.version>0.4.8</mockneat.version>
         <failsafe.version>2.3.1</failsafe.version>
         <unirest-java.version>3.1.00</unirest-java.version>
         <wiremock.version>2.18.0</wiremock.version>
@@ -28,7 +28,7 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.3.0.603</sonar-maven-plugin.version>
         <jacoco.reportPath>${basedir}/mahuta-report/target/site/jacoco-aggregate/jacoco.xml</jacoco.reportPath>
         <repoToken />
@@ -129,7 +129,7 @@
 
         <!-- mockneat -->
         <dependency>
-            <groupId>net.andreinc.mockneat</groupId>
+            <groupId>net.andreinc</groupId>
             <artifactId>mockneat</artifactId>
             <version>${mockneat.version}</version>
             <scope>test</scope>
@@ -168,7 +168,7 @@
     <repositories>
         <repository>
             <id>central_repository</id>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
         </repository>
         <repository>
             <id>spring-releases</id>
