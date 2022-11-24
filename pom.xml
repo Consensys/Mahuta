@@ -20,7 +20,7 @@
         <testcontainers.version>1.10.4</testcontainers.version>
         <jackson.version>2.9.10</jackson.version>
         <powermock.version>2.0.0</powermock.version>
-        <mockneat.version>0.3.0</mockneat.version>
+        <mockneat.version>0.4.8</mockneat.version>
         <failsafe.version>2.3.1</failsafe.version>
         <unirest-java.version>3.1.00</unirest-java.version>
         <wiremock.version>2.18.0</wiremock.version>
@@ -129,7 +129,7 @@
 
         <!-- mockneat -->
         <dependency>
-            <groupId>net.andreinc.mockneat</groupId>
+            <groupId>net.andreinc</groupId>
             <artifactId>mockneat</artifactId>
             <version>${mockneat.version}</version>
             <scope>test</scope>
