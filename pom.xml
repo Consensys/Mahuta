@@ -13,7 +13,7 @@
 
         <java-ipfs.version>v1.2.4</java-ipfs.version>
         <lombok.version>1.18.4</lombok.version>
-        <guava.version>27.0.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <common-io.version>2.6</common-io.version>
